@@ -10,9 +10,8 @@ Jenkins.instance.getAllItems(ConnectedMaster.class).each {
 }
 
 def getHost(channel, type, name){
-  if(channel == null){
-    return """{"offline":true, "type":"$type", "name":"$name"}"""
-  } else {
+  def host
+  if(channel){
     def stream = new ByteArrayOutputStream();
     def listener = new StreamBuildListener(stream);
     channel.call(new MasterGroovyClusterOpStep.Script("""
@@ -37,12 +36,15 @@ def getHost(channel, type, name){
         clouds.add([type:it.descriptor.displayName, name:it.displayName, executorsCap:executorsCap])
       }
 
-      def host = [type:'$type', name:'$name', url:Jenkins.instance.rootUrl, cores:Runtime.runtime.availableProcessors(), nodes:nodes, clouds:clouds]
+      def host = [type:'$type', name:'$name', url:Jenkins.instance.rootUrl, cores:Runtime.runtime.availableProcessors(), nodes:nodes, clouds:clouds, offline:false]
 
       return new groovy.json.JsonBuilder(host).toString()
     """, listener, "host-script.groovy"));
-    return new groovy.json.JsonSlurper().parseText(stream.toString().minus("Result: "));
+    host = new groovy.json.JsonSlurper().parseText(stream.toString().minus("Result: "));
+  } else {
+    host = [type:type, name:name, offline:true]
   }
+  return host;
 }
 
 return new groovy.json.JsonBuilder(cjoc).toPrettyString()
