@@ -12,62 +12,37 @@ Jenkins.instance.getAllItems(ConnectedMaster.class).each {
 
 def getHost(channel, type, name){
   if(channel == null){
-    return "{offline:true}"
+    return """{"offline":true, "type":"$type", "name":"$name"}"""
   } else {
-    return "{offline:true}"
-    def baos = new ByteArrayOutputStream();
-    def s = new StreamBuildListener(baos);
+    def stream = new ByteArrayOutputStream();
+    def listener = new StreamBuildListener(stream);
     channel.call(new MasterGroovyClusterOpStep.Script("""
-      import groovy.json.*
-      class Host {
-        String name
-        String type
-        String url
-        Integer cores
-        List<Node> nodes
-      }
-      class Node {
-        String name
-        String type
-        String meta
-        Integer executors
-        Integer instanceCaps
-      }
-      
+      //master, regular slaves, and shared slaves
       def nodes = []
-
-      //regular slaves and master
-      Jenkins.instance.computers.grep{ 
-        it.class.superclass?.simpleName != 'AbstractCloudComputer' &&
-        it.class.superclass?.simpleName != 'AbstractCloudSlave' &&
-        it.class.simpleName != 'EC2AbstractSlave'
-      }.each{
-        nodes.add(new Node(name: it.displayName, type: it.class.simpleName, executors: it.numExecutors, meta: "Computer"))
-      }
-
-      //shared slaves
-      Jenkins.instance.allItems.grep{
-        it.class.name == 'com.cloudbees.opscenter.server.model.SharedSlave'
-      }.each{
-        nodes.add(new Node(name: it.displayName, type: it.class.simpleName, executors: it.numExecutors, meta: "SharedSlave"))
+      (Jenkins.instance.computers.grep { 
+          it.class.superclass?.simpleName != 'AbstractCloudComputer' &&
+          it.class.superclass?.simpleName != 'AbstractCloudSlave' &&
+          it.class.simpleName != 'EC2AbstractSlave'
+        } + Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.SharedSlave.class)
+      ).each {
+        nodes.add([type:it.class.simpleName, name:it.displayName, executors:it.numExecutors])
       }
 
       //clouds
+      def clouds = []
       Jenkins.instance.clouds.each {
-        Integer instanceCaps
+        Integer executorsCap
         try{
-          instanceCaps = it.templates?.inject(0, {a, c -> a + (c.numExecutors * c.instanceCap)})
+          executorsCap = it.templates?.inject(0, {a, c -> a + (c.numExecutors * c.instanceCap)})
         }catch(e){}
-        nodes.add(new Node(name: it.displayName, type: it.descriptor.displayName, instanceCaps: instanceCaps, meta: "Cloud"))
+        clouds.add([type:it.descriptor.displayName, name:it.displayName, executorsCap:executorsCap])
       }
 
-      def host = new Host(name: '$name', type: '$type', url: Jenkins.instance.rootUrl, cores:Runtime.runtime.availableProcessors(), nodes:nodes)
+      def host = [type:'$type', name:'$name', url:Jenkins.instance.rootUrl, cores:Runtime.runtime.availableProcessors(), nodes:nodes, clouds:clouds]
 
-      return new JsonBuilder(host).toPrettyString()
-      
-    """, s, "host-script.groovy"));
-    def o = baos.toString().minus("Result: ");
-    return o
+      return new groovy.json.JsonBuilder(host).toPrettyString()
+    """, listener, "host-script.groovy"));
+    return stream.toString().minus("Result: ");
   }
 }
 
