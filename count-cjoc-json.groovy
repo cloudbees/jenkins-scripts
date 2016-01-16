@@ -2,12 +2,11 @@ import com.cloudbees.opscenter.server.model.*;
 import com.cloudbees.opscenter.server.clusterops.steps.*;
 import hudson.remoting.*;
 
-def hosts = []
+def cjoc = getHost(new LocalChannel(), OperationsCenter.class.simpleName, OperationsCenter.class.simpleName)
 
-hosts.add(getHost(new LocalChannel(), OperationsCenter.class.simpleName, OperationsCenter.class.simpleName)) // for CJOC
-
+cjoc.masters = []
 Jenkins.instance.getAllItems(ConnectedMaster.class).each {
-  hosts.add(getHost(it.channel, it.class.simpleName, it.encodedName)) //for Client Masters
+  cjoc.masters.add(getHost(it.channel, it.class.simpleName, it.encodedName))
 }
 
 def getHost(channel, type, name){
@@ -28,7 +27,7 @@ def getHost(channel, type, name){
         nodes.add([type:it.class.simpleName, name:it.displayName, executors:it.numExecutors])
       }
 
-      //clouds
+      //clouds - TODO this should get shared cloud configs but not shared clouds
       def clouds = []
       Jenkins.instance.clouds.each {
         Integer executorsCap
@@ -40,10 +39,10 @@ def getHost(channel, type, name){
 
       def host = [type:'$type', name:'$name', url:Jenkins.instance.rootUrl, cores:Runtime.runtime.availableProcessors(), nodes:nodes, clouds:clouds]
 
-      return new groovy.json.JsonBuilder(host).toPrettyString()
+      return new groovy.json.JsonBuilder(host).toString()
     """, listener, "host-script.groovy"));
-    return stream.toString().minus("Result: ");
+    return new groovy.json.JsonSlurper().parseText(stream.toString().minus("Result: "));
   }
 }
 
-return hosts
+return new groovy.json.JsonBuilder(cjoc).toPrettyString()
