@@ -26,7 +26,12 @@ def getHost(channel, type, name){
         nodes.add([type:it.class.simpleName, name:it.displayName, executors:it.numExecutors])
       }
 
-      //clouds - TODO this should get shared cloud configs but not shared clouds
+      //shared clouds
+      Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.SharedCloud.class).each {
+        nodes.add([type:it.class.simpleName, name:it.displayName, executors:it.cloud.numExecutors])
+      }
+
+      //clouds
       def clouds = []
       Jenkins.instance.clouds.each {
         Integer executorsCap
