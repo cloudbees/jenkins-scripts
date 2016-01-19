@@ -9,6 +9,13 @@ Jenkins.instance.getAllItems(ConnectedMaster.class).each {
   cjoc.masters.add(getHost(it.channel, it.class.simpleName, it.encodedName))
 }
 
+cjoc.summary = [
+  masters:cjoc.masters.size() + 1, //masters + cjoc
+  masterCores:cjoc.masters*.cores.sum() + cjoc.cores,
+  executors:cjoc.nodes*.executors.sum() + cjoc.masters*.nodes*.sum().executors.sum(),
+  knownCloudExecutors:cjoc.masters*.clouds*.executorsCap.sum().findAll{it}.sum(0) + cjoc.clouds*.executorsCap.findAll{it}.sum(0)
+]
+
 def getHost(channel, type, name){
   def host
   if(channel){
@@ -26,19 +33,23 @@ def getHost(channel, type, name){
         nodes.add([type:it.class.simpleName, name:it.displayName, executors:it.numExecutors])
       }
 
-      //shared clouds
-      Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.SharedCloud.class).each {
-        nodes.add([type:it.class.simpleName, name:it.displayName, executors:it.cloud.numExecutors])
-      }
-
       //clouds
       def clouds = []
       Jenkins.instance.clouds.each {
-        Integer executorsCap
+        def cloud = [type:it.descriptor.displayName, name:it.displayName]
         try{
-          executorsCap = it.templates?.inject(0, {a, c -> a + (c.numExecutors * c.instanceCap)})
+          cloud.executorsCap = it.templates?.inject(0, {a, c -> a + (c.numExecutors * c.instanceCap)})
         }catch(e){}
-        clouds.add([type:it.descriptor.displayName, name:it.displayName, executorsCap:executorsCap])
+        try{
+          cloud.executorsPerNode = it.numExecutors
+        }catch(e){}
+        clouds.add(cloud)
+      }
+
+      //shared clouds
+      Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.SharedCloud.class).each {
+        //TODO may need to check either numExectors or numExecutors * instance caps
+        clouds.add([type:it.class.simpleName, name:it.displayName, executorsPerNode:it.cloud.numExecutors])
       }
 
       def host = [type:'$type', name:'$name', url:Jenkins.instance.rootUrl, cores:Runtime.runtime.availableProcessors(), nodes:nodes, clouds:clouds, offline:false]
