@@ -10,7 +10,7 @@ The Count CJOC JSON script runs on CJOC's script console. The script captures th
 
 1. Log into CloudBees Jenkins Operations Center (CJOC)
 
-<img src="images/1-login.png" title="Login into CJOC" style="width:500px;" />
+<img src="images/1-login.png" title="Login into CJOC" width="500" />
 
 2. Click 'Manage Jenkins' on the left-hand panel, followed by the 'Script Console' link
 ![Manage Jenkins](images/2-manage-jenkins.png | width=500)
