@@ -6,6 +6,8 @@ The scripts in this repository can be run in Jenkins script console: Manage Jenk
 
 The Count CJOC JSON script runs on CJOC's script console. The script captures the executor, cloud, and CPU core count attached to the platform. The script script dynamically creates a Cluster Operation and executes the operation across all Client Masters connected to CJOC.
 
+NOTE: You must have the 1.7.1 (or newer) version of the Operations Center Cluster Operations Plugin installed to use this script.
+
 **Running the script**
 
 1.    Log into CloudBees Jenkins Operations Center (CJOC)
