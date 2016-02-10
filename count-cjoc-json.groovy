@@ -12,7 +12,7 @@ Jenkins.instance.getAllItems(ConnectedMaster.class).each {
 cjoc.summary = [
   masters:cjoc.masters.size() + 1, //masters + cjoc
   masterCores:cjoc.masters*.cores.sum() + cjoc.cores,
-  executors:cjoc.nodes*.executors.sum() + cjoc.masters*.nodes*.sum().executors.sum(),
+  executors:cjoc.nodes*.executors.sum() + cjoc.masters*.nodes*.executors.sum().sum​()​,
   knownCloudExecutors:cjoc.masters*.clouds*.executorsCap.sum().findAll{it}.sum(0) + cjoc.clouds*.executorsCap.findAll{it}.sum(0)
 ]
 
