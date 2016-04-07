@@ -1,3 +1,11 @@
+/*
+Author: Kurt Madel
+This script allows pulling an external Git repo into a Jenkins instance to be used as 
+the Jenkins Pipeline Global lib repository. 
+It may be run as a cluster operation from CloudBees Jenkins Operations Center to keep 
+the Pipeline Global Libs in sync across multiple connected masters. 
+*/
+
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.api.*;
