@@ -6,6 +6,7 @@ folders.each{ folder ->
     if (!(metric instanceof com.cloudbees.hudson.plugins.folder.health.ProjectEnabledHealthMetric)) {
       println "Removing ${metric.class.simpleName} from ${folder.name}"
       folder.healthMetrics.remove(metric)
+      folder.save()
     }
   }
 }
