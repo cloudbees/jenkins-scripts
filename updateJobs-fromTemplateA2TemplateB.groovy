@@ -2,6 +2,7 @@
 Author: Carlos Rodriguez Lopez
 Since: July 2017
 Description: It updates all the jobs in CJE instance from "Template_A" to  "Template_B"
+Scope: Cloudbees Jenkins Enterprise
 */
 
 import com.cloudbees.hudson.plugins.modeling.ModelList
