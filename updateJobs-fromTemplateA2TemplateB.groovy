@@ -1,7 +1,7 @@
 /*
 Author: Carlos Rodriguez Lopez
 Since: July 2017
-Description: It updates all the jobs in CJE instance from "Template_A" to  "Template_B"
+Description: It finds all the jobs in CJE instance with  "Template_A"  and then update them to "Template_B"
 Scope: Cloudbees Jenkins Enterprise
 */
 
