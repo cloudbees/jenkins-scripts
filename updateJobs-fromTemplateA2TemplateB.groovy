@@ -18,6 +18,7 @@ Jenkins.instance.items.findAll { job ->
     itemIntFJTempl = InstanceFromJobTemplate.from(job)
     //Filtering Jobs based on templates and from those, the ones with the model name OLD_JOB_TEMPLATE
     if (itemIntFJTempl != null && itemIntFJTempl.model.name == OLD_JOB_TEMPLATE) {
+        //Checking NEW_JOB_TEMPLATE is currently included in the instance's Model List
         if (ModelList.get().getItem(NEW_JOB_TEMPLATE) != null) {
             //Create a a Instance from the Job Template $NEW_JOB_TEMPLATE
             newIntFJTempl = new InstanceFromJobTemplate(ModelList.get().getItem(NEW_JOB_TEMPLATE))
