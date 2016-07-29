@@ -1,7 +1,7 @@
 /*
-Author: Carlos Rodriguez Lopez
+Author: Dario Villadiego, Carlos Rodriguez Lopez
 Since: July 2017
-Description: It finds all the jobs in CJE instance with  "Template_A"  and then update them to "Template_B"
+Description: It finds all the jobs in CJE instance based on  "Template_A"  and update those to "Template_B"
 Scope: Cloudbees Jenkins Enterprise
 */
 
@@ -9,25 +9,28 @@ import com.cloudbees.hudson.plugins.modeling.ModelList
 import com.cloudbees.hudson.plugins.modeling.impl.jobTemplate.InstanceFromJobTemplate
 import com.cloudbees.hudson.plugins.modeling.impl.jobTemplate.JobPropertyImpl
 
-def newJobTemplateName = 'Template_B'
-def oldJobTemplateName = 'Template_A'
-def numberOfJobUpdated = 0
+def String NEW_JOB_TEMPLATE = 'Template_A'
+def String OLD_JOB_TEMPLATE = 'ZD38132-JobTemplate1'
+def InstanceFromJobTemplate itemIntFJTempl, newIntFJTempl  = null
+def int numberOfJobUpdated = 0
 
 Jenkins.instance.items.findAll { job ->
-    def action = job.getAction(com.cloudbees.hudson.plugins.modeling.impl.entity.LinkToTemplateAction.class)
-    if (action != null) {
-        if (action.instance.model.name == oldJobTemplateName) {
-            //Create a a Instance from the Job Template "newJobTemplateName"
-            def inst = new InstanceFromJobTemplate(ModelList.get().getItem(newJobTemplateName))
-            println "Job `${job.name}` currently using the `${action.instance.model.name}` template"
-            //Assigning new template and saving it
-            job.addProperty(new JobPropertyImpl(inst))
-            inst.save()
-            action = job.getAction(com.cloudbees.hudson.plugins.modeling.impl.entity.LinkToTemplateAction.class)
-            println "Job `${job.name}` change template to `${action.instance.model.name}` template\n\n"
+    itemIntFJTempl = InstanceFromJobTemplate.from(job)
+    //Filtering Jobs based on templates and from those, the ones with the model name OLD_JOB_TEMPLATE
+    if (itemIntFJTempl != null && itemIntFJTempl.model.name == OLD_JOB_TEMPLATE) {
+        if (ModelList.get().getItem(NEW_JOB_TEMPLATE) != null) {
+            //Create a a Instance from the Job Template $NEW_JOB_TEMPLATE
+            newIntFJTempl = new InstanceFromJobTemplate(ModelList.get().getItem(NEW_JOB_TEMPLATE))
+            //Assigning new template to the job and saving it
+            job.addProperty(new JobPropertyImpl(newIntFJTempl))
+            newIntFJTempl.save()
+            //Checking final value
+            itemIntFJTempl = InstanceFromJobTemplate.from(job)
+            println "Job '${job.name}' change template to '${itemIntFJTempl.model.name}' template\n\n"
             numberOfJobUpdated ++
+        } else {
+            println "The template model '${NEW_JOB_TEMPLATE}' is not included in the Template List of this instance. Please assign another value for $NEW_JOB_TEMPLATE"
         }
     }
 }
-
-println 'Total number of updated jobs : ' + numberOfJobUpdated
+println "Total number of updated jobs : ${numberOfJobUpdated}"
