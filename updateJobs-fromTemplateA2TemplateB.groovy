@@ -9,8 +9,8 @@ import com.cloudbees.hudson.plugins.modeling.ModelList
 import com.cloudbees.hudson.plugins.modeling.impl.jobTemplate.InstanceFromJobTemplate
 import com.cloudbees.hudson.plugins.modeling.impl.jobTemplate.JobPropertyImpl
 
-def String NEW_JOB_TEMPLATE = 'Template_A'
-def String OLD_JOB_TEMPLATE = 'ZD38132-JobTemplate1'
+def String NEW_JOB_TEMPLATE = 'Template_B'
+def String OLD_JOB_TEMPLATE = 'Template_A'
 def InstanceFromJobTemplate itemIntFJTempl, newIntFJTempl  = null
 def int numberOfJobUpdated = 0
 
