@@ -10,6 +10,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.jenkinsci.plugins.workflow.cps.global.UserDefinedGlobalVariableList;
 
 def upstreamRepoUrl = "https://github.com/beedemo-sa/workflowLibs"
 Jenkins j = Jenkins.getInstance();
@@ -30,3 +31,7 @@ config.save();
 println "git remote -v".execute(null, workflowLibDir).text
 println "git pull upstream master".execute(null, workflowLibDir).text
 println "ls -la".execute(null, workflowLibDir).text
+
+//Get Pipeline Global Library Jenkins Extension that rebuilds global library on Git Push
+List extensions = ExtensionList.lookup(UserDefinedGlobalVariableList.class);
+extensions.get(0).rebuild() //may want to add a check here to make sure extensions isn't null
