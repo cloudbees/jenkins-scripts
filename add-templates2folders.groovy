@@ -9,12 +9,14 @@ import com.cloudbees.hudson.plugins.modeling.Model
 import com.cloudbees.hudson.plugins.folder.Folder
 import com.cloudbees.hudson.plugins.folder.properties.SubItemFilterProperty
 
+// PARAMETER
+// Note the structure of the Folder item in terms of file system
+def pFolders = "job/TestFolder/job/testAssigment/"
+
 def jenkins = Jenkins.instance
 def jenkinsTemplates = jenkins.getAllItems(Model.class)
 def jenkinsFolders = jenkins.getAllItems(Folder.class)
-// Note the structure of the Folder item in terms of file system
-def pFolders = "job/TestFolder/job/testAssigment/"
-def Set<String> allowedTypes = new TreeSet <String>()
+Set<String> allowedTypes = new TreeSet <String>()
 
 jenkinsTemplates.each{ template ->
     allowedTypes.add(template.id)
