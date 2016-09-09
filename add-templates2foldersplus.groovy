@@ -6,22 +6,29 @@ Scope: Cloudbees Jenkins Enterprise
 */
 
 import com.cloudbees.hudson.plugins.modeling.Model
-import com.cloudbees.hudson.plugins.folder.properties
+import com.cloudbees.hudson.plugins.folder.Folder
+import com.cloudbees.hudson.plugins.folder.properties.SubItemFilterProperty
 
-def jenkinsTemplates = Jenkins.instance.getAllItems(com.cloudbees.hudson.plugins.modeling.Model.class)
-def jenkinsFolders = Jenkins.instance.getAllItems(com.cloudbees.hudson.plugins.folder.Folder.class)
-def pFolders2exclude = []
+def jenkins = Jenkins.instance
+def jenkinsTemplates = jenkins.getAllItems(Model.class)
+def jenkinsFolders = jenkins.getAllItems(Folder.class)
+// Note the structure
+def pFolders = "job/TestFolder/job/testAssigment/"
 def Set<String> allowedTypes = new TreeSet <String>()
 
 jenkinsTemplates.each{ template ->
     allowedTypes.add(template.id)
 }
 
-jenkinsFolders.each{ folder ->
-    folder.properties.each{ prop ->
-        if (prop instanceof com.cloudbees.hudson.plugins.properties.SubItemFilterProperty) {
-            prop.allowedTypes = allowedTypes
-            folder.save()
+jenkinsFolders.each{ folder->
+    //inclusion or exclusion
+    if ((folder.url).equals(pFolders)){
+        println "[DEBUG]: "+folder.url
+        folder.properties.each{ prop ->
+            if ((prop instanceof SubItemFilterProperty)==true){
+                prop = new SubItemFilterProperty (allowedTypes)
+                jenkins.save()
+            }
         }
     }
 }

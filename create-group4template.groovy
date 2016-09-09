@@ -9,8 +9,6 @@ Scope: Cloudbees Jenkins Enterprise
 import nectar.plugins.rbac.groups.*
 import nectar.plugins.rbac.roles.*
 import nectar.plugins.rbac.groups.Group.RoleAssignment
-import java.util.*
-import java.io.*
 import com.cloudbees.hudson.plugins.modeling.Model
 
 // PARAMETERS (To be checked on B - Checking Requisites)
