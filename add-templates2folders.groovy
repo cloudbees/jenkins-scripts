@@ -12,7 +12,7 @@ import com.cloudbees.hudson.plugins.folder.properties.SubItemFilterProperty
 def jenkins = Jenkins.instance
 def jenkinsTemplates = jenkins.getAllItems(Model.class)
 def jenkinsFolders = jenkins.getAllItems(Folder.class)
-// Note the structure
+// Note the structure of the Folder item in terms of file system
 def pFolders = "job/TestFolder/job/testAssigment/"
 def Set<String> allowedTypes = new TreeSet <String>()
 
@@ -21,7 +21,7 @@ jenkinsTemplates.each{ template ->
 }
 
 jenkinsFolders.each{ folder->
-    //inclusion or exclusion
+    //filter example
     if ((folder.url).equals(pFolders)){
         println "[DEBUG]: "+folder.url
         folder.properties.each{ prop ->
