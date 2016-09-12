@@ -62,10 +62,10 @@ pTemplateNodeArray.each { node ->
 }
 //println "[DEBUG]: Template Location Node String: " + nodeString
 
-
 //-------------------------------------------
 // B - Checking Requisites
 //-------------------------------------------
+
 
 // B.1- Job Template (pTemplate) should be existing
 
