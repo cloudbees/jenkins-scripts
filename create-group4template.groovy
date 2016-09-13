@@ -12,12 +12,11 @@ import nectar.plugins.rbac.groups.Group.RoleAssignment
 import com.cloudbees.hudson.plugins.modeling.Model
 
 // PARAMETERS (To be checked on B - Checking Requisites)
-def pGroup = "group1"
-List<String> pUsers = Arrays.asList("developer1", "developer2", "developer3") // users' id (from the Jenkins's own database)  as
+def pGroup = "groupX"
+List<String> pUsers = Arrays.asList("developer1", "developer2", "developer3") // users' id (from the Jenkins's own database)
 def pTemplate = "TemplateFolder/testTemplate" // If the template is in the root just add template name. If it is located under a folder structure specify this by "/"
-//def pTemplate = "testTemplate_2"
-def pRol = "job-read"
-def pPermission = "hudson.model.Item.Read"
+def pRol = "job-read" // Rol to associated to pGroup
+def pPermission = "hudson.model.Item.Read" // Permission included into pRol
 
 // VARIABLES
 Map groupsContainers = new LinkedHashMap()
@@ -32,7 +31,6 @@ def rolFoundFlag = false
 def permissionFoundFlag = false
 def jenkins = Jenkins.instance
 def roles = new Roles(jenkins)
-//def rolObj2assign
 
 //-------------------------------------------
 // A - Getting definition of your instance
@@ -87,7 +85,6 @@ for (rol in roles.getRoles()){
     //println "[DEBUG]: rol.id:" + rol.id
     if((rol.id).equals(pRol)==true){
         rolFoundFlag=true
-        //rolObj2assign = rol
         for (permis in rol.getPermissionProxyIds()){
             if(permis.equals(pPermission)==true){
                 permissionFoundFlag = true
@@ -126,7 +123,7 @@ for (gc2 in groupIterator) {
 // 6.- All users in pUsers should be existing in Jenkins
 
 for (u in pUsers) {
-    println "[DEBUG]:" + hudson.model.User.get(u)
+    //println "[DEBUG]: user -" + u
     //Checking if the user exist on Jenkins own's database
     if(hudson.model.User.get(u,false,null)==null){
         println "[ERROR]: User '" + u + "' is not included into Jenkins Own's database of this instance"
@@ -150,6 +147,7 @@ if (processingFlag) {
     //Adding roles Group#setRoleAssignments(List<RoleAssignment> roleAssignments)
     g2create.setRoleAssignments(assignments)
     g2create.save()
+    gc2update.addGroup(g2create)
     jenkins.save()
     println "[INFO]: '$pGroup' has been created succesfully for '$pTemplate'"
 } else {
