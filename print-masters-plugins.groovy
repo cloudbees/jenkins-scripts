@@ -8,7 +8,7 @@ import com.cloudbees.opscenter.server.model.*
 import com.cloudbees.opscenter.server.clusterops.steps.*
 
 // CSV parameter defines whether the output should be a CSV or formatted
-def csv=1
+def csv=0
 
 def retour = '\n'
 def matrix = [:]
