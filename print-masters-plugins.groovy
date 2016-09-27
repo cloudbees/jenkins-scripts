@@ -17,7 +17,7 @@ def headers = ['Plugins']
 // Loop over all online Client Masters
 Jenkins.instance.getAllItems(ConnectedMaster.class).eachWithIndex{ it, index ->
   headers.add(it.name)
-  if(it.channel) {
+  if (it.channel) {
     def stream = new ByteArrayOutputStream();
     def listener = new StreamBuildListener(stream);
     // Execute remote Groovy script in the Client Master
@@ -32,94 +32,75 @@ Jenkins.instance.getAllItems(ConnectedMaster.class).eachWithIndex{ it, index ->
     retour = retour << "Master ${it.name}:\n${stream.toString().minus('Result: ')}"
 
     stream.toString().eachLine { line, count ->
-      //print "line:" + line + "\n"
-
       if (line?.trim()) {
-
         matcher = ( line =~ /"(.*)"*","(.*)"/ )
-        //print matcher[0].size()
-        if(matcher[0] && matcher[0].size() == 3) {
-            if (!matrix[matcher[0][1]]) {matrix[matcher[0][1]] = [] }
-          	matrix[matcher[0][1]][index] = matcher[0][2]
 
+        if (matcher[0] && matcher[0].size() == 3) {
+            if (!matrix[matcher[0][1]]) {
+              matrix[matcher[0][1]] = []
+            }
+          	matrix[matcher[0][1]][index] = matcher[0][2]
         }
       }
-	  }
+    }
   }
 }
 
-if(csv==0)
-{
+if (csv==0) {
   printFormatted(headers, matrix)
-}
-else
-{
+} else {
   printCSV(headers, matrix)
 }
 
 
+def printCSV(headers, matrix) {
 
-def printCSV(headers, matrix)
-{
-
-// Print the headers
-headers.eachWithIndex{ it, index ->
-  print "\"${it}\""
-  def delimiter =  (index+1 == headers.size()) ? "\n" : ","
-  print delimiter
-}
-
-//Print the plugin versions
- matrix.each{ k, v ->
-   print "\"${k}\","
-   v.eachWithIndex{ it, index ->
-	 def value = (it) ? it : ""
-     print "\"${value}\""
-     def delimiter =  (index+1 == v.size()) ? "\n" : ","
-     print delimiter
-   }
- }
-}
-
-
-
-def printFormatted(headers, matrix)
-{
-
-// Determine sizes to add padding
-int keylength = 0
-def valuelength = []
-
-//Start with header sizes
-headers.eachWithIndex{ it, index ->
-  if(index == 0)
-  {
-    keylength = headers[0].size()
+  // Print the headers
+  headers.eachWithIndex{ it, index ->
+    print "\"${it}\""
+    def delimiter =  (index+1 == headers.size()) ? "\n" : ","
+    print delimiter
   }
-  else
-  {
-    valuelength[index-1] = headers[index-1].size()
-  }
-}
 
-//Determine the size of the Key + values
- matrix.each{ k, v ->
-   //println "${k}:${v}"
-   keylength = (k.size() > keylength) ? k.size() : keylength
+  //Print the plugin versions
+  matrix.each{ k, v ->
+    print "\"${k}\","
     v.eachWithIndex{ it, index ->
-     (!valuelength[index]) ? 0 : valuelength[index]
-      if(it){
-        //print "\n${k}*" + it + "*"
-      	valuelength[index] = (it.size() > valuelength[index]) ? it.size() : valuelength[index]
-      }
-      else
-      {
+      def value = (it) ? it : ""
+      print "\"${value}\""
+      def delimiter =  (index+1 == v.size()) ? "\n" : ","
+      print delimiter
+    }
+  }
+}
+
+def printFormatted(headers, matrix) {
+  // Determine sizes to add padding
+  int keylength = 0
+  def valuelength = []
+
+  // Start with header sizes
+  headers.eachWithIndex { it, index ->
+    if (index == 0) {
+      keylength = headers[0].size()
+    } else {
+      valuelength[index-1] = headers[index-1].size()
+    }
+  }
+
+  // Determine the size of the Key + values
+  matrix.each{ k, v ->
+    keylength = (k.size() > keylength) ? k.size() : keylength
+    v.eachWithIndex{ it, index ->
+      (!valuelength[index]) ? 0 : valuelength[index]
+      if (it) {
+        valuelength[index] = (it.size() > valuelength[index]) ? it.size() : valuelength[index]
+      } else {
         //any null values should be set
         v[index] = ""
       }
-   }
-
- }
+  }
+}
 
 // Print the headers
 headers.eachWithIndex{ it, index ->
@@ -131,17 +112,14 @@ print "\n"
 
 //Print the plugin versions
  matrix.each{ k, v ->
-  def key = k.padRight(keylength)
    print k.padRight(keylength) + " | "
-   //print v
+
    v.eachWithIndex{ it, index ->
-     //print "\n${k},${v}"
      print it.padRight(valuelength[index])
      print " | "
    }
    print "\n"
  }
-
 }
 
 return 0
