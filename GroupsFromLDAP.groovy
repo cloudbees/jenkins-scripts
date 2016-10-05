@@ -12,7 +12,7 @@ import nectar.plugins.rbac.roles.*;
 
 
 try {
-        String ldapAdServer = "ldap://192.168.1.36:389"
+        String ldapAdServer = "ldap://192.0.2.36:389"
         String ldapSearchBase = "dc=example,dc=com"
 
         String ldapUsername = "CN=tesla,CN=Users,DC=example,DC=com"
