@@ -5,6 +5,7 @@ import com.cloudbees.jce.masterprovisioning.mesos.MesosMasterProvisioning
 import com.cloudbees.opscenter.server.model.ManagedMaster 
 import com.cloudbees.jce.masterprovisioning.mesos.HealthCheckConfiguration
 import com.cloudbees.opscenter.server.properties.ConnectedMasterOwnerProperty
+import com.cloudbees.opscenter.server.properties.ConnectedMasterLicenseServerProperty;
 
 ManagedMaster instance = Jenkins.getInstance().createProject(ManagedMaster.class,'TestFromCode')
 MesosMasterProvisioning mesos = new MesosMasterProvisioning()
@@ -24,5 +25,6 @@ instance.setConfiguration(mesos)
 instance.setDescription('TestFromCode Description')
 instance.setDisplayName('Test From Code Display Name')
 instance.getProperties().add(new ConnectedMasterOwnerProperty('owners', Integer.MAX_VALUE))
+instance.getProperties().replace(new ConnectedMasterLicenseServerProperty(new ConnectedMasterLicenseServerProperty.FloatingExecutorsStrategy()));
 instance.save()
 instance.provisionAndStartAction()
