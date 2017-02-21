@@ -48,39 +48,23 @@ try {
         Method method;
 
         try {
-            method = Transport.class.getDeclaredMethod("getBatchSource", Channel.class);
-            method.setAccessible(true);
-            out.println("     batchSource: " + method.invoke(transport, channel));
+            out.println("     batchSource: " + transport.getBatchSource(channel));
         } catch (Exception e) {
             out.println("        Error batchSource: " + e.toString());
-            if (!(e instanceof NoSuchMethodException)) {
-                e.printStackTrace(out);
-            }
             out.println("     batchSource: " + Messaging.batchSource());
-
         }
 
         try {
-            method = Transport.class.getDeclaredMethod("getBatchSink", Channel.class);
-            method.setAccessible(true);
-            out.println("     batchSink: " + method.invoke(transport, channel));
+            out.println("     batchSink: " + transport.getBatchSink(channel));
         } catch (Exception e) {
             out.println("        Error batchSink: " + e.toString());
-            if (!(e instanceof NoSuchMethodException)) {
-                e.printStackTrace(out);
-            }
             out.println("     batchSink: " + Messaging.batchSink());
         }
 
         try {
-            method = Transport.class.getDeclaredMethod("getReliableMessageTransport", Channel.class);
-            method.setAccessible(true);
-            out.println("     reliableMessageTransport: " + method.invoke(transport, channel));
+            out.println("     reliableMessageTransport: " + transport.getReliableMessageTransport(channel));
         } catch (Exception e) {
             out.println("        Error reliableMessageTransport: " + e.toString());
-            if (!(e instanceof NoSuchMethodException)) {
-                e.printStackTrace(out);
-            }
             out.println("     reliableMessageTransport: " + Messaging.reliableMessageTransport());
         }
     }
@@ -98,22 +82,10 @@ try {
     ConcurrentMap<String, Long> minPush;
     ConcurrentNavigableMap<String, Messaging.OutboxEntry<?>> outbox;
 
-    Field field;
-    field = Transport.class.getDeclaredField("maxPull");
-    field.setAccessible(true);
-    maxPull = (ConcurrentMap<String, Long>) field.get(transport);
-
-    field = Transport.class.getDeclaredField("minPush");
-    field.setAccessible(true);
-    minPush = (ConcurrentMap<String, Long>) field.get(transport);
-
-    field = Transport.class.getDeclaredField("outbox");
-    field.setAccessible(true);
-    outbox = (ConcurrentNavigableMap<String, Messaging.OutboxEntry<?>>) field.get(transport);
-
-    field = Transport.class.getDeclaredField("offlineBuffer");
-    field.setAccessible(true);
-    offlineBuffer = (Map<ConnectedMaster, Map<Class<?>, Map<String, List<Object>>>>) field.get(transport);
+    maxPull = transport.maxPull;
+    minPush = transport.minPush;
+    outbox = transport.outbox
+    offlineBuffer = transport.offlineBuffer
 
     try {
         out.println("maxPulls:");
