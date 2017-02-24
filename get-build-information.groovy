@@ -12,7 +12,7 @@ Jenkins.instance.getAllItems(Job).each{
 	//for each of such jobs we can get all the builds (or you can limit the number at your convenience)
     jobBuilds.each { build ->
       def runningSince = groovy.time.TimeCategory.minus( new Date(), build.getTime() )
-      def currentStatus = build.buildStatusSummary().message
+      def currentStatus = build.buildStatusSummary.message
       def cause = build.getCauses()[0] //we keep the first cause
       //This is a simple case where we want to get information on the cause if the build was 
       //triggered by an user
