@@ -8,6 +8,11 @@ def jenkinsJobs = Jenkins.instance.getAllItems(Job.class)
 def folderName = 'someFolder' //Folder name
 
 folderItem = Jenkins.instance.getAllItems(Folder.class).find{it.name.equals(folderName)}
+if(folderItem == null){
+  println "Folder " + folderName + " does not exist!"
+  return
+}
+
 findAllTemplates(((com.cloudbees.hudson.plugins.folder.Folder) folderItem).getItems())
 
 def findAllTemplates(items){
