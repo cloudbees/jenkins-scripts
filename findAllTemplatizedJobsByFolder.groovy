@@ -39,7 +39,7 @@ def findTemplatizedJobs(items, templateName, count){
     }
   }
   if (currItem instanceof com.cloudbees.hudson.plugins.folder.Folder){
-    findTemplatizedJobs(((com.cloudbees.hudson.plugins.folder.Folder) folderItem).getItems(), templateName, count)
+    findTemplatizedJobs(((com.cloudbees.hudson.plugins.folder.Folder) currItem).getItems(), templateName, count)
   }
   return count
 }
