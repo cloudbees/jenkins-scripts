@@ -1,4 +1,4 @@
-//This script will find all templates in a Jenkins intance, then find all jobs using that template in the specified folder
+//This script will find all templates in a Jenkins instance, then find all jobs using that template in the specified folder
 
 import com.cloudbees.hudson.plugins.modeling.impl.jobTemplate.JobTemplate
 import com.cloudbees.hudson.plugins.modeling.impl.jobTemplate.JobPropertyImpl
