@@ -2,6 +2,7 @@
 Author: kuisathaverat
 Description: list pending approvals, approve scripts/signatures pending on "In-process Script Approval" using the parameters method and signature, and add a signature tho the list.
 Parameters: method and signature that you want to approve
+NOTE: this is only for advanced users and for weird behaviours that does not have other workaround
 **/
 
 import org.jenkinsci.plugins.scriptsecurity.scripts.*
@@ -41,3 +42,18 @@ signature = "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getTe
 
 ScriptApproval.PendingSignature s = new ScriptApproval.PendingSignature(signature, false, ApprovalContext.create())
 sa.getPendingSignatures().add(s)
+
+//approbe a full script
+import org.jenkinsci.plugins.scriptsecurity.scripts.*
+import org.jenkinsci.plugins.scriptsecurity.scripts.languages.GroovyLanguage
+
+final ScriptApproval sa = ScriptApproval.get();
+
+String script = '''stage ('test'){
+    java.net.URL url = new java.net.URL('http://site.com')
+    url.getText()
+}'''
+
+ScriptApproval.PendingScript s = new ScriptApproval.PendingScript(script, GroovyLanguage.get(), ApprovalContext.create())
+
+sa.approveScript(s.getHash())
