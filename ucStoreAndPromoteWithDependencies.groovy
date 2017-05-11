@@ -46,7 +46,7 @@ String updateCenterFullName = "${updateCenterFullName}"
  * - 'PROMOTE': Promote the plugin with its Dependencies
  * - 'NOOP' or empty|null: do nothing
  */
-String updateCenterAction = "STORE"
+String updateCenterAction = "NOOP"
 /**
  * Control whether to apply the updateCenterAction of just execute a test run:
  *
@@ -69,8 +69,6 @@ boolean updateCenterActionDryRun = true
  *
  * - 'LATEST': pick the latest version available in store EVEN IF AN EXACT MATCH IS FOUND
  * - 'DEFAULT' or empty|null: if NO EXACT MATCH found for download, pick the latest version found in store (example: checking for 1.2, found 1.3 and 1.5 -> pick 1.5)
- * - 'CLOSEST': pick the closest higher version found (example: checking for 1.2, found 1.3 and 1.5 -> pick 1.3)
- * - 'PARANOID': pick the exact version found but no others
  *
  * Note: With either LATEST / DEFAULT, the output shows all the required dependencies
  */
@@ -80,10 +78,8 @@ String updateCenterStoreStrategy = "LATEST"
  * version if it can find it, otherwise the default behavior is to pick the latest version available. This can be
  * controlled with this variable:
  *
- * - 'LATEST': pick the latest version available in store EVEN IF AN EXACT MATCH IS FOUND
+ * - 'LATEST': pick the latest version available for download EVEN IF AN EXACT MATCH IS FOUND
  * - 'DEFAULT' or empty|null: if NO EXACT MATCH found for download, pick the latest version found for download (example: checking for 1.2, found 1.3 and 1.5 -> pick 1.5)
- * - 'CLOSEST': pick the closest higher version found (example: checking for 1.2, found 1.3 and 1.5 -> pick 1.3)
- * - 'PARANOID': pick the exact version found but no others
  *
  * Note: With either LATEST / DEFAULT, the output shows all the required dependencies
  */
@@ -213,16 +209,11 @@ PluginEntry getSuitableVersionInStore(
     } else {
         toStore = pluginVersionsStored.find { it.versionNumber == pluginVersionNumber}
         println "${indent}Requested version ${pluginVersionNumber} ${toStore != null ? "" : "not "}available in store"
-        if ((toStore == null && storeStrategy != "PARANOID") || storeStrategy == "LATEST") {
+        if (toStore == null || storeStrategy == "LATEST") {
             print "${indent}Found suitable versions in store:"
-            if (storeStrategy == "CLOSEST") {
-                println " using the closest version ${pluginVersionsStored.get(pluginVersionsStored.size() - 1).version}"
-                toStore = pluginVersionsStored.get(pluginVersionsStored.size() - 1)
-            } else {
-                //Take the latest by default
-                println " using the latest version ${pluginVersionsStored.get(0).version}"
-                toStore = pluginVersionsStored.get(0)
-            }
+            //Take the latest by default
+            println " using the latest version ${pluginVersionsStored.get(0).version}"
+            toStore = pluginVersionsStored.get(0)
         }
     }
     return toStore
@@ -255,16 +246,11 @@ PluginEntry getSuitableVersionToDownload(
     } else {
         toDownload = pluginUpdates.find { it.versionNumber == pluginVersionNumber}
         println "${indent}Requested version ${pluginVersionNumber} ${toDownload != null ? "" : "not"} available for download"
-        if ((toDownload == null && downloadStrategy != "PARANOID")|| downloadStrategy == "LATEST") {
+        if (toDownload == null || downloadStrategy == "LATEST") {
             print "${indent}Found suitable versions for download:"
-            if(downloadStrategy == "CLOSEST") {
-                println " Using the closest version ${pluginUpdates.get(pluginUpdates.size()-1).version}"
-                toDownload = pluginUpdates.get(pluginUpdates.size()-1)
-            } else {
-                //Take the latest by default
-                println " Using the latest version ${pluginUpdates.get(0).version}"
-                toDownload = pluginUpdates.get(0)
-            }
+            //Take the latest by default
+            println " Using the latest version ${pluginUpdates.get(0).version}"
+            toDownload = pluginUpdates.get(0)
         }
     }
     return toDownload
