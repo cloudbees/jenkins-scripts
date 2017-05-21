@@ -28,10 +28,10 @@ import com.google.common.collect.Sets
  */
 String pluginName = "${pluginName}"
 /**
- * The plugin version. Note that if the EXACT version cannot be found in store or for download, the latest
+ * The plugin version. Note: if the EXACT version cannot be found in store or for download, the latest
  * available version will be picked by the script.
  * This can be controlled with ${updateCenterStrategy} but ONLY higher versions are considered suitable.
- * Example: '2.5'
+ * Example: '2.5' or leave empty '' to pick up the latest
  */
 String pluginVersion = "${pluginVersion}"
 /**
@@ -126,7 +126,7 @@ boolean fillRequiredDependencies(
         pluginDownloadableEntry = getSuitableVersionToDownload(pluginData, pluginVersionNumber, downloadStrategy,"${indent} ")
     }
 
-    pluginEntry = pluginDownloadableEntry != null ? pluginDownloadableEntry : pluginStoredEntry
+    PluginEntry pluginEntry = pluginDownloadableEntry != null ? pluginDownloadableEntry : pluginStoredEntry
 
     boolean consistent = true
     if(pluginEntry != null) {
