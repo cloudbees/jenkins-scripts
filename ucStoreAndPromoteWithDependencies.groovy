@@ -319,6 +319,7 @@ def promotePlugins(UpdateCenter updateCenter, Collection<PluginEntry> pluginEntr
 UpdateCenter myUC = jenkins.model.Jenkins.instance.getItemByFullName(updateCenterFullName, UpdateCenter.class)
 if(myUC == null) {
     println "Cannot find UC '${updateCenterFullName}'!"
+    return
 }
 
 println "\n----------------------------------\nCalculate required dependencies:\n----------------------------------"
