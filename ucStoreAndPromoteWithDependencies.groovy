@@ -305,7 +305,7 @@ def promotePlugins(UpdateCenter updateCenter, Collection<PluginEntry> pluginEntr
                 println " Is already promoted."
             }
             // Following can be used to promote to the latest
-            // pluginData.setPromotedVersion("PluginData.LATEST_VERSION_STRING")
+            // pluginData.setPromotedVersion(PluginData.LATEST_VERSION_STRING)
         } else {
             println " Is not in store. Run the STORE action first"
         }
