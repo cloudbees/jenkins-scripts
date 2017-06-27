@@ -13,8 +13,6 @@ def config = AnalyticsConfiguration.get()
 def providerES = config.getElasticsearchProvider()
 def provider = config.getElasticsearchLocator().getProvider();
 
-def configXml = new XmlFile(new File(j.getRootDir(), "operations-center-analytics-config.xml"))
-
 println config.backupInterval
 println config.backupsEnabled
 println config.backupNumSnapshots
@@ -38,9 +36,16 @@ providerES.urls = [new URL('http://URL_TO_ES/changed')]
 
 config.elasticsearchProvider.ensureStopped()
 
+/**
+// hard way writing the XML to disk
 try {
+    def configXml = new XmlFile(new File(j.getRootDir(), "operations-center-analytics-config.xml"))
     XStream2 xs = new XStream2()
     configXml.write(config)
 } catch (IOException e) {
     throw new Exception(e, "elasticsearchProvider")
 }
+**/
+
+AnalyticsConfiguration.get().save()
+AnalyticsConfiguration.get().elasticsearchProvider.ensureStarted()
