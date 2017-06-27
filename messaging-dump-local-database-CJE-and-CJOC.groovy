@@ -1,7 +1,6 @@
 /*
- * Does all the checks that the messaging API performs prior to getting and sending any message to/from all the masters
- * Dumps information related to the cluster messaging database.
- * Only to be executer on CJOC.
+ * Dumps information related to the local messaging database.
+ * It can be used on CJE and CJOC.
  */
 
 import java.io.PrintStream;
