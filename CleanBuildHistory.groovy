@@ -1,37 +1,48 @@
-//This script will clean build history and can reset build numbers
-//It can take a job or folder
-//Total builds can also be set
-
 import com.cloudbees.hudson.plugins.folder.AbstractFolder
 import hudson.model.AbstractItem
+import groovy.transform.Field
 
-// jobName can be set to a Job or a Folder.  If a folder, it will clean all jobs in that folder
-def jobName = "LatestJob"
-// If this is true, the build number will be set back to 1, only works if you wipe all builds
-def resetBuildNumber = false
+def jobName = "LatestJob1/AnotherOne/anotherFolder" // jobName can be set to a Job or a Folder. If a folder, it will clean all jobs in that folder
+//jobName should be full job name from root if mutliple levels down(for example "Folder1/Folder2/Job")
+def resetBuildNumber = false // If this is true, the build number will be set back to 1
+@Field def cleanedJobsTotal = 0
+removeBuilds(Jenkins.instance.getItemByFullName(jobName), resetBuildNumber)
 def removeBuilds(job, resetBuildNumber) {
-  def buildTotal = 5 //number of builds to keep
+  def buildTotal = 5
   def count
   if (job instanceof AbstractFolder) {
+    cleanedJobsLimit = 2 //Maximum number of jobs to clean in one run, useful for large systems or slow disks
     for (subJob in job.getItems()) {
-      removeBuilds(subJob, resetBuildNumber)
+      if(cleanedJobsTotal >= cleanedJobsLimit){ 
+         println "The cleaned jobs limit of " + cleanedJobsTotal + " has been reached.  Exiting..."
+         return
+      }
+      else{
+        removeBuilds(subJob, resetBuildNumber)
+      }
     }
-  } else if (job instanceof AbstractItem) {
+  } else if (job instanceof Job) {
     count = 0
+    buildsDeleted = false
     job.getBuilds().each { 
       if(count < buildTotal){
         count++
       }
       else{
         it.delete()
+        buildsDeleted = true
       } 
     }
-    if (resetBuildNumber && buildTotal == 0) {
+    if(buildsDeleted){
+    	println "Job " + job.name + " cleaned successfully.\n"
+      	cleanedJobsTotal++
+    }
+    if (resetBuildNumber) {
       job.nextBuildNumber = 1
       job.save()
     }
   } else {
-    throw new RuntimeException("Unsupported job type ${job.getClass().getName()}!")
+    //Do nothing, next job
+    //throw new RuntimeException("Unsupported job type ${job.getClass().getName()}!")
   }
 }
-removeBuilds(Jenkins.instance.getItem(jobName), resetBuildNumber)
