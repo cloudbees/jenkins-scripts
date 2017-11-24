@@ -45,9 +45,18 @@ for (Permission p: Permission.getAll()) {
 println 'remove permission from role'
 rc.doRevokePermissions("hudson.model.Hudson.Read")
 
-println 'create a new group'
+println 'create a new groups at different container levels'
+
+// Get location for MasterName
+locationCM = Jenkins.instance.getAllItems().find{it.name.equals("MasterName")}
+// Get location for a FolderA/FolderB
+locationFolder = Jenkins.instance.getAllItems().find{it.fullName.equals("FolderA/FolderB")}
+// Get location at Root Level 
+locationRoot = Jenkins.getInstance()
+
+// For the following example the group is created at root container (locationRoot) 
 String groupName = "newGroup"
-GroupContainer container = GroupContainerLocator.locate(Jenkins.getInstance())
+GroupContainer container = GroupContainerLocator.locate(locationRoot)
 Group group = new Group(container, groupName)
 group.doAddMember('tesla')
 group.doAddMember('userToDelete')
