@@ -47,8 +47,8 @@ rc.doRevokePermissions("hudson.model.Hudson.Read")
 
 println 'create a new groups at different container levels'
 
-// Get location for MasterName
-locationCM = Jenkins.instance.getAllItems().find{it.name.equals("MasterName")}
+// Get location for ClientMaster
+locationCM = Jenkins.instance.getAllItems().find{it.name.equals("ClientMaster")}
 // Get location for a FolderA/FolderB
 locationFolder = Jenkins.instance.getAllItems().find{it.fullName.equals("FolderA/FolderB")}
 // Get location at Root Level 
