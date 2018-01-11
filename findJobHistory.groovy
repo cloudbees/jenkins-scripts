@@ -5,7 +5,7 @@ import jenkins.model.*
 import hudson.*
 import hudson.model.*
 
-def folder_name_pattern = /.*prod_deploy*/ //Folder name pattern, determines which folders to scan
+def folder_name_pattern = /.*some_pattern*/ //Folder name pattern, determines which folders to scan
 def jenkinsFolders = Jenkins.instance.getAllItems(com.cloudbees.hudson.plugins.folder.Folder)
 def matchedFolders = jenkinsFolders.findAll { folder ->
     folder.name =~ folder_name_pattern
