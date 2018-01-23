@@ -14,7 +14,7 @@ NOTE: The master branch version of the `count-cjoc-json.groovy` script is for th
     <img src="images/1-login.png" title="Login into CJOC" width="500" />
 
     Note: if you *do not* have CJOC's SSO Feature enabled (configured at: Manage Jenkins > Configure Global Security > Client master security, i.e.: if the setting is "Do not enforce security setting on masters"), you need to ensure the user logging into CJOC also has permissions to execute scripts on the Client Masters. Assuming your CJOC and Client Masters use the same Security Realm and thus a user exists between them with the appropriate permissions, the most straight forward way to do so is to add an Authentication Mapping for the username with those permissions:
-    <img src="images/5-mapping.png" title="Authenticaiton Mapping" width="500" />
+    <img src="images/5-mapping.png" title="Authentication Mapping" width="500" />
 
   * You will need to restart CJOC after making the changes.
 
