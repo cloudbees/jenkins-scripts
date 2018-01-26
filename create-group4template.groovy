@@ -149,7 +149,7 @@ if (processingFlag) {
     g2create.save()
     gc2update.addGroup(g2create)
     jenkins.save()
-    println "[INFO]: '$pGroup' has been created succesfully for '$pTemplate'"
+    println "[INFO]: '$pGroup' has been created successfully for '$pTemplate'"
 } else {
-    println "[ERROR]: Process aborted because parameters and/or requeriments do not meet the desired criteria"
+    println "[ERROR]: Process aborted because parameters and/or requirements do not meet the desired criteria"
 }
