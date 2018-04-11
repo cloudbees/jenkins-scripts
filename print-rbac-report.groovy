@@ -144,7 +144,7 @@ for (cont in containers) {
             }
 
             return result
-        """, listener, "host-script.groovy"))
+        """, listener, "host-script.groovy"), [:])
       retour = retour << stream.toString().minus('Result: ').minus('\n\n')
       println(retour)
     } catch (hudson.remoting.ProxyException exception) {
