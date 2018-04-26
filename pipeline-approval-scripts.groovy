@@ -29,7 +29,7 @@ for (ScriptApproval.PendingScript pending : sa.getPendingScripts()) {
       }
 }
 
-// approbve signatures
+// approve signatures
 for (ScriptApproval.PendingSignature pending : sa.getPendingSignatures()) {
    if (pending.equals(signature)) {
        	sa.approveSignature(pending.signature);
