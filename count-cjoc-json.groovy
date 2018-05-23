@@ -57,7 +57,7 @@ def getHost(channel, type, name){
       def host = [type:'$type', name:'$name', url:Jenkins.instance.rootUrl, cores:Runtime.runtime.availableProcessors(), nodes:nodes, clouds:clouds, offline:false]
 
       return new groovy.json.JsonBuilder(host).toString()
-    """, listener, "host-script.groovy"));
+    """, listener, "host-script.groovy", [:]));
     host = new groovy.json.JsonSlurper().parseText(stream.toString().minus("Result: "));
   } else {
     host = [type:type, name:name, offline:true]

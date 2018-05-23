@@ -1,5 +1,9 @@
 /**
  * Author: Jean-Philippe Briend <jbriend@cloudbees.com>
+ * Requirements
+ * - core: "2.73.2.1"
+ * - operations-center-cluster-ops: "2.73.0.2"
+ *
  * This script outputs the RBAC configuration across all the Folders.
  * It must be executed on an Operations Center server.
  * It reports Folder name, Groups and Roles attached.
@@ -144,7 +148,7 @@ for (cont in containers) {
             }
 
             return result
-        """, listener, "host-script.groovy"), [:])
+        """, listener, "host-script.groovy", [:]))
       retour = retour << stream.toString().minus('Result: ').minus('\n\n')
       println(retour)
     } catch (hudson.remoting.ProxyException exception) {
