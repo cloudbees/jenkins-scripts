@@ -1,9 +1,14 @@
-/*
-Author: Jean-Philippe Briend + Isaac Cohen
-This script prints all the installed plugins and their version for every online Client Master.
-It must be launched as a Groovy script from the CJOC server.
-There is one parameter "csv" that defines whether the output should be in csv or should be formatted
-*/
+/*** BEGIN META {
+ "name" : "Print all installed plugins for every Client Master",
+ "comment" : "This script prints all the installed plugins and their version for every online Client Master. It must be launched as a Groovy script from the CJOC server. There is one parameter "csv" that defines whether the output should be in csv or should be formatted",
+ "parameters" : [],
+ "core": "2.73.2.1",
+ "authors" : [
+ { name : "Jean-Philippe Briend" }
+ { name : "Isaac Cohen" }
+ ]
+ } END META**/
+
 import com.cloudbees.opscenter.server.model.*
 import com.cloudbees.opscenter.server.clusterops.steps.*
 
@@ -28,7 +33,7 @@ Jenkins.instance.getAllItems(ConnectedMaster.class).eachWithIndex{ it, index ->
 			result = result + /"\${plugin.displayName}"/ + ',' + /"\${plugin.version}"\n/
         }
        return result
-    """, listener, "host-script.groovy"))
+    """, listener, "host-script.groovy", [:]))
     retour = retour << "Master ${it.name}:\n${stream.toString().minus('Result: ')}"
 
     stream.toString().eachLine { line, count ->

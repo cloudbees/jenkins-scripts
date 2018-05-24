@@ -2,7 +2,7 @@
  "name" : "Push Config File Provider configuration to Client Masters",
  "comment" : "Run from the Script Console. This script read the global configuration of the Config File Provider in CJOC and push it to all Client Masters. If a config file with identical ID already exists in the Client Master, it will be overridden.",
  "parameters" : [],
- "core": "1.642",
+ "core": "2.73.2.1",
  "authors" : [
  { name : "Allan Burdajewicz" }
  ]
@@ -41,7 +41,7 @@ Jenkins.instance.getAllItems(ConnectedMaster.class).eachWithIndex{ it, index ->
         }
         
         return
-        """, listener, "configFileProviderPush.groovy"))
+        """, listener, "configFileProviderPush.groovy", [:]))
         result = result << "Master ${it.name}:\n${stream.toString()}"
 
         stream.toString().eachLine { line, count ->
