@@ -1,3 +1,7 @@
+//This is for organization folders or multibranch project indexing
+//The script as is just prints out intervals if they exist
+//The function at the bottom can be called to set the interval
+
 import com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger
 import jenkins.model.Jenkins
 import jenkins.branch.OrganizationFolder
@@ -14,7 +18,8 @@ Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.multibranch.Workflow
 }
 return
   
-def changeInterval(interval) {
+//This function is not called above
+def setInterval(interval) {
   println "[INFO] : Updating ${folder.name}... " 
   folder.getTriggers().find {triggerEntry ->
     def key = triggerEntry.key
