@@ -19,6 +19,8 @@ Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.multibranch.Workflow
 return
   
 //This function is not called above
+//Acceptable values for triggers can be found here: 
+//https://github.com/jenkinsci/cloudbees-folder-plugin/blob/master/src/main/java/com/cloudbees/hudson/plugins/folder/computed/PeriodicFolderTrigger.java#L241
 def setInterval(interval) {
   println "[INFO] : Updating ${folder.name}... " 
   folder.getTriggers().find {triggerEntry ->
