@@ -40,4 +40,4 @@ instance.getProperties().add(
     )
 );
 instance.setRetentionStrategy(new SharedNodeRetentionStrategy())
-
+instance.save()
