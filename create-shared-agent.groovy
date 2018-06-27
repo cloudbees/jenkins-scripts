@@ -7,6 +7,7 @@ import com.cloudbees.opscenter.server.properties.EnvironmentVariablesNodePropert
 import com.cloudbees.opscenter.server.properties.NodePropertyCustomizer
 import com.cloudbees.opscenter.server.properties.SharedSlaveNodePropertyCustomizer
 import com.cloudbees.opscenter.server.properties.ToolLocationNodePropertyCustomizer
+import com.cloudbees.opscenter.server.jnlp.slave.JocJnlpSlaveLauncher;
 import hudson.model.Node
 import hudson.slaves.ComputerLauncher
 import hudson.slaves.EnvironmentVariablesNodeProperty
@@ -18,7 +19,8 @@ import hudson.tools.ToolProperty
 import com.cloudbees.opscenter.server.model.*
 
 SharedSlave instance = jenkins.model.Jenkins.getInstance().createProject(SharedSlave.class,"ShareAgentName")
-instance.setLauncher(new JNLPLauncher("tunnel:10000", "-Xmx256m"))
+//Agent startup options, Tunnel connection through, and JVM options respectively
+instance.setLauncher(new JocJnlpSlaveLauncher(null, null, null))
 instance.setNumExecutors(5)
 instance.setLabelString("foo bar manchu")
 instance.setMode(Node.Mode.EXCLUSIVE)
@@ -38,4 +40,4 @@ instance.getProperties().add(
     )
 );
 instance.setRetentionStrategy(new SharedNodeRetentionStrategy())
-instance.save()
+
