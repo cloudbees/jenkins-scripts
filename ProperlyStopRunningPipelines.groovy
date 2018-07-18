@@ -28,10 +28,7 @@ import groovy.time.*;
 ]
 */
 
-def jobMap = [
-    1: [name:'PipelineForCheckpointTest', buildNum: 53],
-    2: [name:'PipelineInterruptTest', buildNum: 64]
-]
+def jobMap = [:]
 
 //Created for if the map is empty to add all the jobs
 if(jobMap.isEmpty()){
