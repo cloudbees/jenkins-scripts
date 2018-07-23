@@ -72,7 +72,7 @@ for(int i=0; i< jobMap.size(); i++)
     }
   }
 }
-//Thread.sleep(30000)
+Thread.sleep(30000)
 //Calling the same as the Terminate running build command in the console log
 for(int i=0; i< jobMap.size(); i++)
 {
@@ -86,7 +86,7 @@ for(int i=0; i< jobMap.size(); i++)
     }
   }
 }
-//Thread.sleep(30000)
+Thread.sleep(30000)
 //Calling the same as the Kill running build command in the console log
 for(int i=0; i< jobMap.size(); i++)
 {
