@@ -1,0 +1,38 @@
+// Script written by Oliver van Porten; this helped me several times so I want to share it here
+// source: https://www.van-porten.de/blog/2017/10/killing-hanging-polling-jenkins/
+// For one reason or another Jenkins sometimes gets stuck when polling SCM (which is, apparently, a known issue, cf [JENKINS-5413] SCM polling getting hung – Jenkins JIRA ).
+
+import hudson.model.Hudson
+import hudson.model.Hudson
+import hudson.triggers.SCMTrigger
+
+now_ms = new Date().getTime()
+hour_ms = 1000 * 60 * 60
+// 6 hours
+threshold = 6 * hour_ms 
+
+SCM_TRIGGER_DESCRIPTOR = Hudson.instance.getDescriptorOrDie(SCMTrigger.class)
+runners =  SCM_TRIGGER_DESCRIPTOR.getRunners()
+runners.each() { it ->
+  def tgt_name = it.target.asItem().getName()
+  def dur = now_ms - it.startTime
+  
+  println tgt_name + ' running for ' + it.duration
+  if(dur > threshold) { 
+    tgt = Thread.getAllStackTraces().keySet().find() { item ->
+      item.getName().contains("SCM polling") && item.getName().contains(tgt_name)
+    }
+    
+    if (tgt) {
+      println '-- stuck in polling, canceling '
+      println '---> ' + tgt
+    
+      tgt.interrupt()
+    } else {
+      println '-- not stuck in polling '
+    }
+  } else {
+    println '-- below threshold '
+  }
+  println '---'
+}
