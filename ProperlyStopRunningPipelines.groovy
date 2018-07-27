@@ -42,6 +42,7 @@ if(jobMap.isEmpty()){
 }
 use(TimeCategory)  {
   def delay = 2.days;//Put in a Custom date here to kill anything older
+  def refDate = (new Date()- delay).time
   // NO MODIFICATION
   Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.job.WorkflowJob).each{
     job -> job.builds.byTimestamp(refDate, new Date().time).each{
