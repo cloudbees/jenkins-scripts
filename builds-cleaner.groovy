@@ -16,7 +16,7 @@ def MAX_BUILDS = 5 // max builds to keep
 Jenkins.instance.allItems.findAll { it instanceof hudson.model.Job }.each { job ->
 
     job.builds.drop(MAX_BUILDS).findAll {
-        
+
         !it.keepLog &&
         !it.building &&
         it != job.lastStableBuild &&
