@@ -3,6 +3,7 @@
 list all real users and shows the lastLogin datetime, those that have LastGrantedAuthoritiesProperty because them logen one time.
 **/
 import org.acegisecurity.*
+import hudson.model.User
 import jenkins.security.*
 import java.util.Date
 
