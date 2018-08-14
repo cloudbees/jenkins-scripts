@@ -1,6 +1,6 @@
 /**
 @Author kuisathaverat
-list and mark all real users, those that have LastGrantedAuthoritiesProperty because them logen one time.
+list and mark all real users: those that have the LastGrantedAuthoritiesProperty because they've logged in at least once.
 **/
 import org.acegisecurity.*
 import jenkins.security.*
