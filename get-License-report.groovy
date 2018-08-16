@@ -3,7 +3,7 @@ Author: carlosrodlop
 Since: August 2018
 Description: Make a report of License Entitlement
 Scope: Cloudbees Jenkins Operations Center
-Test on: CloudBees Jenkins Operations Center 2.121.2.1-rolling
+Test on: CloudBees Jenkins Operations Center 2.121.2.1-rolling, CloudBees License Manager 9.26
 **/
 
 import hudson.license.*
