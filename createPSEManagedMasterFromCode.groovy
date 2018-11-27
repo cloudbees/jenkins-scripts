@@ -1,5 +1,8 @@
 /**
 Create a Managed Master on PSE using code
+Notes:
+ 1./ This script has been tested for CJE1 (Mesosphere) -Legacy
+ 2./ For Managed Team Management see: https://go.cloudbees.com/docs/cloudbees-documentation/admin-cje/cje-ux/#_command_line_interface
 **/
 import com.cloudbees.jce.masterprovisioning.mesos.MesosMasterProvisioning
 import com.cloudbees.opscenter.server.model.ManagedMaster 
