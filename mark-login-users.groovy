@@ -9,26 +9,26 @@ import java.util.Date
 User.getAll().each{ u ->
   def prop = u.getProperty(LastGrantedAuthoritiesProperty)
   def realUser = false
-  def lastLogin = null
+  def creationDate = null
   if (prop) {
     realUser=true
-    lastLogin = new Date(prop.timestamp).toString()
+    creationDate = new Date(prop.timestamp).toString()
   }
 
-  def date = new Date()
-  if(u.getDescription() != null && u.getDescription().startsWith("###") && realUser){
+  def lastLogin = new Date()
+  if(u.getDescription() != null && u.getDescription().startsWith('###') && realUser){
     def timestamp = (u.getDescription() =~ /###(.+)###/)[ 0 ][ 1 ]
     try{
-    date = new Date(java.lang.Long.valueOf(timestamp))
-    println u.getId() + ":" + u.getDisplayName() + ':' + realUser + ':' + u.getDescription() + ':creationDate=' + date + ":lastLogin=" + lastLogin
+        lastLogin = new Date(java.lang.Long.valueOf(timestamp))
+        println u.getId() + ":" + u.getDisplayName() + ':' + realUser + ':' + u.getDescription() + ':creationDate=' + creationDate + ":lastLogin=" + lastLogin
     } catch( Exception e){
- println "ERROR:" + u.getId() + ":" + u.getDisplayName() + ':' + realUser + ':' + u.getDescription() + ':creationDate=' + timestamp + ":lastLogin=" + lastLogin
-}
+        println "ERROR:" + u.getId() + ":" + u.getDisplayName() + ':' + realUser + ':' + u.getDescription() + ':timestamp=' + timestamp + ":lastLogin=" + lastLogin
+    }
   } else if (realUser){
-    u.setDescription('###' + date.getTime() + '###' + (u.getDescription() != null ? u.getDescription() : '' ) )
-    println u.getId() + ':' + u.getDisplayName() + ':' + realUser + ':' + u?.getDescription() + ':creationDate=' + date
+        u.setDescription('###' + lastLogin.getTime() + '###' + (u.getDescription() != null ? u.getDescription() : '' ) )
+        println u.getId() + ':' + u.getDisplayName() + ':' + realUser + ':' + u?.getDescription()
   } else if (realUser==false){
-    u.setDescription('Is not a regular user')
-    println u.getId() + ':' + u.getDisplayName() + ':' + realUser + ':' + u?.getDescription() + ':creationDate=' + date
+        u.setDescription('Is not a regular user')
+        println u.getId() + ':' + u.getDisplayName() + ':' + realUser + ':' + u?.getDescription()
   }
-} 
+}
