@@ -11,7 +11,7 @@ jenkinsFolders.each { folder ->
 }
 
 boolean isStaleFolder(folder){
-	boolean returnValue
+    boolean returnValue
     use(TimeCategory) {
     	for(job in folder.getAllJobs()) {
     		if (job.getLastBuild().getTime() > now - definitionOfStaleInDays.days) {
