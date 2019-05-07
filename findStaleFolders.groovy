@@ -14,7 +14,12 @@ boolean isStaleFolder(folder){
     boolean returnValue
     use(TimeCategory) {
     	for(job in folder.getAllJobs()) {
-    		if (job.getLastBuild().getTime() > now - definitionOfStaleInDays.days) {
+            Run lastBuild = job.getLastBuild();
+            if (lastBuild == null) {
+                //Job has never run
+                continue
+            }
+    		if (lastBuild.getTime() > now - definitionOfStaleInDays.days) {
      			returnValue = false
      			break
      		}else{
