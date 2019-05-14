@@ -58,15 +58,20 @@ for(int i=0; i< jobMap.size(); i++)
   def currentName = jobMap.get(i).name
   def currentItem = Jenkins.instance.getItemByFullName(currentName)
   if (currentItem.isBuilding()){
+    def currentBuild = jobMap.get(i).buildNum
     currentItem.builds.each{
       build ->
       if (build.isInProgress()&& jobMap.get(i).buildNum.equals(0)&& jobMap.get(i).name.equals(currentName)){
         println("Adding: "+ currentName+ " build number " + build.getNumber().toInteger())
-      jobMap.add([ name: currentName, buildNum: build.getNumber().toInteger()])
+        jobMap.add([ name: currentName, buildNum: build.getNumber().toInteger()])
       }
+      //Adding description for reason to abort builds forcefully
+       if (build.isInProgress()&& jobMap.get(i).buildNum.equals(currentBuild)&& jobMap.get(i).name.equals(currentName)){
+          build.setDescription("Build was suspended for taking too much time. Contact to your Jenkins administrators")
+          build.save()
+       }
     }
     //Calling the same as the `X` in the UI
-    def currentBuild = jobMap.get(i).buildNum
     if(currentBuild){
         println("Stopping " + currentName + " Build Number "+ currentBuild);
         Jenkins.instance.getItemByFullName(currentName).getBuildByNumber(currentBuild).doStop();
