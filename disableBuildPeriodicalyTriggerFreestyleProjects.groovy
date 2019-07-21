@@ -6,7 +6,7 @@ This script will iterate over all the projects, and check whether a job has Buil
 If the project type is Freestyle job the Build periodically trigger will be disabled.
 Otherwise, it prints the name of the project without modifying the trigger settings.
 For a pipeline project, i.e. org.jenkinsci.plugins.workflow.job.WorkflowJob, you may want to modify
-the Jenkins file that contains `triggers { cron(H/4 * * * *) }` instructions.
+the Jenkinsfile that contains `triggers { cron(H/4 * * * *) }` instructions.
 */
 
 
