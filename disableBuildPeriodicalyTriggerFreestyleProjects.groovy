@@ -18,7 +18,7 @@ for(item in Jenkins.instance.getAllItems(Job))
 {
   def timertrigger = item.getTriggers().get(TIMER_TRIGGER_DESCRIPTOR)
   if (timertrigger) {
-    if (item.class.canonicalName == "hudson.model.FreeStyleProject") {
+    if (item instanceof FreeStyleProject) {
       item.removeTrigger(TIMER_TRIGGER_DESCRIPTOR)
       println(item.name + " Build periodically trigger disabled successfully");
     }
