@@ -5,6 +5,10 @@ import hudson.FilePath.FileCallable;
 import hudson.slaves.OfflineCause;
 import hudson.node_monitors.*;
 
+/**
+  NOTE: Doesn't support custome workspaces
+**/
+
 
 def performCleanup(def node, def items) {
 
