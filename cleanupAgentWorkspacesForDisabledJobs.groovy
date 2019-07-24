@@ -6,7 +6,7 @@ import hudson.slaves.OfflineCause;
 import hudson.node_monitors.*;
 
 /**
-  NOTE: Doesn't support custome workspaces
+  NOTE: Doesn't support custom workspaces
 **/
 
 
