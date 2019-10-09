@@ -8,7 +8,7 @@ boolean onTemporaryOfflineApplied = true // Send email when temporary off-line m
 boolean onTemporaryOfflineRemoved = true // Send email when temporary off-line mark removed
 boolean onFirstLaunchFailure = true // Send email on first launch failure
 
-jenkins.model.Jenkins.instance.slaves.each { agent ->
+jenkins.model.Jenkins.instance.nodes.each { agent ->
 	agent.getNodeProperties().replace(new OwnerNodeProperty(nodeOwner, onOnline, onOffline,
 			onLaunchFailure, onTemporaryOfflineApplied, onTemporaryOfflineRemoved, onFirstLaunchFailure));
 	agent.save()
