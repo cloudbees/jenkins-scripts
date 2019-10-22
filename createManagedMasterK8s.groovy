@@ -46,7 +46,7 @@ String  k8sClusterEndpointId = "default"
 String  k8sEnvVars = ""
 String  k8sJavaOptions = ""
 String  k8sJenkinsOptions = ""
-String  k8sImage = 'CloudBees Jenkins Enterprise 2.176.3.2'
+String  k8sImage = 'CloudBees Core - Managed Master - 2.176.4.3'
 List<KubernetesImagePullSecret> k8sImagePullSecrets = Collections.emptyList() // Example: Arrays.asList(new KubernetesImagePullSecret("useast-ecr-reg"))
 Integer k8sLivenessInitialDelaySeconds = 300
 Integer k8sLivenessPeriodSeconds = 10
@@ -114,7 +114,7 @@ masterProvisioning.setYaml(k8sYaml)
 if (masterPropertyOwners != null && !masterPropertyOwners.isEmpty()) {
     newInstance.getProperties().replace(new ConnectedMasterOwnerProperty(masterPropertyOwners, masterPropertyOwnersDelay))
 }
-newInstance.getProperties().replace(new ConnectedMasterLicenseServerProperty(new ConnectedMasterLicenseServerProperty.PerUserLicensingStrategy()))
+newInstance.getProperties().replace(new ConnectedMasterLicenseServerProperty(new ConnectedMasterLicenseServerProperty.DescriptorImpl().defaultStrategy()))
 
 /**
  * Save the configuration

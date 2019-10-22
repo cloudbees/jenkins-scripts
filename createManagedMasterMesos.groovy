@@ -1,7 +1,7 @@
 /*** BEGIN META {
- "name" : "Create a Managed Master in CloudBees Core on Modern Cloud Platform",
- "comment" : "This script creates a Kubernetes Managed Master programmatically similarly to what can be done through the UI. 
- It has been tested with version 2.176.3.2 of CloudBees Core",
+ "name" : "Create a Managed Master in CloudBees Jenkins Enterprise",
+ "comment" : "This script creates a Mesos Managed Master programmatically similarly to what can be done through the UI. 
+ It has been tested with version 1.11.22 of CloudBees Jenkins Enterprise",
  "parameters" : [],
  "core": "2.176.3.2",
  "authors" : [
@@ -9,8 +9,8 @@
  ]
  } END META**/
 
-import com.cloudbees.masterprovisioning.kubernetes.KubernetesImagePullSecret
-import com.cloudbees.masterprovisioning.kubernetes.KubernetesMasterProvisioning
+import com.cloudbees.jce.masterprovisioning.mesos.HealthCheckConfiguration
+import com.cloudbees.jce.masterprovisioning.mesos.MesosMasterProvisioning
 import com.cloudbees.opscenter.server.model.ManagedMaster
 import com.cloudbees.opscenter.server.properties.ConnectedMasterLicenseServerProperty
 import com.cloudbees.opscenter.server.properties.ConnectedMasterOwnerProperty
@@ -36,27 +36,19 @@ String  masterPropertyOwners = ""
 Integer masterPropertyOwnersDelay = 5
 
 /* Master Provisioning */
-Integer k8sDisk = 50
-Integer k8sMemory = 3072
-Double  k8sMemoryRatio = 0.7d
-Double  k8sCpus = 1
-String  k8sFsGroup = "1000"
-Boolean k8sAllowExternalAgents = false
-String  k8sClusterEndpointId = "default"
-String  k8sEnvVars = ""
-String  k8sJavaOptions = ""
-String  k8sJenkinsOptions = ""
-String  k8sImage = 'CloudBees Jenkins Enterprise 2.176.3.2'
-List<KubernetesImagePullSecret> k8sImagePullSecrets = Collections.emptyList() // Example: Arrays.asList(new KubernetesImagePullSecret("useast-ecr-reg"))
-Integer k8sLivenessInitialDelaySeconds = 300
-Integer k8sLivenessPeriodSeconds = 10
-Integer k8sLivenessTimeoutSeconds = 10
-String  k8sStorageClassName = ""
-String  k8sSystemProperties = ""
-String  k8sNamespace = ""
-String  k8sNodeSelectors = ""
-Long    k8sTerminationGracePeriodSeconds = 1200L
-String  k8sYaml = ""
+Integer mesosDisk = 50
+Integer mesosMemory = 3072
+Double  mesosMemoryRatio = 0.7d
+Double  mesosCpus = 1
+Boolean mesosAllowExternalAgents = false
+String  mesosClusterEndpointId = "default"
+String  mesosEnvVars = ""
+String  mesosJavaOptions = ""
+String  mesosJenkinsOptions = ""
+String  mesosSystemProperties = ""
+String  mesosImage = 'CloudBees Jenkins Enterprise 2.176.4.3'
+Integer mesosGracePeriodSeconds = 1200
+Integer mesosIntervalSeconds = 60
 
 /*****************
  * CREATE MASTER *
@@ -70,7 +62,6 @@ ManagedMaster newInstance = jenkins.model.Jenkins.instanceOrNull.createProject(M
 newInstance.setDescription(masterDescription)
 newInstance.setDisplayName(masterDisplayName)
 
-
 /********************
  * CONFIGURE MASTER *
  ********************/
@@ -79,34 +70,28 @@ newInstance.setDisplayName(masterDisplayName)
  * Configure the Master provisioning details. Refer to the `config.xml` for more details.
  * Similar to configuring a Managed Master from the UI
  */
-KubernetesMasterProvisioning masterProvisioning = new KubernetesMasterProvisioning()
+MesosMasterProvisioning masterProvisioning = new MesosMasterProvisioning()
 masterProvisioning.setDomain(masterName.toLowerCase())
 
 /**
  * Apply Managed Master provisioning configuration (similar to what is configured through the Managed Master UI)
  * Note: If not setting properties explicitly, the defaults will be used.
  */
-masterProvisioning.setDisk(k8sDisk)
-masterProvisioning.setMemory(k8sMemory)
-masterProvisioning.setRatio(k8sMemoryRatio)
-masterProvisioning.setCpus(k8sCpus)
-masterProvisioning.setFsGroup(k8sFsGroup)
-masterProvisioning.setAllowExternalAgents(k8sAllowExternalAgents)
-masterProvisioning.setClusterEndpointId(k8sClusterEndpointId)
-masterProvisioning.setEnvVars(k8sEnvVars)
-masterProvisioning.setJavaOptions(k8sJavaOptions)
-masterProvisioning.setJenkinsOptions(k8sJenkinsOptions)
-masterProvisioning.setImage(k8sImage)
-masterProvisioning.setImagePullSecrets(k8sImagePullSecrets)
-masterProvisioning.setLivenessInitialDelaySeconds(k8sLivenessInitialDelaySeconds)
-masterProvisioning.setLivenessPeriodSeconds(k8sLivenessPeriodSeconds)
-masterProvisioning.setLivenessTimeoutSeconds(k8sLivenessTimeoutSeconds)
-masterProvisioning.setStorageClassName(k8sStorageClassName)
-masterProvisioning.setSystemProperties(k8sSystemProperties)
-masterProvisioning.setNamespace(k8sNamespace)
-masterProvisioning.setNodeSelectors(k8sNodeSelectors)
-masterProvisioning.setTerminationGracePeriodSeconds(k8sTerminationGracePeriodSeconds)
-masterProvisioning.setYaml(k8sYaml)
+masterProvisioning.setDisk(mesosDisk)
+masterProvisioning.setMemory(mesosMemory)
+masterProvisioning.setRatio(mesosMemoryRatio)
+masterProvisioning.setCpus(mesosCpus)
+masterProvisioning.setAllowExternalAgents(mesosAllowExternalAgents)
+masterProvisioning.setClusterEndpointId(mesosClusterEndpointId)
+masterProvisioning.setEnvVars(mesosEnvVars)
+masterProvisioning.setJavaOptions(mesosJavaOptions)
+masterProvisioning.setJenkinsOptions(mesosJenkinsOptions)
+masterProvisioning.setImage(mesosImage)
+masterProvisioning.setSystemProperties(mesosSystemProperties)
+HealthCheckConfiguration hc = new HealthCheckConfiguration()
+hc.setGracePeriodSeconds(mesosGracePeriodSeconds)
+hc.setIntervalSeconds(mesosIntervalSeconds)
+masterProvisioning.setHealthCheckConfiguration(hc)
 
 /**
  * Provide Master item general configuration (similar to what is configured through the Master UI)
@@ -115,7 +100,7 @@ masterProvisioning.setYaml(k8sYaml)
 if (masterPropertyOwners != null && !masterPropertyOwners.isEmpty()) {
     newInstance.getProperties().replace(new ConnectedMasterOwnerProperty(masterPropertyOwners, masterPropertyOwnersDelay))
 }
-newInstance.getProperties().replace(new ConnectedMasterLicenseServerProperty(new ConnectedMasterLicenseServerProperty.PerUserLicensingStrategy()))
+newInstance.getProperties().replace(new ConnectedMasterLicenseServerProperty(new ConnectedMasterLicenseServerProperty.DescriptorImpl().defaultStrategy()))
 
 /**
  * Save the configuration
