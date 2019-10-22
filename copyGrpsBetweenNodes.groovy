@@ -9,7 +9,7 @@ String name1 = 'Source_Node_name'
 String name2 = 'Destination_Node_name'
 
 
-Node nodeAbs1 = Jenkins.instance.nodes.find{it.name.equals(name1)}
+Node nodeAbs1 = Jenkins.instanceOrNull.getNode(name1)
 Node  nodeAbs2 = Jenkins.instance.nodes.find{it.name.equals(name2)}
 println nodeAbs1
 println nodeAbs2
