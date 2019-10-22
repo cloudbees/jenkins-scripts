@@ -8,7 +8,7 @@
 /*** BEGIN META {
  "name" : "Create a Team Master in CloudBees Jenkins Enterprise",
  "comment" : "This script creates a Mesos Managed Master programmatically similarly to what can be done through the UI. 
- It has been tested with version 2.176.3.2 of CloudBees Core",
+ It has been tested with version 1.11.22 of CloudBees Jenkins Enterprise",
  "parameters" : [],
  "core": "2.176.3.2",
  "authors" : [
