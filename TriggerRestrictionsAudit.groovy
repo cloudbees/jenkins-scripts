@@ -15,12 +15,9 @@ import com.cloudbees.hudson.plugins.folder.AbstractFolder;
 
 import com.cloudbees.hudson.plugins.folder.Folder
 
-for(item in Jenkins.instance.getAllItems())
-{
-  if (item instanceof AbstractFolder) {
-    if (item.getAction(TriggerRestrictionsAction.class).getRestrictionsAsString()!=""){
-      println("The folder is: " + item.name)
-      println("Restrictions: " + item.getAction(TriggerRestrictionsAction.class).getRestrictionsAsString())
-    }
-  }
+Jenkins.instanceOrNull.allItems(AbstractFolder.class)
+        .findAll { folder -> folder.getAction(TriggerRestrictionsAction.class)?.getRestrictionsAsString() != "" }
+        .each { folder ->
+            println("The folder is: " + folder.name)
+            println("Restrictions: " + folder.getAction(TriggerRestrictionsAction.class)?.getRestrictionsAsString())
 }
