@@ -20,6 +20,9 @@ sa = ScriptApproval.get();
 while(sa.getPendingSignatures().size()>0) {
   try{
         item= sa.getPendingSignatures()[0]
+        if (!org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist.isBlacklisted(item. signature)) {
+             println "[WARNING] Not approving " + item. signature + " because it is blacklisted"
+        }
         println item.signature
         sa.approveSignature(item.signature);
         println "Approved : " + item.signature
