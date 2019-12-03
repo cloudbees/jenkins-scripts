@@ -1,10 +1,10 @@
 /**
 Author:  escoem
 Since: November 2018 
-Description: Activate 
+Description: Activate an existing license for a specific instance
 Parameters:  
     key             License Key
-    certificate     License Ceritificate
+    certificate     License Certificate
 Scope: Cloudbees Jenkins Operations Center
 Test on: CloudBees Jenkins Operations Center 2.190.3.2-rolling, CloudBees License Manager 9.35
 **/
