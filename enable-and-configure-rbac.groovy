@@ -1,3 +1,13 @@
+/**
+Author:  philbert
+Since: December 2019
+Description: Enable and configure RBAC roles, permissions and root groups in Cloudbees Core
+Requirements:
+    file    /tmp/rbac_config.yaml (see included example)
+Scope: Cloudbees Jenkins Operations Center
+Tested on: CloudBees Jenkins Operations Center 2.190.2.2-rolling, nectar-rbac 5.25
+**/
+
 import jenkins.model.Jenkins
 import hudson.security.Permission
 import nectar.plugins.rbac.strategy.RoleMatrixAuthorizationStrategyImpl
@@ -11,25 +21,10 @@ import nectar.plugins.rbac.roles.Role
 import nectar.plugins.rbac.roles.Roles
 import java.io.IOException
 import org.yaml.snakeyaml.Yaml
-/*
- * Some important lessons I learned writing this code:
- * 1. This is a cached repository https://repo.cloudbees.com/content/repositories/dev-connect
- *    So if the version of the plugin you are looking for does not appear, you need to try and type it into the URL
- *    directly, and as long as you get it correct, the plugin and it's files should appear as needed.
- * 2. From the Operations Center you need to find out what version of the
- *    Operations Center Server Role Based Access Control plugin is installed.
- *    Here are the releases https://release-notes.cloudbees.com/product/58
- * 3. Then you will need to look up the pom.xml for that version of the plugin here
- *    https://repo.cloudbees.com/content/repositories/dev-connect/com/cloudbees/operations-center/server/operations-center-rbac/
- *    to find what version of the nectar-rbac plugin is being used. (Which contains the nectar.plugin.rbac classes)
- * 4. You can then go here to download the javadocs for the plugin to see how it's changed when this code breaks
- *    https://repo.cloudbees.com/content/repositories/dev-connect/com/cloudbees/nectar/nectar-rbac/
- *
- * This script has been verified to work on Cloudbees Core 2.190.2.2 and nectar-rbac 5.25
- *
-*/
 
-// You definitely want to use javadocs instead of this, but it's still here just in case
+// Recommended to download the javadocs as explained here
+// https://support.cloudbees.com/hc/en-us/articles/228175367-Custom-Plugins-APIs-and-Javadocs-of-CloudBees-Jenkins-Enterprise-plugins
+// than use this method, but it's still here just in case
 void printAllMethods( obj ){
     if( !obj ){
         println( "Object is null\r\n" );
