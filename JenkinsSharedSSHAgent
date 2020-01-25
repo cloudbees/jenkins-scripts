@@ -1,0 +1,57 @@
+/**
+Author: Harish Jangam
+create a SSH shared Agent from groovy
+**/
+
+import com.cloudbees.opscenter.server.model.SharedNodeRetentionStrategy
+import com.cloudbees.opscenter.server.model.SharedSlave
+import com.cloudbees.opscenter.server.properties.EnvironmentVariablesNodePropertyCustomizer
+import com.cloudbees.opscenter.server.properties.NodePropertyCustomizer
+import com.cloudbees.opscenter.server.properties.SharedSlaveNodePropertyCustomizer
+import hudson.model.Node
+import hudson.slaves.EnvironmentVariablesNodeProperty
+import hudson.slaves.*
+import hudson.plugins.sshslaves.*
+import com.cloudbees.jenkins.plugins.sshslaves.verification.*
+import com.cloudbees.jenkins.plugins.sshslaves.SSHConnectionDetails
+
+import hudson.tools.ToolLocationNodeProperty
+import hudson.tools.ToolProperty
+import com.cloudbees.opscenter.server.model.*
+
+SharedSlave instance = jenkins.model.Jenkins.getInstance().createProject(SharedSlave.class,"SharedAgentName")
+
+// Pick one of the strategies from the comments below this line
+ServerKeyVerificationStrategy serverKeyVerificationStrategy = new TrustInitialConnectionVerificationStrategy(false) // "Manually trusted key verification Strategy"
+// = new TrustInitialConnectionVerificationStrategy(false /* "Require manual verification of initial connection" */) // "Manually trusted key verification Strategy"
+// = new ManuallyConnectionVerificationStrategy("<your-key-here>") // "Manually provided key verification Strategy"
+// = new KnownHostsConnectionVerificationStrategy() // "~/.ssh/known_hosts file Verification Strategy"
+// = new BlindTrustConnectionVerificationStrategy() // "Non-verifying Verification Strategy"
+
+
+
+instance.setLauncher(new com.cloudbees.jenkins.plugins.sshslaves.SSHLauncher(
+        "HostName", // Host
+        new SSHConnectionDetails(
+                "CredentialID", // Credentials ID
+                PortNumber, // port
+                "JavaPath", // JavaPath
+                (String)null, // JVM Options
+                (String)null, // Prefix Start Slave Command
+                (String)null, // Suffix Start Slave Command
+                (boolean)false, // Log environment on initial connect
+                (ServerKeyVerificationStrategy) serverKeyVerificationStrategy // Host Key Verification Strategy
+        )
+)
+)
+
+
+instance.setNumExecutors(4)
+instance.setLabelString("Labels")
+instance.setMode(Node.Mode.NORMAL) 
+// NORMAL - Use this node as much as possible
+// EXCLUSIVE for only build job with label expressions matching this node
+
+instance.setRemoteFS("RemoteFSdirectory")
+
+instance.setRetentionStrategy(new RetentionStrategy.Always())
