@@ -157,10 +157,8 @@ try {
 // script-status main code
 // ------------------------------------------------------------------------------------------------
 
-if (debug) {
-  println "verify-system-readiness.groovy running..."
-  println "Determining the instance type..." + productType().toString()
-}
+println "verify-system-readiness.groovy running..."
+println "Determining the instance type..." + productType().toString()
 
 def _statusKey = []
 _statusKey[0] = "Is cloudbees-license plugin installed?"
@@ -214,11 +212,10 @@ if (productType() == Product.OPERATIONS_CENTER) {
   int licenses = 0
   int offline = 0
   
-  if (debug) {
-    println("Asking for the status of the connected masters...")
-  }
+  println("Asking for the status of the connected masters...")
 
   jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
+    println "Checking status of " + master.name
     if(master.channel != null) {
       def response = executeScriptRemotely(master, script)
       def _return = response.minus('[').minus(']')
@@ -233,6 +230,8 @@ if (productType() == Product.OPERATIONS_CENTER) {
       }
       def summary = printStatus (masterStatus, debug)
       _summary.append(master.name)
+      _summary.append(" v")
+      _summary.append(masterStatus[15])
       _summary.append(" - ")
       _summary.append(printStatus(masterStatus, false))      
       _summary.append("\n")
@@ -245,21 +244,22 @@ if (productType() == Product.OPERATIONS_CENTER) {
       }
     } else {
       offline++
-      //println "Is not online and the status cannot be determined."
+      _summary.append(master.name)
+      _summary.append(" is not online and its status cannot be determined.\n")
+      println master.name + " is not online and the status cannot be determined."
     }
   }
 
-  if (debug) {
-    println "verify-system-readiness.groovy complete"
-    println "----------------------------------------------------------------------------------------------------------------"
-    println "                                               SUMMARY"
-    println "----------------------------------------------------------------------------------------------------------------"
-  }
+  
+  println "verify-system-readiness.groovy complete"
+  println "----------------------------------------------------------------------------------------------------------------"
+  println "                                               SUMMARY"
+  println "----------------------------------------------------------------------------------------------------------------"
 
   println _summary.toString()
-  println ""
+  
   if (offline > 0) {
-    println 'There are ' + offline+' connected masters offline. Their status cannot be determined.'
+    println 'There are ' + offline + ' connected masters offline. Their status cannot be determined.'
   } 
   if (plugins > 0) {
     println 'You have one or more instances that need to be upgraded.'
