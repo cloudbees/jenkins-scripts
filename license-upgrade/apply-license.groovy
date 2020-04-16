@@ -358,7 +358,7 @@ def executeScript(String script, master = null) {
 // ------------------------------------------------------------------------------------------------
 
 enum Product {
-  CONNECTED_MASTER('Connected Master'), STANDALONE_MASTER('Standalone Master'), OPERATIONS_CENTER('Operations Center')
+  CONNECTED_MASTER('Connected Master'), STANDALONE_MASTER('Standalone Master'), OPERATIONS_CENTER('Operations Center'), CJD('CJD')
   Product(String detail) {
     this.detail = detail
   }
@@ -383,7 +383,12 @@ def productType() {
         return Product.STANDALONE_MASTER
       }
     } else {
-      return Product.STANDALONE_MASTER
+      def _plugin_oc_context = jenkins.model.Jenkins.instance.getPlugin('operations-center-context')
+      if(_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) {
+        return Product.STANDALONE_MASTER
+      } else {
+        return Product.CJD
+      }
     }
   }
 }
