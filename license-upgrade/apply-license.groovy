@@ -114,14 +114,6 @@ def script_license_set = '''try {
       def endpoint = com.cloudbees.EndPoints.licenses()
       def tries = 5
       def waitingFor = 1000
-
-      // --------------------------------------------------------
-      // TESTING ONLY, REMOVE BEFORE PRODUCTION RELEASE!
-      def beescloud = "https://licenses.beescloud.com/api"
-      def cloudbees = "https://licenses.cloudbees.com/api"
-
-      endpoint = beescloud
-      // --------------------------------------------------------
   
       def manager = hudson.license.LicenseManager.getInstance()
       def certificate = manager.getCertificate()
