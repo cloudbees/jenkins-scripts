@@ -1,26 +1,12 @@
  /*
 Script #1 - Tell you the status of your instances
-Purpose: Provides clear output that informs the user if their Jenkins(OC, masters, etc) are ready 
+Provides clear output that informs the user if their Jenkins(OC, masters, etc) are ready 
 to consume the new licenses.  A user may run this script multiple times over the course of the 
 upgrade process (ie to see if the system needs to be updated, to verify its ready to be updated, 
 and to verify that the update has been completed successfully).
-
-Output:
-* Informs the user what it is doing as the script runs
-* for each instance (oc/master/standlone):
-  * does it need a new updated?  if so, is there an incremental available that can be installed
-  * Does its current license need to be updated?
-  * inform the user about offline masters that can't be checked
-* At the end, provide a simple statement along the lines of:
-  * "You have one or more instances that need to be upgraded"
-  * "Your systems are ready to install the new license"
-  * "All your instances are up to date and running the new license"
-
 */
 
-/**
-Set the value of debug = "true" for additional output
-*/
+// Set the value of debug = "true" for additional output. The output is supposed to be consumed by a support engineer.
 def debug = false
 
 // Scripts

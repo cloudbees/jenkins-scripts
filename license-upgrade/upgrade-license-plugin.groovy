@@ -1,25 +1,17 @@
 /*
 Script #2 - Upgrade your instances
-Purpose:
 Checks for and applies incremental updates for you jenkins instances so that they are ready to consume the new license
-
-Output:
-* Informs the user what it is doing as the script runs
-* for each instance (oc/master/standlone):
-  * If an incremental exists, inform the user and apply the upgrade
-    * if the instance needs to be restarted, restart it
-      * if a manual restart is required, inform the user to do it
-  * If no incremental exists, maybe inform the user they need to manually update plugin (or try to do it automatically) <check with ryan/summer about what we should do in this case>
-* At the end, inform the user:
-  * if all instances appear to have been updated
-  * if there were any instances that may have failed to update
 */
 
-// Set restart = true to automatically restart jenkins after the update is applied
+// Set restart = true to automatically restart jenkins after the update is applied. 
+// A restart is always required after plugin upgrade. It can be done either manually or
+// automatically using the script. 
 def restart = false
-// set debug = true for additional debug ouput
+// set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
 def debug = false
-// set direct = true to enable directly updating the cloudbees-license-plugin if no incremental update is available (should not be needed)
+// set direct = true to enable directly updating the cloudbees-license-plugin if no incremental update is available (should not be needed).
+// direct method is useful when BeeKeeper is disabled or the instance cannot reach the public update site. It only replaces the current version 
+// of cloudbees-license plugin by its patched version.
 def direct = false
 
 // Scripts

@@ -1,39 +1,18 @@
 /*
 Script #3 - Apply new license
-Purpose:
 Checks the license server for the new license, and if available, installs the license
-
-Output:
-* Informs the user what it is doing as the script runs
-* check to see if system can consume the new licenses
-  * if not ready, inform the user and exit
-  * if ready
-    * checks for new license being available
-    * download and install new license
-    * restart if needed, force sublicense refresh if possible
-      * if manual restart is needed, inform user to do so
-* at the end, inform the user:
-  * if new licenses were applied successfully
-  * if any problems, inform user
 */
 
+// set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
 def debug = false
-forceRestart = true
+// Set forceRestart = true to automatically restart masters with cloudbees-license < 9.17 after OC license is installed. 
+forceRestart = false
+// Set forceSublicenseRefresh = true for refreshing connected master licenses even if there is no upgrade for OC license.
+// You may need to do it if you have cloudbees-license < 9.17
 forceSublicenseRefresh = false
 
 // Scripts
 // ------------------------------------------------------------------------------------------------
-
-/*
- * 
- * 
- * [0] Is cloudbees-license plugin version compatible with new Root Ca?
- * [1] License requires update?
- * [2] Is sublicense?  
- * [3] Is the license signed by a known certificate? 
- * [4] Is the Root CA about to expire?
- * [5] Error message
- */
 
  def _statusKey = []
  _statusKey[0] = "Is cloudbees-license plugin version compatible with new Root Ca?"
@@ -242,7 +221,7 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                   if (debug) { println "    " + master.name + " " + masterStatus}
                   map.put(master.name, [master, masterStatus])
                   if (masterStatus[0] != '1') {
-                      plugins++
+                    plugins++
                   }
               } else {
                   offline++
