@@ -234,10 +234,12 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                         // pre-CJP-6313 (<9.17)
                         if (prop.metaClass.respondsTo(prop, "check", boolean).isEmpty()) {
                           def suc = sublicenseRefresh(master, forceRestart)
-                          if (suc) {
-                              println ". Done!"
+                          if (suc && forceRestart) {
+                            println ". Done!"
+                          } else if (suc && !forceRestart) {
+                            println ". The sub-license will be refreshed in 24 hours or less."
                           } else {
-                              println ". Failure!"
+                            println ". Failure!"
                           }                        
                         } else {
                           if (prop.check(true)) {
@@ -295,16 +297,10 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
 
 def sublicenseRefresh(master, restart) {
     try {
-        //master.channel.call(new com.cloudbees.opscenter.server.properties.ConnectedMasterLicenseServerProperty.RemoveLicense()) 
-        executeScriptRemotely(master, script_license_purge)
-        if (restart) executeScriptRemotely(master, script_restart)
-        /*        
-        def property = master.getProperties().get(com.cloudbees.opscenter.server.properties.ConnectedMasterLicenseServerProperty.class);
-        if (property != null) {
-            println "DEBUG: " + property.owner
-            property.onConnected()
+        if (restart) {
+          executeScriptRemotely(master, script_license_purge)
+          executeScriptRemotely(master, script_restart)
         }
-*/
         return true
     } catch(Exception err) {
         return false
