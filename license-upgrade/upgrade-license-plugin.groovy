@@ -8,7 +8,7 @@ Checks for and applies incremental updates for you jenkins instances so that the
 // automatically using the script. 
 def restart = false
 // set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
-def debug = true
+def debug = false
 // set direct = true to enable directly updating the cloudbees-license-plugin if no incremental update is available (should not be needed).
 // direct method is useful when BeeKeeper is disabled or the instance cannot reach the public update site. It only replaces the current version 
 // of cloudbees-license plugin by its patched version.
@@ -375,7 +375,6 @@ if (type == Product.OPERATIONS_CENTER) {
 
 // After upgrading masters (in case of OC)...
 def _status = executeScript(script_status)
-println _status
 // If plugin requires update
 if (_status[0] == '1') {
     println "Analyzing " + type + "... "
