@@ -252,7 +252,10 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                   println "No new license available.  Contact csm-help@cloudbees.com to obtain a license."
               }
           } else {
-              println "One or more masters have an incompatible version of cloudbees-license plugin. Please update them."
+              println "One or more masters have an incompatible version of cloudbees-license plugin. Please update them before applying the new license:"
+              map.findAll { k,v -> v[1][0] != "1"}.keySet().each { name ->
+                  println " * ${name}"
+              }
           }
       } else {
           println "cloudbees-license plugin installed on operations center is not compatible with new license. Please update it."
