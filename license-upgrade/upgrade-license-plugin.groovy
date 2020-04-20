@@ -367,7 +367,6 @@ if (type == Product.OPERATIONS_CENTER) {
             println 'You have one or more connected master instances that need to be upgraded.'
         }
         _summary2.append("You have one or more connected master instances that need to be upgraded.\n")
-        _summary2.append("Operations Center can not be upgraded until all connected master instances have been upgraded.\n")
         all = false
     }
 
