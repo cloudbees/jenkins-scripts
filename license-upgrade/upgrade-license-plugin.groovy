@@ -8,7 +8,7 @@ Checks for and applies incremental updates for you jenkins instances so that the
 // automatically using the script. 
 def restart = false
 // set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
-def debug = false
+def debug = true
 // set direct = true to enable directly updating the cloudbees-license-plugin if no incremental update is available (should not be needed).
 // direct method is useful when BeeKeeper is disabled or the instance cannot reach the public update site. It only replaces the current version 
 // of cloudbees-license plugin by its patched version.
@@ -126,7 +126,6 @@ if (!assurance.ucRefresher.metaClass.respondsTo(assurance.ucRefresher, "awaitRef
             sleep(waitingFor)
         }
     }
-    assurance.refreshOfferedUpgrade()
 }
 
 def incrementalUpgrade = false
