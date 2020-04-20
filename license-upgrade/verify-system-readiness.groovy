@@ -19,7 +19,11 @@ try {
       def assurance = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
       def cap
       if (assurance.metaClass.respondsTo(assurance, "getBeekeeperState",null).isEmpty()) {
-        cap = assurance.getBeekeeper().getStatus()
+        if (!assurance.metaClass.respondsTo(assurance, "getConfig", null).isEmpty()) {
+          cap = assurance.getConfig().get().isCap()
+        } else {
+          cap = assurance.getBeekeeper().getStatus()
+        }
       } else {
         cap = assurance.getBeekeeperState().getStatus()
       }
