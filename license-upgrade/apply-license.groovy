@@ -237,7 +237,7 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                           if (suc && forceRestart) {
                             println ". Done!"
                           } else if (suc && !forceRestart) {
-                            println ". The license will be refreshed in 24 hours or less."
+                            println ". The sub-license will be refreshed in 24 hours or less."
                           } else {
                             println ". Failure!"
                           }                        
