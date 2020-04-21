@@ -271,7 +271,9 @@ if ((productType() == Product.OPERATIONS_CENTER) && (!_stopFlag)) {
   println _summary.toString()
 }
 
-println _summary2.toString()
+if (_status[4] != "1" || _status[13] != "1" && !_stopFlag) {
+  println _summary2.toString()
+}
 
 // script-status common code
 // ------------------------------------------------------------------------------------------------

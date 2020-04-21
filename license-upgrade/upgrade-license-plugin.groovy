@@ -263,7 +263,7 @@ if (!assurance.metaClass.respondsTo(assurance,"getOfferedEnvelope").isEmpty()) {
   }
 }
 
-println "Determine the instance type: " + type
+println "Determine the instance type: " + type + " v" + jenkins.model.Jenkins.instance.getVersion().toString()
 boolean all = true
 if ((type == Product.OPERATIONS_CENTER) && (!_stopFlag)) {
     int plugins = 0
