@@ -166,15 +166,28 @@ _statusKey[15] = "Product Version"
 _statusKey[16] = "Using wildcard license?"
 
 def _summary = new StringBuilder()
+def _summary2 = new StringBuilder()
 
 def _status = executeScriptInLocally(script)
-
+def _stopFlag = false
+def assurance = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
 def manager = hudson.license.LicenseManager.getInstanceOrDie()
+
 if (manager == null) {
   _status[16] = "?"
 } else if (manager.getParsed().isWildcard()) {
   _status[16] = "1"
   _summary.append("Your instance is using a wildcard license. Contact csm-help@cloudbees.com to obtain a license.\n\n")
+} else if (!assurance.metaClass.respondsTo(assurance,"getOfferedEnvelope").isEmpty()) {
+  if (jenkins.model.Jenkins.instance.getVersion().toString().contains("2.46.2.1")) {
+    _stopFlag = true
+    if (productType() == Product.OPERATIONS_CENTER) {
+        _summary2.append("Cloudbees Jenkins Operations Center v.2.46.2.1 and any client masters must be updated manually via Beekeeper.\n")
+    } else {
+        _summary2.append("Cloudbees Jenkins v.2.46.2.1 must be updated manually via Beekeeper.\n")
+    }
+    _summary2.append("Contact csm-help@cloudbees.com for assistance")
+  }
 } else {
   _status[16] = "0"
 }
@@ -193,7 +206,7 @@ if (debug) {
   }
 }
 
-if (productType() == Product.OPERATIONS_CENTER) {
+if ((productType() == Product.OPERATIONS_CENTER) && (!_stopFlag)) {
   int plugins = 0
   int licenses = 0
   int offline = 0
@@ -258,6 +271,7 @@ if (productType() == Product.OPERATIONS_CENTER) {
   println _summary.toString()
 }
 
+println _summary2.toString()
 
 // script-status common code
 // ------------------------------------------------------------------------------------------------
