@@ -236,7 +236,6 @@ return _restart ? "RESTART_REQUIRED" : "NO"
 
 println "upgrade-license-plugin.groovy running..."
 
-
 def _statusKey = []
 _statusKey[0] = "Plugin requires update?"
 _statusKey[1] = "Is your instance compatible with Incremental Upgrades?"
@@ -248,11 +247,25 @@ _statusKey[5] = "Error message"
 def _summary = new StringBuilder()
 def _summary2 = new StringBuilder()
 
+def _stopFlag = false
+def assurance = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
 def type = productType()
+
+if (!assurance.metaClass.respondsTo(assurance,"getOfferedEnvelope").isEmpty()) {
+  if (jenkins.model.Jenkins.instance.getVersion().toString().contains("2.46.2.1")) {
+    _stopFlag = true
+    if (type == Product.OPERATIONS_CENTER) {
+        _summary2.append("Cloudbees Jenkins Operations Center v.2.46.2.1 and any client masters must be updated manually via Beekeeper.\n")
+    } else {
+        _summary2.append("Cloudbees Jenkins v.2.46.2.1 must be updated manually via Beekeeper.\n")
+    }
+    _summary2.append("Contact csm-help@cloudbees.com for assistance")
+  }
+}
 
 println "Determine the instance type: " + type
 boolean all = true
-if (type == Product.OPERATIONS_CENTER) {
+if ((type == Product.OPERATIONS_CENTER) && (!_stopFlag)) {
     int plugins = 0
     int offline = 0
     jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
@@ -346,7 +359,7 @@ if (type == Product.OPERATIONS_CENTER) {
 // After upgrading masters (in case of OC)...
 def _status = executeScript(script_status)
 // If plugin requires update
-if (_status[0] == '1') {
+if ((_status[0] == '1') && (!_stopFlag)) {
     println "Analyzing " + type + "... "
     _summary.append(type)
     _summary.append(" - ")
@@ -369,20 +382,20 @@ if (_status[0] == '1') {
         _summary.append(" Plugin cannot be upgraded. Please contact CloudBees support.\n")
         all = false
     } 
-} else {
+} else if (!_stopFlag) {
     println "cloudbees-license plugin is updated on your " + type + " instance."
     _summary.append("cloudbees-license plugin is updated on your ")
     _summary.append(type)
     _summary.append(" instance.\n")
-}
+} 
 
 println ""
-if (all) {
+if (all && !_stopFlag) {
     //println "All instances haven been upgraded sucessfully"
     _summary2.append("\nAll instances haven been upgraded sucessfully\n")
 } else {
     //println "You have one or more instances that need to be upgraded."
-    _summary2.append("\nYou have one or more instances that need to be upgraded.\n")
+    _summary.append("\nYou have one or more instances that need to be upgraded.\n")
 }
 
 println("------------------------------------------- SUMMARY -----------------------------------------")
