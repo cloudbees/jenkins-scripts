@@ -354,7 +354,9 @@ def productType() {
       }
     } else {
       def _plugin_oc_context = jenkins.model.Jenkins.instance.getPlugin('operations-center-context')
-      if(_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) {
+      def _plugin_folder_plus = jenkins.model.Jenkins.instance.getPlugin('cloudbees-folder-plus')
+      if((_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) || 
+        (_plugin_folder_plus != null && _plugin_folder_plus.getWrapper().isActive())) {
         return Product.STANDALONE_MASTER
       } else {
         return Product.CJD
