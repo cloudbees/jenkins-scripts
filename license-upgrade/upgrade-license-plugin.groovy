@@ -8,7 +8,7 @@ Checks for and applies incremental updates for you jenkins instances so that the
 // automatically using the script. 
 def restart = false
 // set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
-def debug = false
+def debug = true
 // set direct = true to enable directly updating the cloudbees-license-plugin if no incremental update is available (should not be needed).
 // direct method is useful when BeeKeeper is disabled or the instance cannot reach the public update site. It only replaces the current version 
 // of cloudbees-license plugin by its patched version.
@@ -23,8 +23,12 @@ try {
     try {
       def assurance = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
       def cap
-      if (assurance.metaClass.respondsTo(assurance, "getBeekeeperState",void).isEmpty()) {
-        cap = assurance.getBeekeeper().getStatus()
+      if (assurance.metaClass.respondsTo(assurance, "getBeekeeperState",null).isEmpty()) {
+        if (assurance.metaClass.respondsTo(assurance, "getBeekeeper", null).isEmpty()) {
+          cap = assurance.getReport().getStatus()
+        } else {
+          cap = assurance.getBeekeeper().getStatus()
+        }
       } else {
         cap = assurance.getBeekeeperState().getStatus()
       }
@@ -94,10 +98,36 @@ jenkins.model.Jenkins.instance.doSafeRestart(null)
  *    * ERROR plus the cause if there is a problem with the execution
  */
 script_incremental = '''try {
-com.cloudbees.jenkins.plugins.assurance.props.BeekeeperProp.get().NO_FULL_UPGRADES.set()
-com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().refreshStateSync()
+def tries = 10
+def waitingFor = 2000
 
 def assurance = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
+
+com.cloudbees.jenkins.plugins.assurance.props.BeekeeperProp.get().NO_FULL_UPGRADES.set()
+if (assurance.metaClass.respondsTo(assurance, "refreshOfferedUpgrade").isEmpty()) {
+    assurance.refreshStateSync()
+} 
+if (!assurance.ucRefresher.metaClass.respondsTo(assurance.ucRefresher, "awaitRefresh").isEmpty()) {
+    def ucFuture = assurance.refreshUpdateCenters()
+    for(int i=1; i<=tries; i++) {
+        if(ucFuture.isDone()) {
+            break;
+        } else {
+            sleep(waitingFor)
+        }
+    }
+    assurance.refreshStateSync()
+} else {
+    assurance.ucRefresher.refresh()
+    for(int i=1; i<=tries; i++) {
+    if (com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getOfferedUpgrade().getClass().getName() == 'com.cloudbees.jenkins.plugins.assurance.OfferedUpgrade$Incremental') {
+            break;
+        } else {
+            sleep(waitingFor)
+        }
+    }
+}
+
 def incrementalUpgrade = false
 
 if (assurance.metaClass.respondsTo(assurance, "getUpgradeAction").isEmpty()) {
@@ -105,7 +135,7 @@ if (assurance.metaClass.respondsTo(assurance, "getUpgradeAction").isEmpty()) {
     if (com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getOfferedUpgrade().getClass().getName() == 'com.cloudbees.jenkins.plugins.assurance.OfferedUpgrade$Incremental') {
         incrementalUpgrade = true
       	def offered = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getOfferedUpgrade()
-        if (!offered.metaClass.respondsTo(offered, "pick",void).isEmpty()) {
+        if (!offered.metaClass.respondsTo(offered, "pick", null).isEmpty()) {
           offered.pick()
         } else if (!offered.metaClass.respondsTo(offered, "pick", boolean).isEmpty()) {
           offered.pick(false)
@@ -120,7 +150,6 @@ if (assurance.metaClass.respondsTo(assurance, "getUpgradeAction").isEmpty()) {
         com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getUpgradeAction().getUpgrade().pick(false, null)
     }
 }
-
 return incrementalUpgrade ? "RESTART_REQUIRED" : "NO"
 } catch (Exception fatal) { return "ERROR. Cause: " + fatal.getMessage()}'''
 
@@ -337,7 +366,6 @@ if (type == Product.OPERATIONS_CENTER) {
             println 'You have one or more connected master instances that need to be upgraded.'
         }
         _summary2.append("You have one or more connected master instances that need to be upgraded.\n")
-        _summary2.append("Operations Center can not be upgraded until all connected master instances have been upgraded.\n")
         all = false
     }
 
@@ -471,7 +499,9 @@ def productType() {
       }
     } else {
       def _plugin_oc_context = jenkins.model.Jenkins.instance.getPlugin('operations-center-context')
-      if(_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) {
+      def _plugin_folder_plus = jenkins.model.Jenkins.instance.getPlugin('cloudbees-folder-plus')
+      if((_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) || 
+        (_plugin_folder_plus != null && _plugin_folder_plus.getWrapper().isActive())) {
         return Product.STANDALONE_MASTER
       } else {
         return Product.CJD

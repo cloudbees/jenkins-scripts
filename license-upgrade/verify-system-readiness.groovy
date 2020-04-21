@@ -18,8 +18,12 @@ try {
     try {
       def assurance = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
       def cap
-      if (assurance.metaClass.respondsTo(assurance, "getBeekeeperState",void).isEmpty()) {
-        cap = assurance.getBeekeeper().getStatus()
+      if (assurance.metaClass.respondsTo(assurance, "getBeekeeperState",null).isEmpty()) {
+        if (assurance.metaClass.respondsTo(assurance, "getBeekeeper", null).isEmpty()) {
+          cap = assurance.getReport().getStatus()
+        } else {
+          cap = assurance.getBeekeeper().getStatus()
+        }
       } else {
         cap = assurance.getBeekeeperState().getStatus()
       }
@@ -315,7 +319,9 @@ def productType() {
       }
     } else {
       def _plugin_oc_context = jenkins.model.Jenkins.instance.getPlugin('operations-center-context')
-      if(_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) {
+      def _plugin_folder_plus = jenkins.model.Jenkins.instance.getPlugin('cloudbees-folder-plus')
+      if((_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) || 
+        (_plugin_folder_plus != null && _plugin_folder_plus.getWrapper().isActive())) {
         return Product.STANDALONE_MASTER
       } else {
         return Product.CJD
