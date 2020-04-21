@@ -186,10 +186,24 @@ println "Checks the license server for the new license, and if available, instal
 
 def type = productType()
 
-println "Determine the instance type: " + type
+def _stopFlag = false
+def assurance = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
+def _summary = new StringBuilder()
+
+println "Determine the instance type: " + type + " v" + jenkins.model.Jenkins.instance.getVersion().toString()
 def manager = hudson.license.LicenseManager.getInstanceOrDie()
 if ((manager != null) && (manager.getParsed().isWildcard())) {
   println type.toString() + " currently has a wildcard license installed.  Contact csm-help@cloudbees.com to obtain a license."
+} else if (!assurance.metaClass.respondsTo(assurance,"getOfferedEnvelope").isEmpty()) {
+  if (jenkins.model.Jenkins.instance.getVersion().toString().contains("2.46.2.1")) {
+    _stopFlag = true
+    if (type == Product.OPERATIONS_CENTER) {
+        _summary.append("The updated license must be installed manually on Cloudbees Jenkins Operations Center v.2.46.2.1\n")
+    } else {
+        _summary.append("The updated license must be installed manually on Cloudbees Jenkins v.2.46.2.1\n")
+    }
+    _summary.append("Contact csm-help@cloudbees.com for assistance")
+  }
 } else {
   if (type == Product.OPERATIONS_CENTER) {
       // update operations center license
