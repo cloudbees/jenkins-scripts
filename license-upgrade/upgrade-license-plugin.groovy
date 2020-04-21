@@ -25,6 +25,7 @@ try {
       def cap
       if (assurance.metaClass.respondsTo(assurance, "getBeekeeperState",null).isEmpty()) {
         if (assurance.metaClass.respondsTo(assurance, "getBeekeeper", null).isEmpty()) {
+            println("found old shitt")
           cap = assurance.getReport().getStatus()
         } else {
           cap = assurance.getBeekeeper().getStatus()
@@ -103,11 +104,30 @@ def waitingFor = 2000
 
 def assurance = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
 
-com.cloudbees.jenkins.plugins.assurance.props.BeekeeperProp.get().NO_FULL_UPGRADES.set()
+println("enabling incrementals...")
+try {
+    com.cloudbees.jenkins.plugins.assurance.props.BeekeeperProp.get().NO_FULL_UPGRADES.set()
+} catch (Exception e) {
+    println "trying alternative method to enable incrementals"
+    setProperty("cb.BeekeeperProp.noFullUpgrade",true)
+}
+println("should be enabled")
 if (assurance.metaClass.respondsTo(assurance, "refreshOfferedUpgrade").isEmpty()) {
-    assurance.refreshStateSync()
+    println "1"
+    if (assurance.metaClass.respondsTo(assurance, "getBeekeeper", null).isEmpty()) {
+        println "2"
+        assurance.getOfferedEnvelope()
+    } else {
+        println("refresh1")
+        assurance.refreshStateSync()
+    }
 } 
-if (!assurance.ucRefresher.metaClass.respondsTo(assurance.ucRefresher, "awaitRefresh").isEmpty()) {
+println "3"
+
+if (!assurance.metaClass.respondsTo(assurance,"getOfferedEnvelope").isEmpty()) {
+    println "nope"
+} else if (!assurance.ucRefresher.metaClass.respondsTo(assurance.ucRefresher, "awaitRefresh").isEmpty()) {
+    println("AA")
     def ucFuture = assurance.refreshUpdateCenters()
     for(int i=1; i<=tries; i++) {
         if(ucFuture.isDone()) {
@@ -118,6 +138,7 @@ if (!assurance.ucRefresher.metaClass.respondsTo(assurance.ucRefresher, "awaitRef
     }
     assurance.refreshStateSync()
 } else {
+    println("BB")
     assurance.ucRefresher.refresh()
     for(int i=1; i<=tries; i++) {
     if (com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getOfferedUpgrade().getClass().getName() == 'com.cloudbees.jenkins.plugins.assurance.OfferedUpgrade$Incremental') {
@@ -127,12 +148,42 @@ if (!assurance.ucRefresher.metaClass.respondsTo(assurance.ucRefresher, "awaitRef
         }
     }
 }
+println "bbbbbbbb"
 
 def incrementalUpgrade = false
 
 if (assurance.metaClass.respondsTo(assurance, "getUpgradeAction").isEmpty()) {
-    // == 2.60.xxx
-    if (com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getOfferedUpgrade().getClass().getName() == 'com.cloudbees.jenkins.plugins.assurance.OfferedUpgrade$Incremental') {
+    println "ccc"
+    if (!assurance.metaClass.respondsTo(assurance,"getOfferedEnvelope").isEmpty()) {
+        println "aha!"
+        def cap = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get()
+        def installedEnvelope = cap.getConfig().get().getEnvelope().getEnvelope()
+        def parsedEnvelope = cap.getOfferedEnvelope()
+        def offeredEnvelope = cap.getOfferedEnvelope().getEnvelope()
+        if (offeredEnvelope.isIncrementalUpgrade(installedEnvelope).toString()) {
+            println "indeed!"
+            incrementalUpgrade = true
+            def usItem = cap.getReport().getUpdateSiteItem()
+            println "a1"
+            if (usItem != null) {
+                println "a2"
+                def updateSite = usItem.getOnline()
+                if (updateSite != null) {
+                    println "a3"
+                    println "offered envelope " + offeredEnvelope
+                    println "updateSite = " + updateSite
+                    try {
+                        cap.stage(parsedEnvelope, updateSite)
+                    } catch (Exception e) {
+                        println "e:" + e
+                    }
+                    println "almost there!"
+                }
+            }
+        }
+    } else if (com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getOfferedUpgrade().getClass().getName() == 'com.cloudbees.jenkins.plugins.assurance.OfferedUpgrade$Incremental') {
+        // == 2.60.xxx
+        println "ddd"
         incrementalUpgrade = true
       	def offered = com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getOfferedUpgrade()
         if (!offered.metaClass.respondsTo(offered, "pick", null).isEmpty()) {
@@ -142,10 +193,11 @@ if (assurance.metaClass.respondsTo(assurance, "getUpgradeAction").isEmpty()) {
         } else {
           incrementalUpgrade = false
         }
-    }
+    } 
 } else {
     // != 2.60.xxx
     if (com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getUpgradeAction().getUpgrade().isIncrementalUpgrade()) {
+        println "eee"
         incrementalUpgrade = true
         com.cloudbees.jenkins.plugins.assurance.CloudBeesAssurance.get().getUpgradeAction().getUpgrade().pick(false, null)
     }
@@ -265,7 +317,6 @@ return _restart ? "RESTART_REQUIRED" : "NO"
 
 println "upgrade-license-plugin.groovy running..."
 
-
 def _statusKey = []
 _statusKey[0] = "Plugin requires update?"
 _statusKey[1] = "Is your instance compatible with Incremental Upgrades?"
@@ -277,7 +328,9 @@ _statusKey[5] = "Error message"
 def _summary = new StringBuilder()
 def _summary2 = new StringBuilder()
 
+println "before prod type"
 def type = productType()
+
 
 println "Determine the instance type: " + type
 boolean all = true
@@ -370,6 +423,8 @@ if (type == Product.OPERATIONS_CENTER) {
     }
 
 }
+
+println "not OC"
 
 // After upgrading masters (in case of OC)...
 def _status = executeScript(script_status)
