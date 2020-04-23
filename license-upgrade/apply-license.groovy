@@ -3,6 +3,8 @@ Script #3 - Apply new license
 Checks the license server for the new license, and if available, installs the license
 */
 
+// Set slowConnection = true if the connection performance between OC and masters is not good enough.
+def slowConnection = false
 // set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
 def debug = false
 // Set forceRestart = true to automatically restart masters with cloudbees-license < 9.17 after OC license is installed. 
@@ -207,13 +209,24 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
           def map = new java.util.HashMap()
           def offline = 0
           def plugins = 0
+          int tries = 20
+          long waitingFor = 1000
+          if (slowConnection) {
+            waitingFor = 3000
+          }
           jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
               if(master.channel != null) {
-                  def masterStatus = parseMasterStatus(executeScript(script_status, master))
-                  if (debug) { println "    " + master.name + " " + masterStatus}
-                  map.put(master.name, [master, masterStatus])
-                  if (masterStatus[0] != '1') {
-                    plugins++
+                  def resultState = executeScriptRemotely(script_status, master, tries, waitingFor)
+                  if (resultState != null) {
+                    def masterStatus = parseMasterStatus(resultState)
+                    if (debug) { println "    " + master.name + " " + masterStatus}
+                    map.put(master.name, [master, masterStatus])
+                    if (masterStatus[0] != '1') {
+                      plugins++
+                    }
+                  } else {
+                    if (debug) { println "    " + master.name + " timeout"}
+                    offline++
                   }
               } else {
                   offline++
