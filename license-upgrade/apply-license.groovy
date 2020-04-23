@@ -225,6 +225,7 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                       plugins++
                     }
                   } else {
+                    if (debug) { println "    " + master.name + " timeout"}
                     offline++
                   }
               } else {
