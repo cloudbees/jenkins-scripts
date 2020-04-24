@@ -6,6 +6,9 @@ upgrade process (ie to see if the system needs to be updated, to verify its read
 and to verify that the update has been completed successfully).
 */
 
+// script version
+def _version = "1587749434"
+
 // Set slowConnection = true if the connection performance between OC and masters is not good enough.
 def slowConnection = false
 // Set the value of debug = "true" for additional output. The output is supposed to be consumed by a support engineer.
@@ -14,7 +17,7 @@ def debug = false
 // Scripts
 // ------------------------------------------------------------------------------------------------
 def script = '''
-def _status = ["-","-","-","-","-","-","-",  "-","-","-",  "-","-","-","-","-",  "-"]
+def _status = ["-","-","-","-","-", "-","-","-","-","-",  "-","-","-","-","-",  "-", "-"]
 try {
     _status[15] = jenkins.model.Jenkins.instance.getVersion()
     try {
@@ -149,7 +152,7 @@ try {
 // script-status main code
 // ------------------------------------------------------------------------------------------------
 
-println "verify-system-readiness.groovy running..."
+println "verify-system-readiness.groovy running... [v" + _version + "]"
 println "Determining the instance type..." + productType().toString()
 
 def _statusKey = []

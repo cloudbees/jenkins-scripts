@@ -3,6 +3,9 @@ Script #3 - Apply new license
 Checks the license server for the new license, and if available, installs the license
 */
 
+// script version
+def _version = "1587749434"
+
 // Set slowConnection = true if the connection performance between OC and masters is not good enough.
 def slowConnection = false
 // set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
@@ -25,7 +28,7 @@ forceSublicenseRefresh = false
  _statusKey[5] = "Error message"
 
 def script_status = '''
-def _status = ["-","-","-","-","-","-"]
+def _status = ["-","-","-","-","-", "-"]
 try {
     def plugin = jenkins.model.Jenkins.instance.getPlugin('cloudbees-license')
     // Is cloudbees-license plugin installed?
@@ -183,7 +186,7 @@ return result
 // script-license main code
 // ------------------------------------------------------------------------------------------------
 
-println "apply-license.groovy running..."
+println "apply-license.groovy running... [v" + _version + "]"
 println "Checks the license server for the new license, and if available, installs the license."
 
 def type = productType()

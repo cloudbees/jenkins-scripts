@@ -3,6 +3,9 @@ Script #2 - Upgrade your instances
 Checks for and applies incremental updates for you jenkins instances so that they are ready to consume the new license
 */
 
+// script version
+def _version = "1587749434"
+
 // Set restart = true to automatically restart jenkins after the update is applied. 
 // A restart is always required after plugin upgrade. It can be done either manually or
 // automatically using the script. 
@@ -17,7 +20,7 @@ def direct = false
 // Scripts
 // ------------------------------------------------------------------------------------------------
 def script_status = '''
-def _status = ["-","-","-","-","-","-"]
+def _status = ["-","-","-","-","-", "-",]
 try {
 
     try {
@@ -263,7 +266,7 @@ return _restart ? "RESTART_REQUIRED" : "NO"
 // script-upgrade main code
 // ------------------------------------------------------------------------------------------------
 
-println "upgrade-license-plugin.groovy running..."
+println "upgrade-license-plugin.groovy running... [v" + _version + "]"
 
 
 def _statusKey = []
