@@ -219,7 +219,7 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
           }
           jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
               if(master.channel != null) {
-                  def resultState = executeScriptRemotely(script_status, master, tries, waitingFor)
+                  def resultState = executeScriptRemotely(master, script_status, tries, waitingFor)
                   if (resultState != null) {
                     def masterStatus = parseMasterStatus(resultState)
                     if (debug) { println "    " + master.name + " " + masterStatus}
