@@ -229,24 +229,33 @@ if (productType() == Product.OPERATIONS_CENTER) {
         String[] masterStatus = _return.tokenize(',')
         masterStatus.eachWithIndex { it,i -> masterStatus[i] = it.trim() }
 
-        if(masterStatus[12].trim() == '1') {
-          plugins++
-        } 
-        if(masterStatus[13].trim() == '1') {
-          licenses++
-        }
-        def summary = printStatus (masterStatus, debug)
-        _summary.append(master.name)
-        _summary.append(" v")
-        _summary.append(masterStatus[15])
-        _summary.append(" - ")
-        _summary.append(printStatus(masterStatus, false))      
-        _summary.append("\n")
+        if(masterStatus.size() != 17) {
+          // performance issue?
+          offline++
+          if (debug) {
+            println println "[" + master.name + "] is not returning a valid status: " + _return 
+          }
+        } else {
 
-        if (debug) {
-          println "[" + master.name + "]" + summary
-          for (i=0;i<masterStatus.size(); i++) {
-            println "\t" + _statusKey[i].toString() + " ["  + masterStatus[i].toString() + "]"
+          if(masterStatus[12].trim() == '1') {
+            plugins++
+          } 
+          if(masterStatus[13].trim() == '1') {
+            licenses++
+          }
+          def summary = printStatus (masterStatus, debug)
+          _summary.append(master.name)
+          _summary.append(" v")
+          _summary.append(masterStatus[15])
+          _summary.append(" - ")
+          _summary.append(printStatus(masterStatus, false))      
+          _summary.append("\n")
+
+          if (debug) {
+            println "[" + master.name + "]" + summary
+            for (i=0;i<masterStatus.size(); i++) {
+              println "\t" + _statusKey[i].toString() + " ["  + masterStatus[i].toString() + "]"
+            }
           }
         }
       }
