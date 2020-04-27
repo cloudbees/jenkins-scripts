@@ -268,6 +268,9 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                   }
               } else {
                   println "No new license available.  Contact csm-help@cloudbees.com to obtain a license."
+                  if (debug) {
+                    println "  Debug: " + result
+                  }
               }
           } else {
               println "One or more masters have an incompatible version of cloudbees-license plugin. Please update them before applying the new license:"
