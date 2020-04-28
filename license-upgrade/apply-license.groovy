@@ -224,7 +224,10 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                     def masterStatus = parseMasterStatus(resultState)
                     if (debug) { println "    " + master.name + " " + masterStatus}
                     map.put(master.name, [master, masterStatus])
-                    if (masterStatus[0] != '1') {
+                    if (masterStatus.size() != 6) {
+                      if (debug) { println "    " + master.name + "  is not returning a valid status."}
+                      offline++
+                    } else if (masterStatus[0] != '1') {
                       plugins++
                     }
                   } else {
