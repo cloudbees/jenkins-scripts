@@ -7,7 +7,7 @@ and to verify that the update has been completed successfully).
 */
 
 // script version
-def _version = "9860ab2"
+def _version = "d6a8ab2"
 
 // Set slowConnection = true if the connection performance between OC and masters is not good enough.
 def slowConnection = false

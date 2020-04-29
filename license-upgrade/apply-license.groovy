@@ -4,7 +4,7 @@ Checks the license server for the new license, and if available, installs the li
 */
 
 // script version
-def _version = "9860ab2"
+def _version = "d6a8ab2"
 
 // Set slowConnection = true if the connection performance between OC and masters is not good enough.
 def slowConnection = false
@@ -224,7 +224,10 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                     def masterStatus = parseMasterStatus(resultState)
                     if (debug) { println "    " + master.name + " " + masterStatus}
                     map.put(master.name, [master, masterStatus])
-                    if (masterStatus[0] != '1') {
+                    if (masterStatus.size() != 6) {
+                      if (debug) { println "    " + master.name + "  is not returning a valid status."}
+                      offline++
+                    } else if (masterStatus[0] != '1') {
                       plugins++
                     }
                   } else {

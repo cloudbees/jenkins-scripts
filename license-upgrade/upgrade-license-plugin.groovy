@@ -4,12 +4,14 @@ Checks for and applies incremental updates for you jenkins instances so that the
 */
 
 // script version
-def _version = "9860ab2"
+def _version = "d6a8ab2"
 
 // Set restart = true to automatically restart jenkins after the update is applied. 
 // A restart is always required after plugin upgrade. It can be done either manually or
 // automatically using the script. 
 def restart = false
+// Set slowConnection = true if the connection performance between OC and masters is not good enough.
+def slowConnection = false
 // set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
 def debug = false
 // set direct = true to enable directly updating the cloudbees-license-plugin if no incremental update is available (should not be needed).
@@ -287,66 +289,83 @@ boolean all = true
 if (type == Product.OPERATIONS_CENTER) {
     int plugins = 0
     int offline = 0
+    int tries = 20
+    long waitingFor = 1000
+    if (slowConnection) {
+        waitingFor = 3000
+    }
+
     jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
         println "Analyzing " + master.name + "... "
         if(master.channel != null) {
-            def _masterStatus = parseMasterStatus(executeScript(script_status,master))
-            if (debug) {
-                print " " + _masterStatus
-            }
-            // If plugin requires update
-            if (_masterStatus[0] == '1') {
-                //print "Trying to upgrade plugin on " + master.name + "... "
-                _summary.append(master.name)
-                _summary.append(" - ")
-                boolean upgraded = performPluginUpdate(_masterStatus, direct, master)
-                if(upgraded) {
-                    if (debug) {
-                        print " Plugin upgraded successfully. "
-                    }
-                    _summary.append(" Plugin upgraded successfully, ")
-                    if (restart) { 
-                        if (debug) {
-                            print "Restarting the instance..."
-                        }
-                        _summary.append(" restarting the instance...\n")
-                        executeScript(script_restart,master) 
-                    } else {
-                        if (debug) {
-                            print "Manual restart required."
-                        }
-                        _summary.append(" manual restart required.\n")
-                    }
-                    println ""
-                } else {
-                    plugins++
-                    if (debug) {
-                        println "Plugin cannot be upgraded. Please contact CloudBees support."
-                    }
-                    _summary.append("Plugin cannot be upgraded. Please contact CloudBees support.\n")
-                    _summary.append("Additional information for ")
-                    _summary.append(master.name)
-                    _summary.append("\n")
-                    if (_masterStatus[1] == '0') {
-                        _summary.append("\tInstance cannot apply incremental upgrade\n")
-                    }
-                    if (_masterStatus[2] == '0') {
-                        _summary.append("\tBeekeeper is not enabled\n")
-                    }
-                    if (_masterStatus[3] == '1') {
-                        _summary.append("\tInstance is using a custom update center")
-                    }
-                    _summary.append("\n")
-                } 
-            } else {
-                _summary.append(master.name)
-                _summary.append(" - Connected master has already been upgraded, no further action needed\n")
-            }
-            if (debug) {
-                println("Additional Info - " + master.name)
-                for (int i=0;i<_masterStatus.size();i++) {
-                    print _statusKey[i] + " = " + _masterStatus[i].toString() + "\n"
+            def _masterResult = executeScriptRemotely(master, script_status, tries, waitingFor)
+            if (_masterResult != null) {
+               
+                def _masterStatus = parseMasterStatus(_masterResult)
+                if (debug) {
+                    print " " + _masterStatus
                 }
+                if (_masterStatus.size() != 6) {
+                    offline++
+                    _summary.append(master.name)
+                    _summary.append(" - Connected master status is not valid.\n")
+                } else if (_masterStatus[0] == '1') {
+                    // If plugin requires update
+                    _summary.append(master.name)
+                    _summary.append(" - ")
+                    boolean upgraded = performPluginUpdate(_masterStatus, direct, master)
+                    if(upgraded) {
+                        if (debug) {
+                            print " Plugin upgraded successfully. "
+                        }
+                        _summary.append(" Plugin upgraded successfully, ")
+                        if (restart) { 
+                            if (debug) {
+                                print "Restarting the instance..."
+                            }
+                            _summary.append(" restarting the instance...\n")
+                            executeScript(script_restart,master) 
+                        } else {
+                            if (debug) {
+                                print "Manual restart required."
+                            }
+                            _summary.append(" manual restart required.\n")
+                        }
+                        println ""
+                    } else {
+                        plugins++
+                        if (debug) {
+                            println "Plugin cannot be upgraded. Please contact CloudBees support."
+                        }
+                        _summary.append("Plugin cannot be upgraded. Please contact CloudBees support.\n")
+                        _summary.append("Additional information for ")
+                        _summary.append(master.name)
+                        _summary.append("\n")
+                        if (_masterStatus[1] == '0') {
+                            _summary.append("\tInstance cannot apply incremental upgrade\n")
+                        }
+                        if (_masterStatus[2] == '0') {
+                            _summary.append("\tBeekeeper is not enabled\n")
+                        }
+                        if (_masterStatus[3] == '1') {
+                            _summary.append("\tInstance is using a custom update center")
+                        }
+                        _summary.append("\n")
+                    } 
+                } else {
+                    _summary.append(master.name)
+                    _summary.append(" - Connected master has already been upgraded, no further action needed\n")
+                }
+                if (debug) {
+                    println("Additional Info - " + master.name)
+                    for (int i=0;i<_masterStatus.size();i++) {
+                        print _statusKey[i] + " = " + _masterStatus[i].toString() + "\n"
+                    }
+                }
+            } else {
+                offline++
+                _summary.append(master.name)
+                _summary.append(" - Connected master performance is not enough to determine the status.\n")
             }
         } else {
             offline++
