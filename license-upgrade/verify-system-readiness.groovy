@@ -233,7 +233,7 @@ if (productType() == Product.OPERATIONS_CENTER) {
           // performance issue?
           offline++
           if (debug) {
-            println println "[" + master.name + "] is not returning a valid status: " + _return 
+            println "[" + master.name + "] is not returning a valid status: " + _return 
           }
         } else {
 
