@@ -14,6 +14,8 @@ def restart = false
 def slowConnection = false
 // set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
 def debug = false
+// set skipMasters = true to avoid requests to masters. Please, don't enable it unless you know what you are doing. <
+def skipMasters = false
 // set direct = true to enable directly updating the cloudbees-license-plugin if no incremental update is available (should not be needed).
 // direct method is useful when BeeKeeper is disabled or the instance cannot reach the public update site. It only replaces the current version 
 // of cloudbees-license plugin by its patched version.
@@ -286,7 +288,7 @@ def type = productType()
 
 println "Determine the instance type: " + type
 boolean all = true
-if (type == Product.OPERATIONS_CENTER) {
+if (type == Product.OPERATIONS_CENTER && !skipMasters) {
     int plugins = 0
     int offline = 0
     int tries = 20
@@ -415,7 +417,6 @@ if (_status[0] == '1') {
         }
         println ""
     } else {
-        //println " Plugin cannot be upgraded. Please contact CloudBees support."
         _summary.append(" Plugin cannot be upgraded. Please contact CloudBees support.\n")
         all = false
     } 
@@ -428,10 +429,8 @@ if (_status[0] == '1') {
 
 println ""
 if (all) {
-    //println "All instances haven been upgraded sucessfully"
     _summary2.append("\nAll instances haven been upgraded sucessfully\n")
 } else {
-    //println "You have one or more instances that need to be upgraded."
     _summary2.append("\nYou have one or more instances that need to be upgraded.\n")
 }
 
