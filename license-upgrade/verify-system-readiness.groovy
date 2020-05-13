@@ -15,6 +15,8 @@ def slowConnection = false
 def debug = false
 // set skipMasters = true to avoid requests to masters.
 def skipMasters = false
+// set onlyStatus = true to return the status array. If onlyStatus is enabled, skipMasters is automatically set to true as well.
+def onlyStatus = false
 
 // Scripts
 // ------------------------------------------------------------------------------------------------
@@ -154,8 +156,12 @@ try {
 // script-status main code
 // ------------------------------------------------------------------------------------------------
 
-println "verify-system-readiness.groovy running... [v" + _version + "]"
-println "Determining the instance type..." + productType().toString()
+if (onlyStatus) {
+  skipMasters = true
+}
+
+if (!onlyStatus) { println "verify-system-readiness.groovy running... [v" + _version + "]" }
+if (!onlyStatus) { println "Determining the instance type..." + productType().toString() }
 
 def _statusKey = []
 _statusKey[0] = "Is cloudbees-license plugin installed?"
@@ -197,7 +203,7 @@ _summary.append(" - ")
 _summary.append(printStatus(_status, false))
 _summary.append("\n")
 
-if (debug) {
+if (!onlyStatus && debug) {
   println productType().toString() + " - " + printStatus (_status, debug)
   for (i=0;i<_status.size(); i++) {
     println "\t" + _statusKey[i].toString() + " ["  + _status[i].toString() + "]"
@@ -209,7 +215,7 @@ if (productType() == Product.OPERATIONS_CENTER) {
   int licenses = 0
   int offline = 0
   
-  println("Asking for the status of the connected masters...")
+  if (!onlyStatus) { println("Asking for the status of the connected masters...") }
 
   int tries = 20
   long waitingFor = 1000
@@ -271,27 +277,30 @@ if (productType() == Product.OPERATIONS_CENTER) {
     }
   }
   
-  println "verify-system-readiness.groovy complete"
-  println "----------------------------------------------------------------------------------------------------------------"
-  println "                                               SUMMARY"
-  println "----------------------------------------------------------------------------------------------------------------"
+  if (!onlyStatus) { 
+    println "verify-system-readiness.groovy complete"
+    println "----------------------------------------------------------------------------------------------------------------"
+    println "                                               SUMMARY"
+    println "----------------------------------------------------------------------------------------------------------------"
 
-  println _summary.toString()
-  
-  if (offline > 0) {
-    println 'There are ' + offline + ' connected masters offline. Their status cannot be determined.'
-  } 
-  if (plugins > 0) {
-    println 'You have one or more instances that need to be upgraded.'
-  } else if (licenses > 0) {
-    println 'Your online connected masters are ready to install the new license.'
-  } else {
-    println 'All your online connected masters are up to date and running the new license'
+    println _summary.toString()
+
+    if (offline > 0) {
+      println 'There are ' + offline + ' connected masters offline. Their status cannot be determined.'
+    } 
+    if (plugins > 0) {
+      println 'You have one or more instances that need to be upgraded.'
+    } else if (licenses > 0) {
+      println 'Your online connected masters are ready to install the new license.'
+    } else {
+      println 'All your online connected masters are up to date and running the new license'
+    }
   }
 } else {
-  println _summary.toString()
+  if (!onlyStatus) { println _summary.toString() }
 }
 
+if (onlyStatus) { println _status}
 
 // script-status common code
 // ------------------------------------------------------------------------------------------------
