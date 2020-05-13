@@ -13,6 +13,10 @@ def _version = "d6a8ab2"
 def slowConnection = false
 // Set the value of debug = "true" for additional output. The output is supposed to be consumed by a support engineer.
 def debug = false
+// set skipMasters = true to avoid requests to masters.
+def skipMasters = false
+// set onlyStatus = true to return the status array. If onlyStatus is enabled, skipMasters is automatically set to true as well.
+def onlyStatus = false
 
 // Scripts
 // ------------------------------------------------------------------------------------------------
@@ -152,8 +156,12 @@ try {
 // script-status main code
 // ------------------------------------------------------------------------------------------------
 
-println "verify-system-readiness.groovy running... [v" + _version + "]"
-println "Determining the instance type..." + productType().toString()
+if (onlyStatus) {
+  skipMasters = true
+}
+
+if (!onlyStatus) { println "verify-system-readiness.groovy running... [v" + _version + "]" }
+if (!onlyStatus) { println "Determining the instance type..." + productType().toString() }
 
 def _statusKey = []
 _statusKey[0] = "Is cloudbees-license plugin installed?"
@@ -195,7 +203,7 @@ _summary.append(" - ")
 _summary.append(printStatus(_status, false))
 _summary.append("\n")
 
-if (debug) {
+if (!onlyStatus && debug) {
   println productType().toString() + " - " + printStatus (_status, debug)
   for (i=0;i<_status.size(); i++) {
     println "\t" + _statusKey[i].toString() + " ["  + _status[i].toString() + "]"
@@ -207,7 +215,7 @@ if (productType() == Product.OPERATIONS_CENTER) {
   int licenses = 0
   int offline = 0
   
-  println("Asking for the status of the connected masters...")
+  if (!onlyStatus) { println("Asking for the status of the connected masters...") }
 
   int tries = 20
   long waitingFor = 1000
@@ -215,80 +223,84 @@ if (productType() == Product.OPERATIONS_CENTER) {
     waitingFor = 3000
   }
 
-  jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
-    println "Checking status of " + master.name
-    if(master.channel != null) {
-      def response = executeScriptRemotely(master, script, tries, waitingFor)
-      if (response == null) {
-        offline++
-        _summary.append(master.name)
-        _summary.append(" connection performance is not good enough to determine its status.\n")
-        println master.name + " connection performance is not good enough and the status cannot be determined."
-      } else {
-        def _return = response.minus('[').minus(']')
-        String[] masterStatus = _return.tokenize(',')
-        masterStatus.eachWithIndex { it,i -> masterStatus[i] = it.trim() }
-
-        if(masterStatus.size() != 17) {
-          // performance issue?
+  if (!skipMasters) {
+    jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
+      println "Checking status of " + master.name
+      if(master.channel != null) {
+        def response = executeScriptRemotely(master, script, tries, waitingFor)
+        if (response == null) {
           offline++
-          if (debug) {
-            println "[" + master.name + "] is not returning a valid status: " + _return 
-          }
-        } else {
-
-          if(masterStatus[12].trim() == '1') {
-            plugins++
-          } 
-          if(masterStatus[13].trim() == '1') {
-            licenses++
-          }
-          def summary = printStatus (masterStatus, debug)
           _summary.append(master.name)
-          _summary.append(" v")
-          _summary.append(masterStatus[15])
-          _summary.append(" - ")
-          _summary.append(printStatus(masterStatus, false))      
-          _summary.append("\n")
+          _summary.append(" connection performance is not good enough to determine its status.\n")
+          println master.name + " connection performance is not good enough and the status cannot be determined."
+        } else {
+          def _return = response.minus('[').minus(']')
+          String[] masterStatus = _return.tokenize(',')
+          masterStatus.eachWithIndex { it,i -> masterStatus[i] = it.trim() }
 
-          if (debug) {
-            println "[" + master.name + "]" + summary
-            for (i=0;i<masterStatus.size(); i++) {
-              println "\t" + _statusKey[i].toString() + " ["  + masterStatus[i].toString() + "]"
+          if(masterStatus.size() != 17) {
+            // performance issue?
+            offline++
+            if (debug) {
+              println "[" + master.name + "] is not returning a valid status: " + _return 
+            }
+          } else {
+
+            if(masterStatus[12].trim() == '1') {
+              plugins++
+            } 
+            if(masterStatus[13].trim() == '1') {
+              licenses++
+            }
+            def summary = printStatus (masterStatus, debug)
+            _summary.append(master.name)
+            _summary.append(" v")
+            _summary.append(masterStatus[15])
+            _summary.append(" - ")
+            _summary.append(printStatus(masterStatus, false))      
+            _summary.append("\n")
+
+            if (debug) {
+              println "[" + master.name + "]" + summary
+              for (i=0;i<masterStatus.size(); i++) {
+                println "\t" + _statusKey[i].toString() + " ["  + masterStatus[i].toString() + "]"
+              }
             }
           }
         }
+      } else {
+        offline++
+        _summary.append(master.name)
+        _summary.append(" is not online and its status cannot be determined.\n")
+        println master.name + " is not online and the status cannot be determined."
       }
-    } else {
-      offline++
-      _summary.append(master.name)
-      _summary.append(" is not online and its status cannot be determined.\n")
-      println master.name + " is not online and the status cannot be determined."
     }
   }
-
   
-  println "verify-system-readiness.groovy complete"
-  println "----------------------------------------------------------------------------------------------------------------"
-  println "                                               SUMMARY"
-  println "----------------------------------------------------------------------------------------------------------------"
+  if (!onlyStatus) { 
+    println "verify-system-readiness.groovy complete"
+    println "----------------------------------------------------------------------------------------------------------------"
+    println "                                               SUMMARY"
+    println "----------------------------------------------------------------------------------------------------------------"
 
-  println _summary.toString()
-  
-  if (offline > 0) {
-    println 'There are ' + offline + ' connected masters offline. Their status cannot be determined.'
-  } 
-  if (plugins > 0) {
-    println 'You have one or more instances that need to be upgraded.'
-  } else if (licenses > 0) {
-    println 'Your online connected masters are ready to install the new license.'
-  } else {
-    println 'All your online connected masters are up to date and running the new license'
+    println _summary.toString()
+
+    if (offline > 0) {
+      println 'There are ' + offline + ' connected masters offline. Their status cannot be determined.'
+    } 
+    if (plugins > 0) {
+      println 'You have one or more instances that need to be upgraded.'
+    } else if (licenses > 0) {
+      println 'Your online connected masters are ready to install the new license.'
+    } else {
+      println 'All your online connected masters are up to date and running the new license'
+    }
   }
 } else {
-  println _summary.toString()
+  if (!onlyStatus) { println _summary.toString() }
 }
 
+if (onlyStatus) { println _status}
 
 // script-status common code
 // ------------------------------------------------------------------------------------------------
@@ -346,7 +358,7 @@ def productType() {
       }
     } else {
       def _plugin_oc_context = jenkins.model.Jenkins.instance.getPlugin('operations-center-context')
-      def _plugin_folder_plus = jenkins.model.Jenkins.instance.getPlugin('cloudbees-folder-plus')
+      def _plugin_folder_plus = jenkins.model.Jenkins.instance.getPlugin('cloudbees-folders-plus')
       if((_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) || 
         (_plugin_folder_plus != null && _plugin_folder_plus.getWrapper().isActive())) {
         return Product.STANDALONE_MASTER

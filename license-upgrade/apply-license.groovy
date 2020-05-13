@@ -10,6 +10,9 @@ def _version = "d6a8ab2"
 def slowConnection = false
 // set debug = true for additional debug ouput. The output is supposed to be consumed by a support engineer.
 def debug = false
+// set skipMasters = true to avoid requests to masters. Please, don't enable it unless you know what you are doing. The license
+// is going to be upgraded even if there are uncompatible plugins installed on masters.
+def skipMasters = false
 // Set forceRestart = true to automatically restart masters with cloudbees-license < 9.17 after OC license is installed. 
 forceRestart = false
 // Set forceSublicenseRefresh = true for refreshing connected master licenses even if there is no upgrade for OC license.
@@ -209,6 +212,7 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
       }
       
       if(status[0] == '1') {
+        if (!skipMasters) {
           def map = new java.util.HashMap()
           def offline = 0
           def plugins = 0
@@ -281,6 +285,14 @@ if ((manager != null) && (manager.getParsed().isWildcard())) {
                   println " * ${name}"
               }
           }
+        } else {
+          def result = executeScript(script_license_set)
+          if (result == "NEW_LICENSE") {
+              println "New license installed on Operations Center."
+          } else {
+              println "No new license available.  Contact csm-help@cloudbees.com to obtain a license."
+          }
+        }
       } else {
           println "cloudbees-license plugin installed on operations center is not compatible with new license. Please update it."
       }
@@ -376,7 +388,7 @@ def productType() {
       }
     } else {
       def _plugin_oc_context = jenkins.model.Jenkins.instance.getPlugin('operations-center-context')
-      def _plugin_folder_plus = jenkins.model.Jenkins.instance.getPlugin('cloudbees-folder-plus')
+      def _plugin_folder_plus = jenkins.model.Jenkins.instance.getPlugin('cloudbees-folders-plus')
       if((_plugin_oc_context != null && _plugin_oc_context.getWrapper().isActive()) || 
         (_plugin_folder_plus != null && _plugin_folder_plus.getWrapper().isActive())) {
         return Product.STANDALONE_MASTER
