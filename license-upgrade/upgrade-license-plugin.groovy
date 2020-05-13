@@ -4,7 +4,7 @@ Checks for and applies incremental updates for you jenkins instances so that the
 */
 
 // script version
-def _version = "d6a8ab2"
+def _version = "ce00ec5"
 
 // Set restart = true to automatically restart jenkins after the update is applied. 
 // A restart is always required after plugin upgrade. It can be done either manually or
