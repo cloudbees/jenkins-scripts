@@ -13,6 +13,8 @@ def _version = "d6a8ab2"
 def slowConnection = false
 // Set the value of debug = "true" for additional output. The output is supposed to be consumed by a support engineer.
 def debug = false
+// set skipMasters = true to avoid requests to masters.
+def skipMasters = false
 
 // Scripts
 // ------------------------------------------------------------------------------------------------
@@ -215,58 +217,59 @@ if (productType() == Product.OPERATIONS_CENTER) {
     waitingFor = 3000
   }
 
-  jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
-    println "Checking status of " + master.name
-    if(master.channel != null) {
-      def response = executeScriptRemotely(master, script, tries, waitingFor)
-      if (response == null) {
-        offline++
-        _summary.append(master.name)
-        _summary.append(" connection performance is not good enough to determine its status.\n")
-        println master.name + " connection performance is not good enough and the status cannot be determined."
-      } else {
-        def _return = response.minus('[').minus(']')
-        String[] masterStatus = _return.tokenize(',')
-        masterStatus.eachWithIndex { it,i -> masterStatus[i] = it.trim() }
-
-        if(masterStatus.size() != 17) {
-          // performance issue?
+  if (!skipMasters) {
+    jenkins.model.Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster.class).each { master ->
+      println "Checking status of " + master.name
+      if(master.channel != null) {
+        def response = executeScriptRemotely(master, script, tries, waitingFor)
+        if (response == null) {
           offline++
-          if (debug) {
-            println "[" + master.name + "] is not returning a valid status: " + _return 
-          }
-        } else {
-
-          if(masterStatus[12].trim() == '1') {
-            plugins++
-          } 
-          if(masterStatus[13].trim() == '1') {
-            licenses++
-          }
-          def summary = printStatus (masterStatus, debug)
           _summary.append(master.name)
-          _summary.append(" v")
-          _summary.append(masterStatus[15])
-          _summary.append(" - ")
-          _summary.append(printStatus(masterStatus, false))      
-          _summary.append("\n")
+          _summary.append(" connection performance is not good enough to determine its status.\n")
+          println master.name + " connection performance is not good enough and the status cannot be determined."
+        } else {
+          def _return = response.minus('[').minus(']')
+          String[] masterStatus = _return.tokenize(',')
+          masterStatus.eachWithIndex { it,i -> masterStatus[i] = it.trim() }
 
-          if (debug) {
-            println "[" + master.name + "]" + summary
-            for (i=0;i<masterStatus.size(); i++) {
-              println "\t" + _statusKey[i].toString() + " ["  + masterStatus[i].toString() + "]"
+          if(masterStatus.size() != 17) {
+            // performance issue?
+            offline++
+            if (debug) {
+              println "[" + master.name + "] is not returning a valid status: " + _return 
+            }
+          } else {
+
+            if(masterStatus[12].trim() == '1') {
+              plugins++
+            } 
+            if(masterStatus[13].trim() == '1') {
+              licenses++
+            }
+            def summary = printStatus (masterStatus, debug)
+            _summary.append(master.name)
+            _summary.append(" v")
+            _summary.append(masterStatus[15])
+            _summary.append(" - ")
+            _summary.append(printStatus(masterStatus, false))      
+            _summary.append("\n")
+
+            if (debug) {
+              println "[" + master.name + "]" + summary
+              for (i=0;i<masterStatus.size(); i++) {
+                println "\t" + _statusKey[i].toString() + " ["  + masterStatus[i].toString() + "]"
+              }
             }
           }
         }
+      } else {
+        offline++
+        _summary.append(master.name)
+        _summary.append(" is not online and its status cannot be determined.\n")
+        println master.name + " is not online and the status cannot be determined."
       }
-    } else {
-      offline++
-      _summary.append(master.name)
-      _summary.append(" is not online and its status cannot be determined.\n")
-      println master.name + " is not online and the status cannot be determined."
     }
   }
-
   
   println "verify-system-readiness.groovy complete"
   println "----------------------------------------------------------------------------------------------------------------"
