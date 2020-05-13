@@ -29,6 +29,10 @@ if [ -z "$LICENSE_SCRIPTS_DIR" ]; then
     #echo $(date) "Output dir $LICENSE_SCRIPTS_DIR"
 fi
 
+oc_status=$(java -jar ${jenkins_cli} -s ${jenkins_url} -auth @${jenkins_auth} groovy = < ${LICENSE_SCRIPTS_DIR}/verify-system-readiness.groovy)
+echo "[operations-center] ${oc_status}"
+
+
 masters=$(java -jar ${jenkins_cli} -s ${jenkins_url} -auth @${jenkins_auth} list-masters)
 online_masters=$(echo $masters | jq -cr '.data.masters[] | select(.status == "ONLINE")')
 masters_name=$(echo $online_masters | jq -r '.fullName')
@@ -36,8 +40,6 @@ masters_url=$(echo $online_masters | jq -r '.url')
 m_u_arr=($masters_url)
 m_n_arr=($masters_name)
 for index in "${!m_u_arr[@]}"; do 
-  echo "------ MASTER -------"
-  echo "verifying master ${m_n_arr[index]}"
-  echo " "
-  java -jar ${jenkins_cli} -s ${m_u_arr[index]} -auth @${jenkins_auth} groovy = < ${LICENSE_SCRIPTS_DIR}/verify-system-readiness.groovy
+  master_status=$(java -jar ${jenkins_cli} -s ${m_u_arr[index]} -auth @${jenkins_auth} groovy = < ${LICENSE_SCRIPTS_DIR}/verify-system-readiness.groovy)
+  echo "[${m_n_arr[index]}] ${master_status}"
 done;
