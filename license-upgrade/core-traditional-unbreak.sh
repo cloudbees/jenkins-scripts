@@ -1,5 +1,8 @@
 #!/bin/bash
 
+## Script to automatically determine what version of plugin needs to be downloaded
+## and installs it
+
 hinit() {
     rm -f /tmp/hashmap.$1
 }
@@ -29,10 +32,41 @@ hput versions "9.24" "https://jenkins-updates.cloudbees.com/download/plugins/clo
 hput versions "9.13" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.13.1/cloudbees-license.hpi"
 hput versions "9.11" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.11.1/cloudbees-license.hpi"
 
-#test it
-# assume we found the instance is using version 9.18.1
-hget versions 9.18.1
+# is JENKINS_HOME set?
+ if [[ -z "$JENKINS_HOME" ]]; then
+    echo "JENKINS_HOME not set, exiting..."
+    exit
+else
+    echo "Using JENKINS_HOME defined as $JENKINS_HOME"
+fi
 
-echo $PLUGIN_URL
+# find the currently installed version of the cloudbees-license plugin
+#echo "$JENKINS_HOME/plugins/cloudbees-license/META-INF/MANIFEST.MF"
+#strip out any odd control chars!
+CURRENT_PLUGIN_VERSION=$(grep Plugin-Version $JENKINS_HOME/plugins/cloudbees-license/META-INF/MANIFEST.MF | awk '{ print $2 };' | tr -d '\000-\031')
+echo "CURRENT_PLUGIN_VERSION = $CURRENT_PLUGIN_VERSION"
 
-# now download the plugin, etc
+# lookup the updated plugin download url
+hget versions $CURRENT_PLUGIN_VERSION
+#hget versions 9.33
+#TODO: add additional test cases here to catch the following scernarios
+#      - user has already upgraded
+#      - user does not need to upgrade (ie. 9.34 or newer already)
+
+ if [[ -z "$PLUGIN_URL" ]]; then
+    echo "No updated plugin exists for $CURRENT_PLUGIN_VERSION"
+    echo "Please contact support"
+    exit
+fi
+
+# backup the currently installed plugin
+echo "Backing up the currently installed license plugin"
+mv $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.bak
+
+# now download the plugin
+
+echo "Downloading updated plugin from $PLUGIN_URL"
+#TODO: add test for existence of wget or curl, exit if neither is found...
+wget -o $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
+
+echo "Plugin updated successfully, please restart your Jenkins instance to complete the installation"
