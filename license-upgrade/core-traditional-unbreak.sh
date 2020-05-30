@@ -56,7 +56,7 @@ hget versions $CURRENT_PLUGIN_VERSION
  if [[ -z "$PLUGIN_URL" ]]; then
     echo "No updated plugin exists for $CURRENT_PLUGIN_VERSION"
     echo "Please contact support"
-    exit
+    exit 1
 fi
 
 # backup the currently installed plugin
