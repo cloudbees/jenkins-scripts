@@ -66,7 +66,13 @@ mv $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-l
 # now download the plugin
 
 echo "Downloading updated plugin from $PLUGIN_URL"
-#TODO: add test for existence of wget or curl, exit if neither is found...
-wget -o $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
+if [ -x "$(which wget)" ] ; then
+    wget -o $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
+elif [ -x "$(which curl)" ]; then
+    curl -o $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
+else
+    echo "Could not find curl or wget, please install one." >&2
+    exit 1
+fi
 
 echo "Plugin updated successfully, please restart your Jenkins instance to complete the installation"
