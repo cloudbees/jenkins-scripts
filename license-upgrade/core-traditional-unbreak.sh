@@ -34,6 +34,34 @@ hput versions "9.24" "https://jenkins-updates.cloudbees.com/download/plugins/clo
 hput versions "9.13" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.13.1/cloudbees-license.hpi"
 hput versions "9.11" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.11.1/cloudbees-license.hpi"
 
+hinit backports
+hput backports "9.33.1" "backport"
+hput backports "9.32.1" "backport"
+hput backports "9.31.1" "backport"
+hput backports "9.30.1" "backport"
+hput backports "9.28.1" "backport"
+hput backports "9.27.1" "backport"
+hput backports "9.26.1" "backport"
+hput backports "9.24.1" "backport"
+hput backports "9.20.1" "backport"
+hput backports "9.18.1.1" "backport"
+hput backports "9.13.1" "backport"
+hput backports "9.11.1" "backport"
+
+hput backports "9.34" "ok"
+hput backports "9.34.1" "ok"
+hput backports "9.35" "ok"
+hput backports "9.35.1" "ok"
+hput backports "9.36" "ok"
+hput backports "9.36.1" "ok"
+hput backports "9.37" "ok"
+hput backports "9.38" "ok"
+hput backports "9.39" "ok"
+hput backports "9.39.1" "ok"
+hput backports "9.40" "ok"
+hput backports "9.41" "ok"
+hput backports "9.42" "ok"
+
 # is JENKINS_HOME set?
  if [[ -z "$JENKINS_HOME" ]]; then
     echo "JENKINS_HOME not set, exiting..."
@@ -48,12 +76,24 @@ fi
 CURRENT_PLUGIN_VERSION=$(grep Plugin-Version $JENKINS_HOME/plugins/cloudbees-license/META-INF/MANIFEST.MF | awk '{ print $2 };' | tr -d '\000-\031')
 echo "CURRENT_PLUGIN_VERSION = $CURRENT_PLUGIN_VERSION"
 
+
+# Check if the user does not need to upgrade (ie. 9.34 or newer already)
+hget backports $CURRENT_PLUGIN_VERSION
+
+if [ "$PLUGIN_URL" == "ok" ] ; then
+    echo "Currently installed plugin version $CURRENT_PLUGIN_VERSION already supports the new license.  No upgrade nescecary"
+    exit 0
+fi
+
+# Check if the  user has already upgraded
+hget backports $CURRENT_PLUGIN_VERSION
+if [ "$PLUGIN_URL" == "backport" ] ; then
+    echo "Currently installed plugin version $CURRENT_PLUGIN_VERSION already supports the new license.  No upgrade nescecary"
+    exit 0
+fi
+
 # lookup the updated plugin download url
 hget versions $CURRENT_PLUGIN_VERSION
-#hget versions 9.33
-#TODO: add additional test cases here to catch the following scernarios
-#      - user has already upgraded
-#      - user does not need to upgrade (ie. 9.34 or newer already)
 
  if [[ -z "$PLUGIN_URL" ]]; then
     echo "No updated plugin exists for $CURRENT_PLUGIN_VERSION"
