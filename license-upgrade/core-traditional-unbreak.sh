@@ -131,9 +131,9 @@ mv $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-l
 
 echo "Downloading updated plugin from $PLUGIN_URL"
 if [ -x "$(which wget)" ] ; then
-    wget -o $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
+    wget --output-document=$JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
 elif [ -x "$(which curl)" ]; then
-    curl -o $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
+    curl --output $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
 else
     echo "Could not find curl or wget, please install one." >&2
     exit 1
