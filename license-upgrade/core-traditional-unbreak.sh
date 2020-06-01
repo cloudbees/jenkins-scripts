@@ -42,12 +42,12 @@ echo "Checking for wget or curl...."
 downloadTool=""
 verify_command wget
 if [ "$toolsMissing" == "0" ] ; then
-    downloadTool="wget --output-document = "
+    downloadTool="wget -nv --output-document=$JENKINS_HOME/plugins/cloudbees-license.jpi"
 else
     toolsMissing="0"
     verify_command curl
     if [ "$toolsMissing" == "0" ] ; then
-        downloadTool="curl --output"
+        downloadTool="curl -sS --output $JENKINS_HOME/plugins/cloudbees-license.jpi"
     fi
 fi
 
