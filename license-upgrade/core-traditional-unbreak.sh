@@ -1,7 +1,9 @@
 #!/bin/bash
 
+VERSION=1591044222
 ## Script to automatically determine what version of plugin needs to be downloaded
 ## and installs it
+echo "Executing core-traditional-unbreak.sh version $VERSION"
 
 hinit() {
     rm -f /tmp/hashmap.$1
@@ -63,6 +65,9 @@ if [ "$toolsMissing" == "1" ] ; then
     echo "curl or wget are required, please install one of these and re-run."
     exit 1
 fi
+
+#TODO Add checks to ensure that user executing script has filesystem permission to make update
+#TODO ensure that downloaded plugin is installed using the right user && group
 
 hinit versions
 hput versions "9.33" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.33.1/cloudbees-license.hpi"
