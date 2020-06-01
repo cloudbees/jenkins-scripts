@@ -15,6 +15,14 @@ hget() {
     PLUGIN_URL=$(grep "^$2 " /tmp/hashmap.$1 | awk '{ print $2 };' )
 }
 
+# is JENKINS_HOME set?
+ if [[ -z "$JENKINS_HOME" ]]; then
+    echo "JENKINS_HOME not set, exiting..."
+    exit
+else
+    echo "Using JENKINS_HOME defined as $JENKINS_HOME"
+fi
+
 toolsMissing="0"
 verify_command() {
   echo "Verifying command [${1}] is installed..."
@@ -100,14 +108,6 @@ hput backports "9.39.1" "ok"
 hput backports "9.40" "ok"
 hput backports "9.41" "ok"
 hput backports "9.42" "ok"
-
-# is JENKINS_HOME set?
- if [[ -z "$JENKINS_HOME" ]]; then
-    echo "JENKINS_HOME not set, exiting..."
-    exit
-else
-    echo "Using JENKINS_HOME defined as $JENKINS_HOME"
-fi
 
 # find the currently installed version of the cloudbees-license plugin
 #echo "$JENKINS_HOME/plugins/cloudbees-license/META-INF/MANIFEST.MF"
