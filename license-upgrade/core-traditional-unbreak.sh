@@ -27,7 +27,7 @@ hput versions "9.24" "https://jenkins-updates.cloudbees.com/download/plugins/clo
 hput versions "9.20" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.20.1/cloudbees-license.hpi"
 hput versions "9.18.1" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.18.1.1/cloudbees-license.hpi"
 #TODO: verify this is not a mistake - 9.18.1 is not a valid backport for the new licenses....
-hput versions "9.18" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.18.1/cloudbees-license.hpi"
+hput versions "9.18" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.18.0.1/cloudbees-license.hpi"
 hput versions "9.17" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.17.1/cloudbees-license.hpi"
 #TODO: verify this is not a mistake
 hput versions "9.24" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.24.1/cloudbees-license.hpi"
