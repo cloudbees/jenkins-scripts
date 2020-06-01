@@ -15,6 +15,31 @@ hget() {
     PLUGIN_URL=$(grep "^$2 " /tmp/hashmap.$1 | awk '{ print $2 };' )
 }
 
+verify_command() {
+  echo "Verifying command [${1}] is installed..."
+
+  if command --version $1 >/dev/null 2>&1 || command -version $1 >/dev/null 2>&1 || command -v $1 >/dev/null 2>&1; then
+    echo "Confirmed command [${1}] present."
+  else
+    echo "Command [${1}] required but not installed. Aborting!"
+    exit 1
+  fi
+}
+
+echo "Checking to see if required tools are present"
+verify_command which
+verify_command awk
+verify_command grep 
+verify_command tr
+if [ -x "$(which wget)" ] ; then
+    echo "Confirmed command wget prseent."
+elif [ -x "$(which curl)" ]; then
+    echo "Confirmed command curl prseent."
+else
+    echo "Could not find curl or wget required but not installed., please install one.  Aborting!" >&2
+    exit 1
+fi
+
 hinit versions
 hput versions "9.33" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.33.1/cloudbees-license.hpi"
 hput versions "9.32" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.32.1/cloudbees-license.hpi"
