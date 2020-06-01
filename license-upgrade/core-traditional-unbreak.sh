@@ -15,28 +15,44 @@ hget() {
     PLUGIN_URL=$(grep "^$2 " /tmp/hashmap.$1 | awk '{ print $2 };' )
 }
 
+toolsMissing="0"
 verify_command() {
   echo "Verifying command [${1}] is installed..."
 
-  if command --version $1 >/dev/null 2>&1 || command -version $1 >/dev/null 2>&1 || command -v $1 >/dev/null 2>&1; then
+  if command -v $1 >/dev/null 2>&1; then
     echo "Confirmed command [${1}] present."
   else
-    echo "Command [${1}] required but not installed. Aborting!"
-    exit 1
+    echo "Command [${1}] required but not installed!"
+    toolsMissing="1"
   fi
 }
 
 echo "Checking to see if required tools are present"
-verify_command which
+
 verify_command awk
 verify_command grep 
 verify_command tr
-if [ -x "$(which wget)" ] ; then
-    echo "Confirmed command wget prseent."
-elif [ -x "$(which curl)" ]; then
-    echo "Confirmed command curl prseent."
+
+if [ "$toolsMissing" == "1" ] ; then
+    echo "Required tools are missing, please install and re-run."
+    exit 1
+fi
+
+echo "Checking for wget or curl...."
+downloadTool=""
+verify_command wget
+if [ "$toolsMissing" == "0" ] ; then
+    downloadTool="wget --output-document = "
 else
-    echo "Could not find curl or wget required but not installed., please install one.  Aborting!" >&2
+    toolsMissing="0"
+    verify_command curl
+    if [ "$toolsMissing" == "0" ] ; then
+        downloadTool="curl --output"
+    fi
+fi
+
+if [ "$toolsMissing" == "1" ] ; then
+    echo "curl or wget are required, please install one of these and re-run."
     exit 1
 fi
 
@@ -131,13 +147,6 @@ mv $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-l
 # now download the plugin
 
 echo "Downloading updated plugin from $PLUGIN_URL"
-if [ -x "$(which wget)" ] ; then
-    wget --output-document=$JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
-elif [ -x "$(which curl)" ]; then
-    curl --output $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
-else
-    echo "Could not find curl or wget, please install one." >&2
-    exit 1
-fi
+$downloadTool $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
 
 echo "Plugin updated successfully, please restart your Jenkins instance to complete the installation"
