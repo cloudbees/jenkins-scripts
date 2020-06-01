@@ -147,6 +147,6 @@ mv $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-l
 # now download the plugin
 
 echo "Downloading updated plugin from $PLUGIN_URL"
-$downloadTool $JENKINS_HOME/plugins/cloudbees-license.jpi $PLUGIN_URL
+$downloadTool $PLUGIN_URL
 
 echo "Plugin updated successfully, please restart your Jenkins instance to complete the installation"
