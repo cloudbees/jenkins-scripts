@@ -32,16 +32,16 @@ verify_command() {
   if command -v $1 >/dev/null 2>&1; then
     echo "Confirmed command [${1}] present."
   else
-    echo "Command [${1}] required but not installed!"
+    echo "Command [${1}] ${2}"
     toolsMissing="1"
   fi
 }
 
 echo "Checking to see if required tools are present"
 
-verify_command awk
-verify_command grep 
-verify_command tr
+verify_command awk "awk is required, please install it and re-run this script"
+verify_command grep "grep is required, please install it and re-run this script"
+verify_command tr "tr is required, please install it and re-run this script"
 
 if [ "$toolsMissing" == "1" ] ; then
     echo "Required tools are missing, please install and re-run."
@@ -50,12 +50,12 @@ fi
 
 echo "Checking for wget or curl...."
 downloadTool=""
-verify_command wget
+verify_command wget "wget is not installed, wget or curl are required"
 if [ "$toolsMissing" == "0" ] ; then
     downloadTool="wget -nv --output-document=$JENKINS_HOME/plugins/cloudbees-license.jpi"
 else
     toolsMissing="0"
-    verify_command curl
+    verify_command curl "curl is not installed, curl or wget are required"
     if [ "$toolsMissing" == "0" ] ; then
         downloadTool="curl -sS --output $JENKINS_HOME/plugins/cloudbees-license.jpi"
     fi
