@@ -25,6 +25,22 @@ else
     echo "Using JENKINS_HOME defined as $JENKINS_HOME"
 fi
 
+# is JENKINS_USER set?
+ if [[ -z "$JENKINS_USER" ]]; then
+    echo "JENKINS_USER not set, exiting..."
+    exit
+else
+    echo "Using JENKINS_USER defined as $JENKINS_USER"
+fi
+
+# is JENKINS_GROUP set?
+ if [[ -z "$JENKINS_GROUP" ]]; then
+    echo "JENKINS_GROUP not set, exiting..."
+    exit
+else
+    echo "Using JENKINS_GROUP defined as $JENKINS_GROUP"
+fi
+
 toolsMissing="0"
 verify_command() {
   echo "Verifying command [${1}] is installed..."
@@ -42,6 +58,8 @@ echo "Checking to see if required tools are present"
 verify_command awk "awk is required, please install it and re-run this script"
 verify_command grep "grep is required, please install it and re-run this script"
 verify_command tr "tr is required, please install it and re-run this script"
+verify_command chown "chown is required, please install it and re-run this script"
+verify_command chgrp "chgrp is required, please install it and re-run this script"
 
 if [ "$toolsMissing" == "1" ] ; then
     echo "Required tools are missing, please install and re-run."
@@ -148,10 +166,14 @@ fi
 # backup the currently installed plugin
 echo "Backing up the currently installed license plugin"
 mv $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.bak
+chown $JENKINS_USER $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.bak
+chgrp $JENKINS_GROUP $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.bak
 
 # now download the plugin
 
 echo "Downloading updated plugin from $PLUGIN_URL"
 $downloadTool $PLUGIN_URL
+chown $JENKINS_USER $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.jpi
+chgrp $JENKINS_GROUP $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.jpi
 
 echo "Plugin updated successfully, please restart your Jenkins instance to complete the installation"
