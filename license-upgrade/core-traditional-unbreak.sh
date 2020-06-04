@@ -17,18 +17,18 @@ hget() {
     PLUGIN_URL=$(grep "^$2 " /tmp/hashmap.$1 | awk '{ print $2 };' )
 }
 
-# is JENKINS_HOME set?
- if [[ -z "$JENKINS_HOME" ]]; then
-    echo "JENKINS_HOME not set, exiting..."
+# is PLUGIN_ROOT set?
+ if [[ -z "$PLUGIN_ROOT" ]]; then
+    echo "PLUGIN_ROOT not set, exiting..."
     exit
 else
-    echo "Using JENKINS_HOME defined as $JENKINS_HOME"
+    echo "Using PLUGIN_ROOT defined as $PLUGIN_ROOT"
 fi
 
 # is JENKINS_USER set?
  if [[ -z "$JENKINS_USER" ]]; then
     # try to determine the current fileowner
-    file_meta=($(ls -ld $JENKINS_HOME/plugins/cloudbees-license.jpi))
+    file_meta=($(ls -ld $PLUGIN_ROOT/cloudbees-license.jpi))
     JENKINS_USER="${file_meta[2]}"
 fi
 echo "Using JENKINS_USER defined as $JENKINS_USER"
@@ -36,7 +36,7 @@ echo "Using JENKINS_USER defined as $JENKINS_USER"
 # is JENKINS_GROUP set?
  if [[ -z "$JENKINS_GROUP" ]]; then
     # try to determine the current filegroup
-    file_meta=($(ls -ld $JENKINS_HOME/plugins/cloudbees-license.jpi))
+    file_meta=($(ls -ld $PLUGIN_ROOT/cloudbees-license.jpi))
     JENKINS_GROUP="${file_meta[3]}"
 fi
 echo "Using JENKINS_GROUP defined as $JENKINS_GROUP"
@@ -70,12 +70,12 @@ echo "Checking for wget or curl...."
 downloadTool=""
 verify_command wget "wget is not installed, wget or curl are required"
 if [ "$toolsMissing" == "0" ] ; then
-    downloadTool="wget -nv --output-document=$JENKINS_HOME/plugins/cloudbees-license.jpi"
+    downloadTool="wget -nv --output-document=$PLUGIN_ROOT/cloudbees-license.jpi"
 else
     toolsMissing="0"
     verify_command curl "curl is not installed, curl or wget are required"
     if [ "$toolsMissing" == "0" ] ; then
-        downloadTool="curl -sS --output $JENKINS_HOME/plugins/cloudbees-license.jpi"
+        downloadTool="curl -sS --output $PLUGIN_ROOT/cloudbees-license.jpi"
     fi
 fi
 
@@ -133,9 +133,9 @@ hput backports "9.41" "ok"
 hput backports "9.42" "ok"
 
 # find the currently installed version of the cloudbees-license plugin
-#echo "$JENKINS_HOME/plugins/cloudbees-license/META-INF/MANIFEST.MF"
+#echo "$PLUGIN_ROOT/cloudbees-license/META-INF/MANIFEST.MF"
 #strip out any odd control chars!
-CURRENT_PLUGIN_VERSION=$(grep Plugin-Version $JENKINS_HOME/plugins/cloudbees-license/META-INF/MANIFEST.MF | awk '{ print $2 };' | tr -d '\000-\031')
+CURRENT_PLUGIN_VERSION=$(grep Plugin-Version $PLUGIN_ROOT/cloudbees-license/META-INF/MANIFEST.MF | awk '{ print $2 };' | tr -d '\000-\031')
 echo "CURRENT_PLUGIN_VERSION = $CURRENT_PLUGIN_VERSION"
 
 
@@ -165,15 +165,15 @@ fi
 
 # backup the currently installed plugin
 echo "Backing up the currently installed license plugin"
-mv $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.bak
-chown $JENKINS_USER $JENKINS_HOME/plugins/cloudbees-license.bak
-chgrp $JENKINS_GROUP $JENKINS_HOME/plugins/cloudbees-license.bak
+mv $PLUGIN_ROOT/cloudbees-license.jpi $PLUGIN_ROOT/cloudbees-license.bak
+chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.bak
+chgrp $JENKINS_GROUP $PLUGIN_ROOT/cloudbees-license.bak
 
 # now download the plugin
 
 echo "Downloading updated plugin from $PLUGIN_URL"
 $downloadTool $PLUGIN_URL
-chown $JENKINS_USER $JENKINS_HOME/plugins/cloudbees-license.jpi
-chgrp $JENKINS_GROUP $JENKINS_HOME/plugins/cloudbees-license.jpi
+chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.jpi
+chgrp $JENKINS_GROUP $PLUGIN_ROOT/cloudbees-license.jpi
 
 echo "Plugin updated successfully, please restart your Jenkins instance to complete the installation"
