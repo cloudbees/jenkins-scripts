@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=1591044222
+VERSION=1591273737
 ## Script to automatically determine what version of plugin needs to be downloaded
 ## and installs it
 echo "Executing core-traditional-unbreak.sh version $VERSION"
