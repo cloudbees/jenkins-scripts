@@ -27,19 +27,19 @@ fi
 
 # is JENKINS_USER set?
  if [[ -z "$JENKINS_USER" ]]; then
-    echo "JENKINS_USER not set, exiting..."
-    exit
-else
-    echo "Using JENKINS_USER defined as $JENKINS_USER"
+    # try to determine the current fileowner
+    file_meta=($(ls -ld $JENKINS_HOME/plugins/cloudbees-license.jpi))
+    JENKINS_USER="${file_meta[2]}"
 fi
+echo "Using JENKINS_USER defined as $JENKINS_USER"
 
 # is JENKINS_GROUP set?
  if [[ -z "$JENKINS_GROUP" ]]; then
-    echo "JENKINS_GROUP not set, exiting..."
-    exit
-else
-    echo "Using JENKINS_GROUP defined as $JENKINS_GROUP"
+    # try to determine the current filegroup
+    file_meta=($(ls -ld $JENKINS_HOME/plugins/cloudbees-license.jpi))
+    JENKINS_GROUP="${file_meta[3]}"
 fi
+echo "Using JENKINS_GROUP defined as $JENKINS_GROUP"
 
 toolsMissing="0"
 verify_command() {
@@ -166,14 +166,14 @@ fi
 # backup the currently installed plugin
 echo "Backing up the currently installed license plugin"
 mv $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.bak
-chown $JENKINS_USER $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.bak
-chgrp $JENKINS_GROUP $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.bak
+chown $JENKINS_USER $JENKINS_HOME/plugins/cloudbees-license.bak
+chgrp $JENKINS_GROUP $JENKINS_HOME/plugins/cloudbees-license.bak
 
 # now download the plugin
 
 echo "Downloading updated plugin from $PLUGIN_URL"
 $downloadTool $PLUGIN_URL
-chown $JENKINS_USER $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.jpi
-chgrp $JENKINS_GROUP $JENKINS_HOME/plugins/cloudbees-license.jpi $JENKINS_HOME/plugins/cloudbees-license.jpi
+chown $JENKINS_USER $JENKINS_HOME/plugins/cloudbees-license.jpi
+chgrp $JENKINS_GROUP $JENKINS_HOME/plugins/cloudbees-license.jpi
 
 echo "Plugin updated successfully, please restart your Jenkins instance to complete the installation"
