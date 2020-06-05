@@ -67,7 +67,10 @@ String  k8sEnvVars = ""
 String  k8sJavaOptions = ""
 String  k8sJenkinsOptions = ""
 String  k8sImage = 'CloudBees Core - Managed Master - 2.176.4.3'
-List<KubernetesImagePullSecret> k8sImagePullSecrets = Collections.emptyList() // Example: Arrays.asList(new KubernetesImagePullSecret("useast-ecr-reg"))
+List<KubernetesImagePullSecret> k8sImagePullSecrets = Collections.emptyList()
+// Example: 
+//   def k8sImagePullSecret1 = new KubernetesImagePullSecret(); k8sImagePullSecret1.setValue("useast-reg")
+//   List<KubernetesImagePullSecret> k8sImagePullSecrets = Arrays.asList(k8sImagePullSecret1)
 Integer k8sLivenessInitialDelaySeconds = 300
 Integer k8sLivenessPeriodSeconds = 10
 Integer k8sLivenessTimeoutSeconds = 10
