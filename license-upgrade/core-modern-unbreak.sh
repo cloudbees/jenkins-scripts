@@ -56,12 +56,12 @@ echo "Checking for wget or curl...."
 downloadTool=""
 verify_command wget "wget is not installed, wget or curl are required"
 if [ "$toolsMissing" == "0" ] ; then
-    downloadTool="wget -nv --output-document=$PLUGIN_ROOT/cloudbees-license.jpi"
+    downloadTool="wget -nv --output-document=./cloudbees-license.jpi"
 else
     toolsMissing="0"
     verify_command curl "curl is not installed, curl or wget are required"
     if [ "$toolsMissing" == "0" ] ; then
-        downloadTool="curl -sS --output $PLUGIN_ROOT/cloudbees-license.jpi"
+        downloadTool="curl -sS --output ./cloudbees-license.jpi"
     fi
 fi
 
@@ -131,14 +131,14 @@ for pod in `echo ${cbpods}`; do
 	hget backports "$CURRENT_PLUGIN_VERSION"
 
 	if [ "$PLUGIN_URL" == "ok" ] ; then
-		echo "Currently installed plugin version $CURRENT_PLUGIN_VERSION already supports the new license.  No upgrade nescecary"
+		echo "Currently installed plugin version $CURRENT_PLUGIN_VERSION already supports the new license.  No upgrade necessary"
 		continue
 	fi
 
 	# Check if the  user has already upgraded
 	hget backports "$CURRENT_PLUGIN_VERSION"
 	if [ "$PLUGIN_URL" == "backport" ] ; then
-		echo "Currently installed plugin version $CURRENT_PLUGIN_VERSION already supports the new license.  No upgrade nescecary"
+		echo "Currently installed plugin version $CURRENT_PLUGIN_VERSION already supports the new license.  No upgrade necessary"
 		continue
 	fi
 
@@ -173,7 +173,7 @@ for pod in `echo ${cbpods}`; do
 	$downloadTool $PLUGIN_URL
 
 	echo "Copying updated plugin to pod"
-	kubectl cp ./cloudbees-license.hpi $pod:/var/jenkins_home/plugins/cloudbees-license.jpi
+	kubectl cp ./cloudbees-license.jpi $pod:/var/jenkins_home/plugins/cloudbees-license.jpi
 	kubectl exec -it $pod -- chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.jpi
 	kubectl exec -it $pod -- chgrp $JENKINS_GROUP $PLUGIN_ROOT/cloudbees-license.jpi
 
