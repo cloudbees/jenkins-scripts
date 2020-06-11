@@ -2,6 +2,11 @@
 VERSION=1591273737
 ## Script to automatically determine what version of plugin needs to be downloaded
 ## and installs it
+
+## Uncomment these lines if you get errors about invalid ssl certificates
+#WGET_OPTIONS="--no-check-certificate"
+#CURL_OPTIONS="-k"
+
 echo "Executing core-modern-unbreak.sh version $VERSION"
 
 #TODO: Verify that this will always be the location
@@ -41,6 +46,7 @@ verify_command() {
 }
 
 echo "Checking to see if required tools are present"
+echo ""
 
 verify_command awk "awk is required, please install it and re-run this script"
 verify_command grep "grep is required, please install it and re-run this script"
@@ -54,14 +60,14 @@ fi
 
 echo "Checking for wget or curl...."
 downloadTool=""
-verify_command wget "wget is not installed, wget or curl are required"
+verify_command wget "wget is not installed, checking for curl"
 if [ "$toolsMissing" == "0" ] ; then
-    downloadTool="wget -nv --output-document=./cloudbees-license.jpi"
+    downloadTool="wget -nv $WGET_OPTIONS --output-document=./cloudbees-license.jpi"
 else
     toolsMissing="0"
-    verify_command curl "curl is not installed, curl or wget are required"
+    verify_command curl "curl is not installed"
     if [ "$toolsMissing" == "0" ] ; then
-        downloadTool="curl -sS --output ./cloudbees-license.jpi"
+        downloadTool="curl -sS $CURL_OPTIONS --output ./cloudbees-license.jpi"
     fi
 fi
 
@@ -69,6 +75,8 @@ if [ "$toolsMissing" == "1" ] ; then
     echo "curl or wget are required, please install one of these and re-run."
     exit 1
 fi
+
+echo ""
 
 hinit versions
 hput versions "9.33" "https://jenkins-updates.cloudbees.com/download/plugins/cloudbees-license/9.33.1/cloudbees-license.hpi"
@@ -118,8 +126,11 @@ hput backports "9.42" "ok"
 # get all pods running Cloudbees Jenkins
 cbpods=$(kubectl get pods --selector=$SELECTOR -o jsonpath='{.items[*].metadata.name}' --all-namespaces)
 
+echo "Checking all pods..."
+
 # loop over pods
 for pod in `echo ${cbpods}`; do  
+	echo "-----------------"
 	echo "Checking pod $pod"
 
 	# find the currently installed version of the cloudbees-license plugin
@@ -147,7 +158,7 @@ for pod in `echo ${cbpods}`; do
 
 	if [[ -z "$PLUGIN_URL" ]]; then
 		echo "No updated plugin exists for $CURRENT_PLUGIN_VERSION"
-		echo "Please contact support"
+		echo "Please contact support@cloudbees.com"
 		continue
 	fi
 
@@ -180,3 +191,4 @@ for pod in `echo ${cbpods}`; do
 	echo "Restarting pod $pod"
 	kubectl delete pod $pod
 done
+echo "-----------------"

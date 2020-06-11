@@ -3,6 +3,12 @@
 VERSION=1591273737
 ## Script to automatically determine what version of plugin needs to be downloaded
 ## and installs it
+
+## Uncomment these lines if you get errors about invalid ssl certificates
+#WGET_OPTIONS="--no-check-certificate"
+#CURL_OPTIONS="-k"
+
+
 echo "Executing core-traditional-unbreak.sh version $VERSION"
 
 hinit() {
@@ -68,14 +74,16 @@ fi
 
 echo "Checking for wget or curl...."
 downloadTool=""
-verify_command wget "wget is not installed, wget or curl are required"
+verify_command wget "wget is not installed, checking for curl..."
 if [ "$toolsMissing" == "0" ] ; then
-    downloadTool="wget -nv --output-document=$PLUGIN_ROOT/cloudbees-license.jpi"
+    echo "wget found"
+    downloadTool="wget -nv $WGET_OPTIONS --output-document=$PLUGIN_ROOT/cloudbees-license.jpi"
 else
     toolsMissing="0"
-    verify_command curl "curl is not installed, curl or wget are required"
+    verify_command curl "curl is not installed"
     if [ "$toolsMissing" == "0" ] ; then
-        downloadTool="curl -sS --output $PLUGIN_ROOT/cloudbees-license.jpi"
+        echo "curl found"
+        downloadTool="curl -sS $CURL_OPTIONS --output $PLUGIN_ROOT/cloudbees-license.jpi"
     fi
 fi
 
@@ -132,6 +140,8 @@ hput backports "9.40" "ok"
 hput backports "9.41" "ok"
 hput backports "9.42" "ok"
 
+echo ""
+
 # find the currently installed version of the cloudbees-license plugin
 #echo "$PLUGIN_ROOT/cloudbees-license/META-INF/MANIFEST.MF"
 #strip out any odd control chars!
@@ -159,7 +169,7 @@ hget versions $CURRENT_PLUGIN_VERSION
 
  if [[ -z "$PLUGIN_URL" ]]; then
     echo "No updated plugin exists for $CURRENT_PLUGIN_VERSION"
-    echo "Please contact support"
+    echo "Please contact support@cloudbees.com"
     exit 1
 fi
 
@@ -170,7 +180,6 @@ chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.bak
 chgrp $JENKINS_GROUP $PLUGIN_ROOT/cloudbees-license.bak
 
 # now download the plugin
-
 echo "Downloading updated plugin from $PLUGIN_URL"
 $downloadTool $PLUGIN_URL
 chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.jpi
