@@ -163,12 +163,12 @@ for pod in `echo ${cbpods}`; do
 	fi
 
 	# try to determine the current fileowner
-    file_meta=($(kubectl exec -it $pod -- ls -ld $PLUGIN_ROOT/cloudbees-license.jpi))
+    file_meta=($(kubectl exec -it $pod -- ls -ld "$PLUGIN_ROOT/cloudbees-license.jpi"))
     JENKINS_USER="${file_meta[2]}"
 	echo "Using JENKINS_USER defined as $JENKINS_USER"
 
     # try to determine the current filegroup
-    file_meta=($(kubectl exec -it $pod -- ls -ld $PLUGIN_ROOT/cloudbees-license.jpi))
+    file_meta=($(kubectl exec -it $pod -- ls -ld "$PLUGIN_ROOT/cloudbees-license.jpi"))
     JENKINS_GROUP="${file_meta[3]}"
 	echo "Using JENKINS_GROUP defined as $JENKINS_GROUP"
 
