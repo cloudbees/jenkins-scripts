@@ -124,18 +124,27 @@ hput backports "9.41" "ok"
 hput backports "9.42" "ok"
 
 # get all pods running Cloudbees Jenkins
-cbpods=$(kubectl get pods --selector=$SELECTOR -o jsonpath='{.items[*].metadata.name}' --all-namespaces)
-
+#cbpods=$(kubectl get pods --selector=$SELECTOR -o jsonpath='{.items[*].metadata.name}' --all-namespaces)
+cbpods=$(kubectl get pods --selector=com.cloudbees.cje.tenant -o jsonpath='{range .items[*]}{.metadata.name}{"|"}{.metadata.namespace}{" "}{end}' --all-namespaces)
 echo "Checking all pods..."
+
+#echo $cbpods
 
 # loop over pods
 for pod in `echo ${cbpods}`; do  
 	echo "-----------------"
-	echo "Checking pod $pod"
+	set -- `echo $pod | tr '|' ' '`
+    POD_NAME=$1
+    POD_NAMESPACE=$2
+
+	echo "pod name $POD_NAME"
+	echo "pod ns $POD_NAMESPACE"
+
+	echo "Checking pod $POD_NAME"
 
 	# find the currently installed version of the cloudbees-license plugin
 	# strip out any odd control chars!
-	CURRENT_PLUGIN_VERSION=$(kubectl exec -it $pod -- cat /tmp/jenkins/plugins/cloudbees-license/META-INF/MANIFEST.MF    | grep "Plugin-Version" | awk '{ print $2 };' | tr -d '\000-\031')
+	CURRENT_PLUGIN_VERSION=$(kubectl exec -it $POD_NAME --namespace $POD_NAMESPACE -- cat /tmp/jenkins/plugins/cloudbees-license/META-INF/MANIFEST.MF    | grep "Plugin-Version" | awk '{ print $2 };' | tr -d '\000-\031')
 	echo "Current plugin version is [$CURRENT_PLUGIN_VERSION]"
 	
 	# Check if the user does not need to upgrade (ie. 9.34 or newer already)
@@ -163,20 +172,20 @@ for pod in `echo ${cbpods}`; do
 	fi
 
 	# try to determine the current fileowner
-    file_meta=($(kubectl exec -it $pod -- ls -ld "$PLUGIN_ROOT/cloudbees-license.jpi"))
+    file_meta=($(kubectl exec -it $POD_NAME --namespace $POD_NAMESPACE -- ls -ld "$PLUGIN_ROOT/cloudbees-license.jpi"))
     JENKINS_USER="${file_meta[2]}"
 	echo "Using JENKINS_USER defined as $JENKINS_USER"
 
     # try to determine the current filegroup
-    file_meta=($(kubectl exec -it $pod -- ls -ld "$PLUGIN_ROOT/cloudbees-license.jpi"))
+    file_meta=($(kubectl exec -it $POD_NAME --namespace $POD_NAMESPACE -- ls -ld "$PLUGIN_ROOT/cloudbees-license.jpi"))
     JENKINS_GROUP="${file_meta[3]}"
 	echo "Using JENKINS_GROUP defined as $JENKINS_GROUP"
 
 	# backup the currently installed plugin
 	echo "Backing up the currently installed license plugin"
-	kubectl exec -it $pod -- mv $PLUGIN_ROOT/cloudbees-license.jpi $PLUGIN_ROOT/cloudbees-license.bak
-	kubectl exec -it $pod -- chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.bak
-	kubectl exec -it $pod -- chgrp $JENKINS_GROUP $PLUGIN_ROOT/cloudbees-license.bak
+	kubectl exec -it $POD_NAME --namespace $POD_NAMESPACE -- mv $PLUGIN_ROOT/cloudbees-license.jpi $PLUGIN_ROOT/cloudbees-license.bak
+	kubectl exec -it $POD_NAME --namespace $POD_NAMESPACE -- chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.bak
+	kubectl exec -it $POD_NAME --namespace $POD_NAMESPACE -- chgrp $JENKINS_GROUP $PLUGIN_ROOT/cloudbees-license.bak
 
 	# now download the plugin
 
@@ -184,11 +193,11 @@ for pod in `echo ${cbpods}`; do
 	$downloadTool $PLUGIN_URL
 
 	echo "Copying updated plugin to pod"
-	kubectl cp ./cloudbees-license.jpi $pod:/var/jenkins_home/plugins/cloudbees-license.jpi
-	kubectl exec -it $pod -- chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.jpi
-	kubectl exec -it $pod -- chgrp $JENKINS_GROUP $PLUGIN_ROOT/cloudbees-license.jpi
+	kubectl cp ./cloudbees-license.jpi --namespace $POD_NAMESPACE $POD_NAME:/var/jenkins_home/plugins/cloudbees-license.jpi
+	kubectl exec -it $POD_NAME --namespace $POD_NAMESPACE -- chown $JENKINS_USER $PLUGIN_ROOT/cloudbees-license.jpi
+	kubectl exec -it $POD_NAME --namespace $POD_NAMESPACE -- chgrp $JENKINS_GROUP $PLUGIN_ROOT/cloudbees-license.jpi
 
 	echo "Restarting pod $pod"
-	kubectl delete pod $pod
+	kubectl delete pod $POD_NAME --namespace $POD_NAMESPACE
 done
 echo "-----------------"
