@@ -23,8 +23,8 @@ updateCenter.setNewPluginVersionStrategy(strategy)
 /*
  * Certification
  * Self-certified signature is set by default, use below method if you want to go Unsigned
+ * Use updateCenter.setCertificationProvider() to match the "Unsigned (incompatible with Jenkins 1.433+)" checkbox (not recommended)
  */
-updateCenter.setCertificationProvider() //Unsigned (incompatible with Jenkins 1.433+)
 
 /*
  * Upstream sources
