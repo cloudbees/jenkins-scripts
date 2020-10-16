@@ -3,7 +3,7 @@
  "comment" : "This script creates a Mesos Managed Master programmatically similarly to what can be done through the UI. 
  It has been tested with version 1.11.22 of CloudBees Jenkins Enterprise",
  "parameters" : [],
- "core": "2.176.3.2",
+ "core": "2.249.2.4",
  "authors" : [
  { name : "Allan Burdajewicz" }
  ]
@@ -38,12 +38,20 @@ Integer masterPropertyOwnersDelay = 5
 /* Master Provisioning */
 Integer mesosDisk = 50
 Integer mesosMemory = 3072
-Double  mesosMemoryRatio = 0.7d
+/**
+ * Since version 2.235.4.1, we recommend not using the Heap Ratio. Instead add `-XX:MinRAMPercentage` and 
+ * `-XX:MaxRAMPercentage` to the Java options. For example, a ratio of 0.5d translate to a percentage of 50: 
+ * `-XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0`
+ *
+ * See https://support.cloudbees.com/hc/en-us/articles/204859670-Java-Heap-settings-best-practice and 
+ * https://docs.cloudbees.com/docs/release-notes/latest/cloudbees-ci/modern-cloud-platforms/2.235.4.1.
+ */
+Double  mesosMemoryRatio = null
 Double  mesosCpus = 1
 Boolean mesosAllowExternalAgents = false
 String  mesosClusterEndpointId = "default"
 String  mesosEnvVars = ""
-String  mesosJavaOptions = ""
+String  mesosJavaOptions = "-XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0"
 String  mesosJenkinsOptions = ""
 String  mesosSystemProperties = ""
 String  mesosImage = 'CloudBees Jenkins Enterprise 2.176.4.3'
@@ -79,7 +87,13 @@ masterProvisioning.setDomain(masterName.toLowerCase())
  */
 masterProvisioning.setDisk(mesosDisk)
 masterProvisioning.setMemory(mesosMemory)
-masterProvisioning.setRatio(mesosMemoryRatio)
+if(mesosMemoryRatio) {
+    masterProvisioning.setHeapRatio(new com.cloudbees.jce.masterprovisioning.Ratio(mesosMemoryRatio))
+    /**
+     * For versions earlier than 2.235.4.1 (Master Provisioning plugin 2.5.6), use setRatio
+     * masterProvisioning.setRatio(mesosMemoryRatio)
+     */
+}
 masterProvisioning.setCpus(mesosCpus)
 masterProvisioning.setAllowExternalAgents(mesosAllowExternalAgents)
 masterProvisioning.setClusterEndpointId(mesosClusterEndpointId)

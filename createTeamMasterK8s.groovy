@@ -8,9 +8,9 @@
 /*** BEGIN META {
  "name" : "Create a Team Master in CloudBees Core on Modern Cloud Platform",
  "comment" : "This script creates a Kubernetes Managed Master programmatically similarly to what can be done through the UI. 
- It has been tested with version 2.176.3.2 of CloudBees Core",
+ It has been tested with version 2.249.2.4 of CloudBees Core",
  "parameters" : [],
- "core": "2.176.3.2",
+ "core": "2.249.2.4",
  "authors" : [
  { name : "Allan Burdajewicz" }
  ]
@@ -58,13 +58,21 @@ Integer masterPropertyOwnersDelay = 5
 /* Master Provisioning */
 Integer k8sDisk = 50
 Integer k8sMemory = 3072
-Double  k8sMemoryRatio = 0.7d
+/**
+ * Since version 2.235.4.1, we recommend not using the Heap Ratio. Instead add `-XX:MinRAMPercentage` and 
+ * `-XX:MaxRAMPercentage` to the Java options. For example, a ratio of 0.5d translate to a percentage of 50: 
+ * `-XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0`
+ *
+ * See https://support.cloudbees.com/hc/en-us/articles/204859670-Java-Heap-settings-best-practice and 
+ * https://docs.cloudbees.com/docs/release-notes/latest/cloudbees-ci/modern-cloud-platforms/2.235.4.1.
+ */
+Double  k8sMemoryRatio = null
 Double  k8sCpus = 1
 String  k8sFsGroup = "1000"
 Boolean k8sAllowExternalAgents = false
 String  k8sClusterEndpointId = "default"
 String  k8sEnvVars = ""
-String  k8sJavaOptions = ""
+String  k8sJavaOptions = "-XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0"
 String  k8sJenkinsOptions = ""
 String  k8sImage = 'CloudBees Core - Managed Master - 2.176.4.3'
 List<KubernetesImagePullSecret> k8sImagePullSecrets = Collections.emptyList()
@@ -172,7 +180,13 @@ masterProvisioning.setDomain(teamName.toLowerCase())
  */
 masterProvisioning.setDisk(k8sDisk)
 masterProvisioning.setMemory(k8sMemory)
-masterProvisioning.setRatio(k8sMemoryRatio)
+if(k8sMemoryRatio) {
+    masterProvisioning.setHeapRatio(new com.cloudbees.jce.masterprovisioning.Ratio(k8sMemoryRatio))
+    /**
+     * For versions earlier than 2.235.4.1 (Master Provisioning plugin 2.5.6), use setRatio
+     * masterProvisioning.setRatio(k8sMemoryRatio)
+     */
+}
 masterProvisioning.setCpus(k8sCpus)
 masterProvisioning.setFsGroup(k8sFsGroup)
 masterProvisioning.setAllowExternalAgents(k8sAllowExternalAgents)
