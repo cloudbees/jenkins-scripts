@@ -54,7 +54,7 @@ String  k8sClusterEndpointId = "default"
 String  k8sEnvVars = ""
 String  k8sJavaOptions = "-XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0"
 String  k8sJenkinsOptions = ""
-String  k8sImage = 'CloudBees Core - Managed Master - 2.176.4.3'
+String  k8sImage = 'CloudBees CI - Managed Master - 2.249.2.4'
 List<KubernetesImagePullSecret> k8sImagePullSecrets = Collections.emptyList()
 // Example: 
 //   def k8sImagePullSecret1 = new KubernetesImagePullSecret(); k8sImagePullSecret1.setValue("useast-reg")

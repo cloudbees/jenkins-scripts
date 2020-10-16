@@ -54,7 +54,7 @@ String  mesosEnvVars = ""
 String  mesosJavaOptions = "-XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0"
 String  mesosJenkinsOptions = ""
 String  mesosSystemProperties = ""
-String  mesosImage = 'CloudBees Jenkins Enterprise 2.176.4.3'
+String  mesosImage = 'CloudBees Jenkins Enterprise 2.249.2.4'
 Integer mesosGracePeriodSeconds = 1200
 Integer mesosIntervalSeconds = 60
 
