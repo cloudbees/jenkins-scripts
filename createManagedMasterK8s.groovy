@@ -62,6 +62,9 @@ List<KubernetesImagePullSecret> k8sImagePullSecrets = Collections.emptyList()
 Integer k8sLivenessInitialDelaySeconds = 300
 Integer k8sLivenessPeriodSeconds = 10
 Integer k8sLivenessTimeoutSeconds = 10
+Integer k8sReadinessInitialDelaySeconds = 30
+Integer k8sReadinessFailureThreshold = 100
+Integer k8sReadinessTimeoutSeconds = 5
 String  k8sStorageClassName = ""
 String  k8sSystemProperties = ""
 String  k8sNamespace = ""
@@ -117,6 +120,9 @@ masterProvisioning.setImagePullSecrets(k8sImagePullSecrets)
 masterProvisioning.setLivenessInitialDelaySeconds(k8sLivenessInitialDelaySeconds)
 masterProvisioning.setLivenessPeriodSeconds(k8sLivenessPeriodSeconds)
 masterProvisioning.setLivenessTimeoutSeconds(k8sLivenessTimeoutSeconds)
+masterProvisioning.setReadinessInitialDelaySeconds(k8sReadinessInitialDelaySeconds)
+masterProvisioning.setReadinessFailureThreshold(k8sReadinessFailureThreshold)
+masterProvisioning.setReadinessTimeoutSeconds(k8sReadinessTimeoutSeconds)
 masterProvisioning.setStorageClassName(k8sStorageClassName)
 masterProvisioning.setSystemProperties(k8sSystemProperties)
 masterProvisioning.setNamespace(k8sNamespace)
