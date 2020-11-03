@@ -1,3 +1,10 @@
+/**
+Author: James Nord, Esther Álvarez
+Since: November 2020
+Description: List the views that have RBAC groups or role filters configured. Useful to report the views affected by the release of nectar-rbac 5.42
+Parameters: none
+Scope: Any with nectar-rbac installed
+**/
  
 import nectar.plugins.rbac.groups.ViewProxyGroupContainer
 
