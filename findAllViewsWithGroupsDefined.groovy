@@ -1,7 +1,9 @@
+ 
 import nectar.plugins.rbac.groups.ViewProxyGroupContainer
 
 Set<View> allViews = new HashSet()
 Set<View> viewsWithProperty = new HashSet()
+Set<View> viewsWithRoleFilters = new HashSet()
 
 // root views
 allViews.addAll(Jenkins.get().allViews)
@@ -19,13 +21,22 @@ for (def v : allViews) {
   if (gc != null && !gc.groups.empty) {
     viewsWithProperty.add(v)
   }
+  if (gc != null && !gc.roleFilters.empty) {
+  	viewsWithRoleFilters.add(v);
+  }
 }
 
-println("Found ${allViews.size()} views, of which ${viewsWithProperty.size()} have groups defined on them\n")
+println("Found ${allViews.size()} views, of which ${viewsWithProperty.size()} have groups defined on them, and ${viewsWithRoleFilters.size()} have role filters. \n")
 if (!viewsWithProperty.empty) {
   println "The following views have groups defined on them: "
   for (def v : viewsWithProperty) {
     println(" * " + v.viewUrl + "  [" + v.class.simpleName + "]");
   }
+  println ""
 }
-
+if (!viewsWithRoleFilters.empty) {
+  println "The following views have role filters defined on them: "
+  for (def v : viewsWithRoleFilters) {
+    println(" * " + v.viewUrl + "  [" + v.class.simpleName + "]");
+  }
+}
