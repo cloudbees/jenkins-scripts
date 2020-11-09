@@ -61,7 +61,6 @@ def getExternalsInformation() {
               put(groupMembers, external.getId(), value)
             }
           }
-          
         }
       }
     }
@@ -89,9 +88,6 @@ def getExternalsInformation() {
     yaml.put("external", externalYaml)
   }
 
-  //def builder = new groovy.json.JsonBuilder()
-  //builder.call(yaml)
-  //return builder.toPrettyString()
   return yaml
 }
 
@@ -217,9 +213,6 @@ def rbacOnItems(String fullName){
     yaml.put("items", items)
   }
 
-  //def builder = new groovy.json.JsonBuilder()
-  //builder.call(yaml)
-  //return builder.toPrettyString()
   return yaml
 }
 
@@ -232,9 +225,6 @@ def globalGroups() {
     yaml.put("groups", groups)
   }
 
-  //def builder = new groovy.json.JsonBuilder()
-  //builder.call(yaml)
-  //return builder.toPrettyString()
   return yaml
 }
 
