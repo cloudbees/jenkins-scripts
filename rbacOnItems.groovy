@@ -1,7 +1,101 @@
 import java.util.List
 import java.util.Map
+import java.util.Set
 import java.util.ArrayList
 import java.util.HashMap
+import java.util.HashSet
+
+
+def getExternalGroup(String name) {
+  try {
+    hudson.security.GroupDetails groupDetails = nectar.plugins.rbac.strategy.RoleMatrixAuthorizationPlugin.getGroupDetails(name)
+    if (groupDetails != null) {
+      return new nectar.plugins.rbac.assignees.ExternalGroupAssignee(groupDetails)
+    }
+  } catch (org.acegisecurity.userdetails.UsernameNotFoundException e) {
+    // ignore
+  } catch (org.springframework.dao.DataAccessException e) {
+    // ignore
+  }
+  return null;
+}
+
+def put(Map map, String key, String value) {
+  if (!map.containsKey(key)) {
+    map.put(key,new HashSet())
+  } 
+  
+  if (value != null) {
+    map.get(key).add(value)
+  }
+}
+
+def getExternalsInformation() {
+  Map<String,Object> yaml = new HashMap()
+
+  Map<String,String> users = new HashMap()
+  Map<String,Set<String>> userGroups = new HashMap()
+  Map<String,Set<String>> groupMembers = new HashMap()
+
+  User.getAll().each{ user -> 
+    if (user.getProperty(jenkins.security.LastGrantedAuthoritiesProperty.class)) {
+      users.put(user.getId(), user.getFullName())
+      put(userGroups, user.getId(), null)
+      
+      Jenkins.instance.getSecurityRealm().loadUserByUsername(user.getId()).getAuthorities().each{ group ->     
+
+        nectar.plugins.rbac.assignees.ExternalGroupAssignee external = getExternalGroup(group.getAuthority())
+        if (external != null) {
+          put(userGroups, user.getId(), external.getId())
+          
+          if (external.getMembers() != null) {
+            external.getMembers().each { member -> 
+              String value = member
+              if (!users.containsValue(member)) {
+                User externalUser = User.get(member, false)
+                if (externalUser != null) {
+                  users.put(externalUser.getId(), externalUser.getFullName())
+                  value = externalUser.getId()
+                }
+              }
+              put(groupMembers, external.getId(), value)
+            }
+          }
+          
+        }
+      }
+    }
+  }
+
+  yaml.put("userIdStrategy", User.idStrategy().toString())
+
+  if (!userGroups.isEmpty()) {
+    Map<String,Object> externalYaml = new HashMap()
+    List<Map<String,Object>> usersYaml = new ArrayList()
+
+    userGroups.entrySet().each { entry -> 
+      Map map = new HashMap()
+      map.put(entry.getKey(), entry.getValue())
+      usersYaml.add(map)
+    }
+    externalYaml.put("users", usersYaml)
+
+    List<Map<String,Object>> groupsYaml = new ArrayList()
+    groupMembers.entrySet().each { entry -> 
+      Map map = new HashMap()
+      map.put(entry.getKey(), entry.getValue())
+      groupsYaml.add(map)
+    }
+    externalYaml.put("groups", groupsYaml)
+
+    yaml.put("external", externalYaml)
+  }
+
+  //def builder = new groovy.json.JsonBuilder()
+  //builder.call(yaml)
+  //return builder.toPrettyString()
+  return yaml
+}
 
 
 /*
@@ -103,25 +197,65 @@ def processItem(item) {
   return yaml  
 }
 
+/**
+ * Returns all items if fullName is null or the structure starting in fullName.
+ */
+def rbacOnItems(String fullName){
+  Map<String,Object> yaml = new HashMap()
+
+  List<Map<String,Object>> items = new ArrayList()
+
+  if (fullName != null) {
+    def folder = Jenkins.instance.getItemByFullName(fullName)
+    Map<String,Object> first = processItem(folder)
+    items.add(first)
+  } else {
+    Jenkins.instance.getItems().each{ item -> 
+      items.add(processItem(item))
+    }
+  }
+
+  if(!items.isEmpty()) {
+    yaml.put("items", items)
+  }
+
+  //def builder = new groovy.json.JsonBuilder()
+  //builder.call(yaml)
+  //return builder.toPrettyString()
+  return yaml
+}
+
+def globalGroups() {
+  Map<String,Object> yaml = new HashMap()
+
+  nectar.plugins.rbac.groups.GroupContainer gc = nectar.plugins.rbac.groups.GroupContainerLocator.locate(Jenkins.instance);
+  List<Map<String,Object>> groups = getGroups(gc)
+  if(!groups.isEmpty()) {
+    yaml.put("groups", groups)
+  }
+
+  //def builder = new groovy.json.JsonBuilder()
+  //builder.call(yaml)
+  //return builder.toPrettyString()
+  return yaml
+}
 
 /*
  * Main 
  */
 Map<String,Object> yaml = new HashMap()
 
-List<Map<String,Object>> items = new ArrayList()
-Jenkins.instance.getItems().each{ item -> 
-  items.add(processItem(item))
+getExternalsInformation().entrySet().each{ entry ->
+  yaml.put(entry.getKey(), entry.getValue())
 }
 
-if(!items.isEmpty()) {
-  yaml.put("items", items)
+globalGroups().entrySet().each{ entry ->
+  yaml.put(entry.getKey(), entry.getValue())
 }
 
-
-//def folder = Jenkins.instance.getItemByFullName('development')
-//Map<String,Object> first = processItem(folder)
-//items.add(first)
+rbacOnItems().entrySet().each{ entry ->
+  yaml.put(entry.getKey(), entry.getValue())
+}
 
 
 def builder = new groovy.json.JsonBuilder()
