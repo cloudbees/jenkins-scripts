@@ -67,8 +67,6 @@ def getExternalsInformation() {
     }
   }
 
-  yaml.put("userIdStrategy", User.idStrategy().toString())
-
   if (!userGroups.isEmpty()) {
     Map<String,Object> externalYaml = new HashMap()
     List<Map<String,Object>> usersYaml = new ArrayList()
@@ -244,6 +242,9 @@ def globalGroups() {
  * Main 
  */
 Map<String,Object> yaml = new HashMap()
+
+yaml.put("userIdStrategy", Jenkins.instance.getSecurityRealm().getUserIdStrategy().toString())
+yaml.put("groupIdStrategy", Jenkins.instance.getSecurityRealm().getGroupIdStrategy().toString())
 
 getExternalsInformation().entrySet().each{ entry ->
   yaml.put(entry.getKey(), entry.getValue())
