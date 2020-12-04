@@ -257,4 +257,6 @@ rbacOnItems().entrySet().each{ entry ->
 
 def builder = new groovy.json.JsonBuilder()
 builder.call(yaml)
-return builder.toPrettyString()
+def prettyString = builder.toPrettyString() 
+println prettyString 
+return prettyString
