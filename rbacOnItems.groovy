@@ -45,6 +45,7 @@ def getExternalsInformation() {
       users.put(user.getId(), user.getFullName())
       put(userGroups, user.getId(), null)
       
+      try {
       Jenkins.instance.getSecurityRealm().loadUserByUsername(user.getId()).getAuthorities().each{ group ->     
 
         nectar.plugins.rbac.assignees.ExternalGroupAssignee external = getExternalGroup(group.getAuthority())
@@ -65,6 +66,8 @@ def getExternalsInformation() {
             }
           }
         }
+      }
+      } catch (err) {
       }
     }
   }
@@ -165,7 +168,7 @@ def processItem(item) {
     List<Map<String,Object>> views = new ArrayList()
     item.getViews().each{v ->   
       nectar.plugins.rbac.groups.GroupContainer vc = nectar.plugins.rbac.groups.GroupContainerLocator.locate(v);
-      if (!v.name.equals("All") && !vc.groups.isEmpty()) {
+      if (vc != null && !v.name.equals("All") && !vc.groups.isEmpty()) {
         Map<String,Object> map = new HashMap()
         map.put("name", v.name)
 
