@@ -45,6 +45,7 @@ def getExternalsInformation() {
       users.put(user.getId(), user.getFullName())
       put(userGroups, user.getId(), null)
       
+      try {
       Jenkins.instance.getSecurityRealm().loadUserByUsername(user.getId()).getAuthorities().each{ group ->     
 
         nectar.plugins.rbac.assignees.ExternalGroupAssignee external = getExternalGroup(group.getAuthority())
@@ -65,6 +66,8 @@ def getExternalsInformation() {
             }
           }
         }
+      }
+      } catch (err) {
       }
     }
   }
