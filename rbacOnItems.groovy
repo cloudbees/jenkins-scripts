@@ -168,7 +168,7 @@ def processItem(item) {
     List<Map<String,Object>> views = new ArrayList()
     item.getViews().each{v ->   
       nectar.plugins.rbac.groups.GroupContainer vc = nectar.plugins.rbac.groups.GroupContainerLocator.locate(v);
-      if (!v.name.equals("All") && !vc.groups.isEmpty()) {
+      if (vc != null && !v.name.equals("All") && !vc.groups.isEmpty()) {
         Map<String,Object> map = new HashMap()
         map.put("name", v.name)
 
