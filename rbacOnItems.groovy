@@ -258,5 +258,11 @@ rbacOnItems().entrySet().each{ entry ->
 def builder = new groovy.json.JsonBuilder()
 builder.call(yaml)
 def prettyString = builder.toPrettyString() 
+
+new java.io.File(Jenkins.instance.getRootDir(), "rbacOnItems.txt").withWriter('utf-8') { writer ->
+    writer.write(prettyString)
+} 
+
+
 println prettyString 
 return prettyString
