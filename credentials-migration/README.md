@@ -22,6 +22,6 @@ Paste the encoded message output from the `export-credentials-system-level.groov
 
 The encoded message will be used later on to update the credentials in the new Jenkins Master.
 
-3. Download the `import-credentials-folder-level.groovy` on [GitHub](https://github.com/cloudbees/jenkins-scripts/tree/master/credentials-migration/update-credentials-folder-level.groovy).
+3. Download the `update-credentials-folder-level.groovy` on [GitHub](https://github.com/cloudbees/jenkins-scripts/tree/master/credentials-migration/update-credentials-folder-level.groovy).
 
-Paste the encoded message output from the `export-credentials-folder-level.groovy` script as the value in the encoded variable in the `update-credentials-folder-level.groovy` script and execute it in the Script Console on the destination Jenkins. All the System credentials from the source Jenkins will now be updated to the system store of the destination Jenkins.
+Paste the encoded message output from the `export-credentials-folder-level.groovy` script as the value in the encoded variable in the `update-credentials-folder-level.groovy` script and execute it in the Script Console on the destination Jenkins. All the folder credentials from the source Jenkins will now be updated to each folder store of the destination Jenkins.
