@@ -25,3 +25,5 @@ The encoded message will be used later on to update the credentials in the new J
 3. Download the `update-credentials-folder-level.groovy` on [GitHub](https://github.com/cloudbees/jenkins-scripts/tree/master/credentials-migration/update-credentials-folder-level.groovy).
 
 Paste the encoded message output from the `export-credentials-folder-level.groovy` script as the value in the encoded variable in the `update-credentials-folder-level.groovy` script and execute it in the Script Console on the destination Jenkins. All the folder credentials from the source Jenkins will now be updated to each folder store of the destination Jenkins.
+
+These scripts were created taking as an example [cloudbees-ci/cje-to-ci-migration-examples](https://github.com/cloudbees/cloudbees-examples/tree/master/cloudbees-ci/cje-to-ci-migration-examples/CredentialsMigration)
