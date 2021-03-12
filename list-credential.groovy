@@ -24,7 +24,7 @@ for (c in allCredentials) {
     if (fp) {  
     	fp_str = "Fingerprinted jobs: " + fp.getJobs()
   	} else {
-    	fp_str="(No Fingerprints)"
+    	fp_str = "(No Fingerprints)"
     }  
   }  
   println(c.id + " : " + c.description  + " | " + fp_str)
