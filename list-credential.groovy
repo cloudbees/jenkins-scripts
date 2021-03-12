@@ -22,7 +22,7 @@ for (c in allCredentials) {
   if (CredentialsProvider.FINGERPRINT_ENABLED) {
     fp = CredentialsProvider.getFingerprintOf(c)
     if (fp) {  
-    	fp_str="Fingerprinted jobs: " + fp.getJobs()
+    	fp_str = "Fingerprinted jobs: " + fp.getJobs()
   	} else {
     	fp_str="(No Fingerprints)"
     }  
