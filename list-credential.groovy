@@ -19,10 +19,10 @@ Jenkins.instance.getAllItems(com.cloudbees.hudson.plugins.folder.Folder.class).e
 for (c in allCredentials) {
   if (CredentialsProvider.FINGERPRINT_ENABLED) {
     fp = CredentialsProvider.getFingerprintOf(c)
-    if (fp){
-    	fp_str="Fingerprinted jobs: " + fp.getJobs()
+    if (fp) {  
+    	fp_str = "Fingerprinted jobs: " + fp.getJobs()
   	} else {
-    	fp_str="(No Fingerprints)"
+    	fp_str = "(No Fingerprints)"
     }  
   }
   println(c.id + " : " + c.description  + " | " + fp_str)
