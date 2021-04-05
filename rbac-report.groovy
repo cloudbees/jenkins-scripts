@@ -6,10 +6,8 @@ Map containers = new TreeMap();
 containers.put(Jenkins.instance.displayName, GroupContainerLocator.locate(Jenkins.instance));
 // Add all the items that are be containers
 for (i in Jenkins.instance.allItems) {
-  if (GroupContainerLocator.isGroupContainer(i.getClass())) {
     GroupContainer g = GroupContainerLocator.locate(i);
     if (g != null) containers.put(Jenkins.instance.displayName + "/" + i.fullDisplayName, g);
-  }
 }
 // Add all the nodes, as they are containers also (but be safe about it)
 for (i in Jenkins.instance.nodes) {
