@@ -72,6 +72,11 @@ String  k8sNodeSelectors = ""
 Long    k8sTerminationGracePeriodSeconds = 1200L
 String  k8sYaml = ""
 
+/**
+ * cascBundle (optional). Configuration as Code Configuration Bundle
+ */
+ String cascBundle = ""
+
 /*****************
  * CREATE MASTER *
  *****************/
@@ -83,6 +88,13 @@ String  k8sYaml = ""
 ManagedMaster newInstance = jenkins.model.Jenkins.instanceOrNull.createProject(ManagedMaster.class, masterName)
 newInstance.setDescription(masterDescription)
 newInstance.setDisplayName(masterDisplayName)
+
+/************************
+ * CONFIGURATION BUNDLE *
+ ************************/
+if(cascBundle?.trim()) {
+    newInstance.getProperties().replace(new com.cloudbees.opscenter.server.casc.config.ConnectedMasterCascProperty(cascBundle))
+}
 
 /********************
  * CONFIGURE MASTER *
