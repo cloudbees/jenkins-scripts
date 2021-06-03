@@ -94,6 +94,7 @@ newInstance.setDisplayName(masterDisplayName)
  ************************/
 if(cascBundle?.trim()) {
     newInstance.getProperties().replace(new com.cloudbees.opscenter.server.casc.config.ConnectedMasterCascProperty(cascBundle))
+    newInstance.getProperties().replace(new com.cloudbees.opscenter.server.casc.config.ConnectedMasterTokenProperty(hudson.util.Secret.fromString(UUID.randomUUID().toString())))
 }
 
 /********************
