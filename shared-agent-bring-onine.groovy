@@ -13,7 +13,7 @@ def SharedAgentstatus(Slave) {
         online = Slave.getOfflineCause() == null
         if(!online){
             println(Slave.name + ' is currently Offline, hence bringing it online \t')
-            //aSlave.doEnable()  // comment - to get the list of offline agents, // Uncomment - to bring the agent online
+            //Slave.doEnable()  // comment - to get the list of offline agents, // Uncomment - to bring the agent online
         }
     }
 }
