@@ -93,6 +93,7 @@ newInstance.setDisplayName(masterDisplayName)
  * CONFIGURATION BUNDLE *
  ************************/
 if(cascBundle?.trim()) {
+    // Properties must follow this order
     // Note: ConnectedMasterCascProperty supported since 2.277.4.x. For earlier version, comment out the following.
     newInstance.getProperties().replace(new com.cloudbees.opscenter.server.casc.config.ConnectedMasterCascProperty(cascBundle))
     // Note: ConnectedMasterTokenProperty supported since 2.289.1.2. For earlier version, comment out the following.
