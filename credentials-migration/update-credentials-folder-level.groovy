@@ -57,7 +57,11 @@ if (!folderExtension.empty) {
         println "   Updating domain " + domainName
         for (credential in domain.credentials) {
             println "     Updating credential: " + credential.id;
-            store.updateCredentials(domain.getDomain(), credential, credential)
+            if (! store.updateCredentials(domain.getDomain(), credential, credential) ){
+                if (! store.addCredentials(domain.getDomain(), credential) ){
+                    println "ERROR: Unable to add credential ${credential.id}"
+                }
+            }
         }
       }
     }
