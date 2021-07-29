@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>jenkins-groovy</groupId>
+    <artifactId>jenkins-groovy</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jenkins-ci.main</groupId>
+            <artifactId>jenkins-core</artifactId>
+            <version>1.609</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.main</groupId>
+            <artifactId>maven-plugin</artifactId>
+            <version>2.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudbees.nectar.plugins</groupId>
+            <artifactId>cloudbees-template</artifactId>
+            <version>4.21</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudbees.jenkins.plugins</groupId>
+            <artifactId>cloudbees-monitoring</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>cloudbees-folder</artifactId>
+            <version>5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-aggregator</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudbees.operations-center.common</groupId>
+            <artifactId>operations-center-context</artifactId>
+            <version>1.8.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudbees.operations-center.server</groupId>
+            <artifactId>operations-center-server</artifactId>
+            <version>1.8.12</version>
+        </dependency>
+        <dependency>
+            <groupId>com.coravy.hudson.plugins.github</groupId>
+            <artifactId>github</artifactId>
+            <version>1.18.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudbees.nectar.plugins</groupId>
+            <artifactId>cloudbees-template</artifactId>
+            <version>4.22</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudbees.jenkins.plugins</groupId>
+            <artifactId>cloudbees-update-center-plugin</artifactId>
+            <version>4.23</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudbees.tiger.plugins</groupId>
+            <artifactId>master-provisioning-core</artifactId>
+            <version>2.5.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudbees.tiger.plugins</groupId>
+            <artifactId>master-provisioning-mesos</artifactId>
+            <version>2.5.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudbees.tiger.plugins</groupId>
+            <artifactId>master-provisioning-kubernetes</artifactId>
+            <version>2.5.9</version>
+        </dependency>
+
+    </dependencies>
+
+</project>

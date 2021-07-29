@@ -1,9 +1,9 @@
 /*** BEGIN META {
  "name" : "Create a Managed Master in CloudBees Core on Modern Cloud Platform",
  "comment" : "This script creates a Kubernetes Managed Master programmatically similarly to what can be done through the UI. 
- It has been tested with version 2.249.2.4 of CloudBees Core",
+ It has been tested with version 2.289.1.2 of CloudBees Core",
  "parameters" : [],
- "core": "2.249.2.4",
+ "core": "2.289.1.2",
  "authors" : [
  { name : "Allan Burdajewicz" }
  ]
@@ -54,7 +54,7 @@ String  k8sClusterEndpointId = "default"
 String  k8sEnvVars = ""
 String  k8sJavaOptions = "-XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0"
 String  k8sJenkinsOptions = ""
-String  k8sImage = 'CloudBees CI - Managed Master - 2.249.2.4'
+String  k8sImage = 'CloudBees CI - Managed Master - 2.289.1.2'
 List<KubernetesImagePullSecret> k8sImagePullSecrets = Collections.emptyList()
 // Example: 
 //   def k8sImagePullSecret1 = new KubernetesImagePullSecret(); k8sImagePullSecret1.setValue("useast-reg")
@@ -93,7 +93,10 @@ newInstance.setDisplayName(masterDisplayName)
  * CONFIGURATION BUNDLE *
  ************************/
 if(cascBundle?.trim()) {
+    // Properties must follow this order
+    // Note: ConnectedMasterTokenProperty supported since 2.289.1.2. For earlier version, comment out the following.
     newInstance.getProperties().replace(new com.cloudbees.opscenter.server.casc.config.ConnectedMasterTokenProperty(hudson.util.Secret.fromString(UUID.randomUUID().toString())))
+    // Note: ConnectedMasterCascProperty supported since 2.277.4.x. For earlier version, comment out the following.
     newInstance.getProperties().replace(new com.cloudbees.opscenter.server.casc.config.ConnectedMasterCascProperty(cascBundle))
 }
 
