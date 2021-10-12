@@ -6,6 +6,7 @@ DownloadService.signatureCheck = true;
  * NO_CHANGE_NEEDED
  * DISABLED_CERT_VALIDATION
  * REMOVED_OFFLINE_UC
+ * UNINSTALLED_SCRIPT
  * ERROR_CONTACT_SUPPORT: [msg]
  */
 
@@ -36,11 +37,22 @@ _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 ED
 
 // MAIN CODE BODY
 info("Executing remediation check [v" + _version + "]");
-
 info("Checking if certificate validation is already disabled")
+
 if (!isCertificateCheckingEnabled()) {
     info("Certifcate validation was already disabled, no changes needed");
-    //TODO: check the offline uc anyway, maybe we can uninstall the script
+    //check the offline uc anyway, maybe we can uninstall the script
+    if (checkOfflineUC(true)) {
+        info("Offline update center is ok, removing script");
+        if (removeScript()) {
+            debug("script has been uninstalled");
+            enableCertificateValidation();
+            return "UNINSTALLED_SCRIPT";
+        } else {
+            info("Problem removing script");
+        }
+    }
+    info("Offline update center is invalid, but signature checking has already been disabled");
     return "NO_CHANGE_NEEDED";
 }
 
@@ -61,7 +73,7 @@ if (isAirGapped()) {
         }
     } else {
         info("Offline update center is ok, no update needed");
-        // remove the script since it is no longer needed for this system
+        debug("removing the script since it is no longer needed for this system");
         removeScript();
         return "NO_CHANGE_NEEDED";
     }
@@ -70,7 +82,7 @@ if (isAirGapped()) {
     if (!checkOfflineUC()) {
         // fix is needed
         info("Offline update center failed validation, update required");
-        info("removing current offline update center")
+        info("removing current offline update center");
 
         if (!removeUpdateCenter(getDefaultOfflineUC())) {
             info("Error removing current offline update center");
@@ -116,12 +128,22 @@ def isCertificateCheckingEnabled() {
 }
 
 def disableCertificateValidation() {
+    info("disabling certificate validation");
+    setCertificateValidation(false);
+}
+
+def enableCertificateValidation() {
+    info("enabling certificate validation");
+    setCertificateValidation(true);
+}
+
+def setCertificateValidation(boolean check) {
     debug("DownloadService.signatureCheck original value [" + DownloadService.signatureCheck + "]");
     if (!_dry_run) {
-        DownloadService.signatureCheck = false;
+        DownloadService.signatureCheck = check;
         debug("DownloadService.signatureCheck new value [" + DownloadService.signatureCheck + "]");
     } else {
-        info("dry run, not disabling signature check");
+        info("dry run, not changing signature check");
     }
 }
 
@@ -129,23 +151,31 @@ def disableCertificateValidation() {
 // possibly this needs to be more fine-grained?
 // returns false if the online uc is able to be validated, true otherwise
 def isAirGapped() {
-    return(!checkOnlineUC());
+    return(!checkOnlineUC(false));
+}
+
+def checkOfflineUC(boolean validate) {
+    return checkUpdateSite(getDefaultOfflineUC(), validate);
 }
 
 def checkOfflineUC() {
-    return(checkUpdateSite(getDefaultOfflineUC()));
+    return checkUpdateSite(getDefaultOfflineUC(), DownloadService.signatureCheck);
+}
+
+def checkOnlineUC(boolean validate) {
+    return checkUpdateSite(getDefaultOnlineUc(), validate);
 }
 
 def checkOnlineUC() {
-    return(checkUpdateSite(getDefaultOnlineUc()));
+    return checkUpdateSite(getDefaultOnlineUc(), DownloadService.signatureCheck);
 }
 
-def checkUpdateSite(UpdateSite site) {
+def checkUpdateSite(UpdateSite site, boolean validate) {
     try {
-        FormValidation v = site.updateDirectlyNow();
+        FormValidation v = site.updateDirectlyNow(validate);
         debug("form validation -> "  + v);
         if (v.kind == FormValidation.Kind.OK) {
-            debug(site.getUrl() + " is ok, no further action needed");
+            debug(site.getUrl() + " is ok");
             return true;
         } else if (v.kind == FormValidation.ERROR) {
             if (v.toString().contains(_cert_error_str)) {
