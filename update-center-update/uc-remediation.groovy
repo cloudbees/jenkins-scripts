@@ -1,8 +1,42 @@
-//testing
-DownloadService.signatureCheck = true;
-
 /**
- * The main script body, returns one of the following possible results
+ * What does this script do?
+ *  - This script is intended to detect and provide a short-term fix for CBCI instances which 
+ *    are using an offline update center that was signed by a certificate which is now expired.
+ *    <link to kb article>
+ *
+ * Who should run this script?
+ *  - Air-gapped customers
+ *      CBCI customers on version 2.xx.xx or lower who are deployed in an environment with no external 
+ *      network access AND are using the default off-line update center should run this script in
+ *      order to disable certificate validation for the update center until they can be upgraded
+ *      to CBCI version 2.xx.xx or newer.
+ *
+ *  - Non-air-gapped customers
+ *      CBCI customers on version 2.xx.xx or lower who are deployed in an environment with external 
+ *      network access should run this script in order to disable the off-line update center until they 
+ *      can be upgraded to CBCI version 2.xx.xx or newer
+ *
+ * How to use this script
+ *  - This script can be run on any individual operations center or controller.  It may also be run via 
+ *    a cluster-op.
+ *
+ * Technical Details
+ *  - It is safe to run this script multiple times on any CBCI instance.  
+ *  - For non-air-gapped systems, if a problem is detected with the certificate used to sign the off-line
+ *    update center then the off-line update center will be removed.  This will prevent an error message from
+ *    being displayed in the plugin manager.
+ *  - For air-gapped systems, if a problem is detected with the certificate used to sign the off-line update center
+ *    then update center certificate validation will be disabled.  This will allow air-gapped systems to continue
+ *    being able to manage plugins using the plugin manager
+ *  - For both air-gapped and online systems, a copy of this script will be installed to 
+ *    <JENKINS_HOME>/init.d.groovy/uc-remediation.groovy.  This is needed because the fixes applied by this
+ *    script are not persistent across restarts and need to be re-applied.
+ *  - The proper solutuion for this problem is to upgrade to CBCI version 2.xx.xx or newer.  If the script detects
+ *    that the off-line update center is no longer using an invalid certificate then it will automatically 
+ *    remove itself.
+ *    
+ *       
+ * This script returns one of the following possible results:
  * NO_CHANGE_NEEDED
  * DISABLED_CERT_VALIDATION
  * REMOVED_OFFLINE_UC
@@ -23,10 +57,16 @@ import hudson.util.FormValidation;
 import java.security.cert.CertificateExpiredException;
 import hudson.model.DownloadService;
 
-// parameters
-// ----------------------------------------------------------------------------------------------------
-_dry_run = true;
-_debug = true;
+/**
+ * parameters:
+ * 
+ * _dry_run  If set to true, no changes will actually be made to the instance
+ * _debug    If set to true, additional information will be logged to the console
+ *
+ */
+
+ _dry_run = false;
+_debug = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
@@ -106,7 +146,7 @@ if (isAirGapped()) {
   * removes the uc-remediation.groovy script from the filesystem
   */
 def removeScript() {
-    File f = Jenkins.getInstance().getRootDir().getAbsolutePath() + "/init.groovy.d/uc-remediation.groovy";
+    File f = new File(Jenkins.getInstance().getRootDir().getAbsolutePath() + "/init.groovy.d/uc-remediation.groovy");
     if (f.exists()) {
         debug("Removing script " + f.getAbsolutePath());
         if (!_dry_run) {
@@ -171,15 +211,24 @@ def checkOnlineUC() {
 }
 
 def checkUpdateSite(UpdateSite site, boolean validate) {
+    // ugly to accomodate the logic in nectar-license plugin
+    originalCheckValue = isCertificateCheckingEnabled();
+    if (validate && !isCertificateCheckingEnabled()) {
+        setCertificateValidation(true);
+    }
+
     try {
+        debug("checking update site " + site + " with validate == " + validate);
         FormValidation v = site.updateDirectlyNow(validate);
         debug("form validation -> "  + v);
         if (v.kind == FormValidation.Kind.OK) {
             debug(site.getUrl() + " is ok");
+            setCertificateValidation(originalCheckValue);
             return true;
         } else if (v.kind == FormValidation.ERROR) {
             if (v.toString().contains(_cert_error_str)) {
                 debug("cert expired error found validating " + site.getUrl());
+                setCertificateValidation(originalCheckValue);
                 return false;
             } else {
                 debug("Some other error was found validating " + site.getUrl());
@@ -192,9 +241,11 @@ def checkUpdateSite(UpdateSite site, boolean validate) {
         debug("Caught exception " + e.class + " validating cert from " + site.getUrl());
         if (e.toString().contains(_cert_error_str)) {
             debug("cert expired error found validating " + site.getUrl());
+            setCertificateValidation(originalCheckValue);
             return false;
         } else {
             debug("Some other error was found validating " + site.getUrl());
+            setCertificateValidation(originalCheckValue);
             return false;
         }
     }
@@ -264,15 +315,18 @@ def writeScriptToInitGroovyFolder(String script) {
         folder.mkdirs();
     }
     File scriptFile = new File("uc-remediation.groovy", folder);
+    scriptFile.write(script);
 }
 
 String result = evaluate(_script);
 
 if (result.equals("NO_CHANGE_NEEDED")) {
     println("System is up to date, no changes needed");    
-} else if ((result.equals("DISABLED_CERT_VALIDATION")) || (result.equals("REMOVED_OFFLINE_UC"))) {
+} else if (result.equals("DISABLED_CERT_VALIDATION") || result.equals("REMOVED_OFFLINE_UC")) {
     println("persisting script");
     writeScriptToInitGroovyFolder(_script);
+} else if (result.equals("UNINSTALLED_SCRIPT")) {
+    println("No issues detected, script has been uninstalled");
 } else {
     // some other error occured
     println("An error occured: " + result);
