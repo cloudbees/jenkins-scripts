@@ -1,4 +1,3 @@
-
 //testing
 DownloadService.signatureCheck = true;
 
@@ -23,13 +22,10 @@ import hudson.util.FormValidation;
 import java.security.cert.CertificateExpiredException;
 import hudson.model.DownloadService;
 
-
 // parameters
 // ----------------------------------------------------------------------------------------------------
 _dry_run = true;
 _debug = true;
-//FIXME:  testing,remove before release
-//DownloadService.signatureCheck = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
@@ -40,12 +36,11 @@ _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 ED
 
 // MAIN CODE BODY
 info("Executing remediation check [v" + _version + "]");
-// there is a small possibilty that the validation will fail for a reason other than the cert being expired.
-// should this script abort if that is true?
 
-info("Checking if certificate validation is disabled")
+info("Checking if certificate validation is already disabled")
 if (!isCertificateCheckingEnabled()) {
     info("Certifcate validation was already disabled, no changes needed");
+    //TODO: check the offline uc anyway, maybe we can uninstall the script
     return "NO_CHANGE_NEEDED";
 }
 
@@ -66,6 +61,8 @@ if (isAirGapped()) {
         }
     } else {
         info("Offline update center is ok, no update needed");
+        // remove the script since it is no longer needed for this system
+        removeScript();
         return "NO_CHANGE_NEEDED";
     }
 } else {
@@ -83,6 +80,8 @@ if (isAirGapped()) {
         }
     } else {
         info("Offline update center is ok, no update needed");
+        // remove the script since it is no longer needed for this system
+        removeScript();
         return "NO_CHANGE_NEEDED";
     }
 }
@@ -90,6 +89,26 @@ if (isAirGapped()) {
 // ----------------------------------------------------------------------------------------------------
 // methods below
 // ----------------------------------------------------------------------------------------------------
+
+/**
+  * removes the uc-remediation.groovy script from the filesystem
+  */
+def removeScript() {
+    File f = Jenkins.getInstance().getRootDir().getAbsolutePath() + "/init.groovy.d/uc-remediation.groovy";
+    if (f.exists()) {
+        debug("Removing script " + f.getAbsolutePath());
+        if (!_dry_run) {
+            f.delete();
+            info("Script has been uninstalled");
+        } else {
+            info("dry run, not removing script file");
+        }
+        return true;
+    } else {
+        info(f.getAbsolutePath() + " not found, skipping uninstall");
+        return false;
+    }
+}
 
 def isCertificateCheckingEnabled() {
 	debug("DownlaodService.signatureCheck == " + DownloadService.signatureCheck);
@@ -174,6 +193,7 @@ def getDefaultOnlineUc() {
     debug("default offline updatecenter was not found");
     return null;
 }
+
 def removeUpdateCenter(UpdateSite s) {
     if (!_dry_run) {
         if (Jenkins.getInstance().getUpdateCenter().getSites().remove(s)) {
@@ -191,38 +211,24 @@ def removeUpdateCenter(UpdateSite s) {
 
 def debug(String msg) {
     if (_debug) {
-        //_results.add("DEBUG: " + msg);
         println("DEBUG: " + msg);
     }
 }
 
 def info(String msg) {
-    //_results.add("INFO: " + msg);
     println("INFO: " + msg);
 }
 '''
-//testing
-def isSigCheckDisabled() {
-    debug("hudson.model.DownloadService.noSignatureCheck  [" + System.getProperty('hudson.model.DownloadService.noSignatureCheck') + "]");
-    debug("DownloadService.signatureCheck =-> " + DownloadService.signatureCheck);
-    debug("setting noSignatureCheck to false");
-    System.setProperty('hudson.model.DownloadService.noSignatureCheck', "false");
-    debug("hudson.model.DownloadService.noSignatureCheck  [" + System.getProperty('hudson.model.DownloadService.noSignatureCheck') + "]");
-    debug("DownloadService.signatureCheck =-> " + DownloadService.signatureCheck);
-    DownloadService.signatureCheck = false;
-    debug("hudson.model.DownloadService.noSignatureCheck  [" + System.getProperty('hudson.model.DownloadService.noSignatureCheck') + "]");
-    debug("DownloadService.signatureCheck =-> " + DownloadService.signatureCheck);
-}
+// end script
 
-def executeScriptInLocally(String script) {
-  def _groovy = new groovy.lang.GroovyShell(jenkins.model.Jenkins.getActiveInstance().getPluginManager().uberClassLoader)
-  return _groovy.run(script, "local.script", new java.util.ArrayList())
-}
+/**
+  * installer
+  */
 
 _init_groovy_dir = Jenkins.getInstance().getRootDir().getAbsolutePath() + "/init.groovy.d";
 
 def writeScriptToInitGroovyFolder(String script) {
-    // does the init.groovy.d folder exist?
+    // create the init.groovy.d folder  if it does not exist
     File folder = new File(_init_groovy_dir);
     if (!folder.exists()) {
         folder.mkdirs();
@@ -230,12 +236,11 @@ def writeScriptToInitGroovyFolder(String script) {
     File scriptFile = new File("uc-remediation.groovy", folder);
 }
 
-//println executeScriptInLocally(script);
 String result = evaluate(_script);
 
 if (result.equals("NO_CHANGE_NEEDED")) {
     println("System is up to date, no changes needed");    
-} else if ((result.equals("DISABLED_CERT_VALIDATION") || (result.equals("REMOVED_OFFLINE_UC"))) {
+} else if ((result.equals("DISABLED_CERT_VALIDATION")) || (result.equals("REMOVED_OFFLINE_UC"))) {
     println("persisting script");
     writeScriptToInitGroovyFolder(_script);
 } else {
