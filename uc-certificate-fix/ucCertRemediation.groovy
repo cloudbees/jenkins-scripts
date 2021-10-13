@@ -32,7 +32,7 @@
  *    then update center certificate validation will be disabled.  This will allow air-gapped systems to continue
  *    being able to manage plugins using the plugin manager
  *  - For both air-gapped and online systems, a copy of this script will be installed to 
- *    <JENKINS_HOME>/init.d.groovy/uc-remediation.groovy.  This is needed because the fixes applied by this
+ *    <JENKINS_HOME>/init.d.groovy/ucCertRemediation.groovy.  This is needed because the fixes applied by this
  *    script are not persistent across restarts and need to be re-applied.
  *  - The proper solution for this problem is to upgrade to CloudBees CI version 2.xx.xx or newer.  If the script detects
  *    that the off-line update center is no longer using an invalid certificate then it will automatically 
@@ -147,7 +147,7 @@ if (isAirGapped()) {
 // ----------------------------------------------------------------------------------------------------
 
 /**
-  * removes the uc-remediation.groovy script from the filesystem
+  * removes the ucCertRemediation.groovy script from the filesystem
   */
 def removeScript() {
     File f = new File(Jenkins.getInstance().getRootDir().getAbsolutePath() + File.separator + "init.groovy.d" + File.separator + "ucCertRemediation.groovy");
