@@ -150,7 +150,7 @@ if (isAirGapped()) {
   * removes the uc-remediation.groovy script from the filesystem
   */
 def removeScript() {
-    File f = new File(Jenkins.getInstance().getRootDir().getAbsolutePath() + File.separator + "init.groovy.d" + File.separator + "uc-remediation.groovy");
+    File f = new File(Jenkins.getInstance().getRootDir().getAbsolutePath() + File.separator + "init.groovy.d" + File.separator + "ucCertRemediation.groovy");
 
     if (f.exists()) {
         debug("Removing script " + f.getAbsolutePath());
@@ -324,7 +324,7 @@ def writeScriptToInitGroovyFolder(String script) {
     if (!folder.exists()) {
         folder.mkdirs();
     }
-    File scriptFile = new File("uc-remediation.groovy", folder);
+    File scriptFile = new File("ucCertRemediation.groovy", folder);
     scriptFile.write(script);
 }
 
