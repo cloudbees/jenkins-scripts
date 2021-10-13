@@ -1,14 +1,12 @@
 /**
  * What does this script do?
  *  - This script is intended to detect and provide a short-term fix for CloudBees CI instances which 
-
  *    are using an offline update center that was signed by a certificate which is now expired.
- *    <link to kb article>
+ *    https://www.cloudbees.com/r/oct-21-ci-uc-cert-expiry-kb
  *
  * Who should run this script?
- *  - Air-gapped customers
+ *  - Air-gapped customers (i.e. without any Internet access)
  *      CloudBees CI customers on version 2.xx.xx or lower who are deployed in an environment with no external 
-
  *      network access AND are using the default off-line update center should run this script in
  *      order to disable certificate validation for the update center until they can be upgraded
  *      to CloudBees CI version 2.xx.xx or newer.
@@ -16,13 +14,12 @@
  *
  *  - Non-air-gapped customers
  *      CloudBees CI customers on version 2.xx.xx or lower who are deployed in an environment with external 
-
  *      network access should run this script in order to disable the off-line update center until they 
  *      can be upgraded to CloudBees CI version 2.xx.xx or newer
 
  *
  * How to use this script
- *  - This script can be run on any individual operations center or controller.  It may also be run via 
+ *  - This script can be run using the script console on any individual operations center or controller.  It may also be run via
  *    a cluster-op.
  *
  * Technical Details
@@ -37,8 +34,7 @@
  *  - For both air-gapped and online systems, a copy of this script will be installed to 
  *    <JENKINS_HOME>/init.d.groovy/uc-remediation.groovy.  This is needed because the fixes applied by this
  *    script are not persistent across restarts and need to be re-applied.
- *  - The proper solutuion for this problem is to upgrade to CloudBees CI version 2.xx.xx or newer.  If the script detects
-
+ *  - The proper solution for this problem is to upgrade to CloudBees CI version 2.xx.xx or newer.  If the script detects
  *    that the off-line update center is no longer using an invalid certificate then it will automatically 
  *    remove itself.
  *    
@@ -220,6 +216,10 @@ def checkOnlineUC() {
 }
 
 def checkUpdateSite(UpdateSite site, boolean validate) {
+    if(site  == null){
+        debug("update site is already null");
+        return true;
+    }
     // ugly to accomodate the logic in nectar-license plugin
     originalCheckValue = isCertificateCheckingEnabled();
     if (validate && !isCertificateCheckingEnabled()) {
