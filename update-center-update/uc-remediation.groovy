@@ -1,27 +1,33 @@
 /**
  * What does this script do?
- *  - This script is intended to detect and provide a short-term fix for CBCI instances which 
+ *  - This script is intended to detect and provide a short-term fix for CloudBees CI instances which 
+
  *    are using an offline update center that was signed by a certificate which is now expired.
  *    <link to kb article>
  *
  * Who should run this script?
  *  - Air-gapped customers
- *      CBCI customers on version 2.xx.xx or lower who are deployed in an environment with no external 
+ *      CloudBees CI customers on version 2.xx.xx or lower who are deployed in an environment with no external 
+
  *      network access AND are using the default off-line update center should run this script in
  *      order to disable certificate validation for the update center until they can be upgraded
- *      to CBCI version 2.xx.xx or newer.
+ *      to CloudBees CI version 2.xx.xx or newer.
+
  *
  *  - Non-air-gapped customers
- *      CBCI customers on version 2.xx.xx or lower who are deployed in an environment with external 
+ *      CloudBees CI customers on version 2.xx.xx or lower who are deployed in an environment with external 
+
  *      network access should run this script in order to disable the off-line update center until they 
- *      can be upgraded to CBCI version 2.xx.xx or newer
+ *      can be upgraded to CloudBees CI version 2.xx.xx or newer
+
  *
  * How to use this script
  *  - This script can be run on any individual operations center or controller.  It may also be run via 
  *    a cluster-op.
  *
  * Technical Details
- *  - It is safe to run this script multiple times on any CBCI instance.  
+ *  - It is safe to run this script multiple times on any CloudBees CI instance.  
+
  *  - For non-air-gapped systems, if a problem is detected with the certificate used to sign the off-line
  *    update center then the off-line update center will be removed.  This will prevent an error message from
  *    being displayed in the plugin manager.
@@ -31,7 +37,8 @@
  *  - For both air-gapped and online systems, a copy of this script will be installed to 
  *    <JENKINS_HOME>/init.d.groovy/uc-remediation.groovy.  This is needed because the fixes applied by this
  *    script are not persistent across restarts and need to be re-applied.
- *  - The proper solutuion for this problem is to upgrade to CBCI version 2.xx.xx or newer.  If the script detects
+ *  - The proper solutuion for this problem is to upgrade to CloudBees CI version 2.xx.xx or newer.  If the script detects
+
  *    that the off-line update center is no longer using an invalid certificate then it will automatically 
  *    remove itself.
  *    
@@ -72,7 +79,8 @@ _debug = false;
 // ----------------------------------------------------------------------------------------------------
 _version = "00000";
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
-_offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + "/war/WEB-INF/plugins/update-center.json";
+_offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
+
 _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 EDT 2021";
 
 // MAIN CODE BODY
@@ -146,7 +154,8 @@ if (isAirGapped()) {
   * removes the uc-remediation.groovy script from the filesystem
   */
 def removeScript() {
-    File f = new File(Jenkins.getInstance().getRootDir().getAbsolutePath() + "/init.groovy.d/uc-remediation.groovy");
+    File f = new File(Jenkins.getInstance().getRootDir().getAbsolutePath() + File.separator + "init.groovy.d" + File.separator + "uc-remediation.groovy");
+
     if (f.exists()) {
         debug("Removing script " + f.getAbsolutePath());
         if (!_dry_run) {
@@ -306,7 +315,7 @@ def info(String msg) {
   * installer
   */
 
-_init_groovy_dir = Jenkins.getInstance().getRootDir().getAbsolutePath() + "/init.groovy.d";
+_init_groovy_dir = Jenkins.getInstance().getRootDir().getAbsolutePath() + File.separator +"init.groovy.d";
 
 def writeScriptToInitGroovyFolder(String script) {
     // create the init.groovy.d folder  if it does not exist
