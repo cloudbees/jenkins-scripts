@@ -84,7 +84,7 @@ info("Executing remediation check [v" + _version + "]");
 info("Checking if certificate validation is already disabled")
 
 if (!isCertificateCheckingEnabled()) {
-    info("Certifcate validation was already disabled, no changes needed");
+    info("Certificate validation was already disabled, no changes needed");
     //check the offline uc anyway, maybe we can uninstall the script
     if (checkOfflineUC(true)) {
         info("Offline update center is ok, removing script");
@@ -168,7 +168,7 @@ def removeScript() {
 }
 
 def isCertificateCheckingEnabled() {
-	debug("DownlaodService.signatureCheck == " + DownloadService.signatureCheck);
+    debug("DownloadService.signatureCheck == " + DownloadService.signatureCheck);
     return DownloadService.signatureCheck;
 }
 
