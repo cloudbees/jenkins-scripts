@@ -287,7 +287,8 @@ def getDefaultOnlineUc() {
 def removeUpdateCenter(UpdateSite s) {
     if (!_dry_run) {
         if (Jenkins.getInstance().getUpdateCenter().getSites().remove(s)) {
-            debug.add("Removed update center " +s.getUrl());
+            debug("Removed update center " +s.getUrl());
+
             return true;
         } else {
             debug("update center was not found, nothing removed");
