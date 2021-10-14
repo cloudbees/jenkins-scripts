@@ -80,7 +80,7 @@ _debug = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00000";
+_version = "00001";
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
 
@@ -268,6 +268,10 @@ def checkUpdateSite(UpdateSite site, boolean validate) {
 }
 
 def getDefaultOfflineUC() {
+    return(getDefaultOfflineUC(0));
+}
+
+def getDefaultOfflineUC(int retrySleep) {
     PersistedList <UpdateSite> sites = Jenkins.getInstance().getUpdateCenter().getSites();
     for (UpdateSite s: sites) {
         if (s.getUrl().equals(_offline_uc_url)) {
@@ -275,7 +279,21 @@ def getDefaultOfflineUC() {
             return s;
         }
     }
-    debug("default offline updatecenter was not found");
+
+    if (retrySleep > 0) {
+        debug("default offline updatecenter was not found, sleeping for " + retrySleep + " seconds and will try again");
+        Thread.sleep(retrySleep * 1000);
+    }
+
+    for (UpdateSite s: sites) {
+        if (s.getUrl().equals(_offline_uc_url)) {
+            debug("Found default offline updatecenter " +s.getUrl());
+            return s;
+        }
+        debug("still did not find default UC after retry");
+    }
+    
+    info("default offline updatecenter was not found");
     return null;
 }
 
