@@ -226,7 +226,7 @@ def checkOnlineUC() {
 def checkUpdateSite(UpdateSite site, boolean validate) {
     if(site  == null){
         debug("update site is already null");
-        return true;
+        return false;
     }
     // ugly to accomodate the logic in nectar-license plugin
     originalCheckValue = isCertificateCheckingEnabled();
