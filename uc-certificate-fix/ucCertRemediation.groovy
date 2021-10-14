@@ -81,6 +81,7 @@ _debug = false;
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
 _version = "00001";
+_retrySleepDuration = 30;
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
 
@@ -130,7 +131,7 @@ if (isAirGapped()) {
     }
 } else {
     debug("not airgapped");
-    if (!checkOfflineUC()) {
+    if (!checkOfflineUC(_retrySleepRetry)) {
         // fix is needed
         info("Offline update center failed validation, update required");
         info("removing current offline update center");
