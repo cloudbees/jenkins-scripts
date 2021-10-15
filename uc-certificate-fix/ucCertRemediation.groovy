@@ -7,9 +7,9 @@
  * Who should run this script?
  *  - Air-gapped customers (i.e. without any Internet access)
  *      CloudBees CI or CloudBees Jenkins Platform customers on these versions
- *        - version 2.303.2.5 or lower on the rolling release, or 
- *        - version 2.277.42.0.1 or lower on the 2.277.x fixed release, or 
- *        - version 2.249.33.0.1 or lower on the 2.249.x fixed release
+ *        - 2.303.2.5 or lower on the rolling release, or 
+ *        - 2.277.42.0.1 or lower on the 2.277.x fixed release, or 
+ *        - 2.249.33.0.1 or lower on the 2.249.x fixed release
  *      who are deployed in an environment with no external network access 
  *      AND are using the default off-line update center should run this script in
  *      order to disable certificate validation for the update center until they can be upgraded
@@ -21,9 +21,9 @@
  *
  *  - Non-air-gapped customers
  *      CloudBees CI or CloudBees Jenkins Platform customers on these versions
- *        - version 2.303.2.5 or lower on the rolling release, or 
- *        - version 2.277.42.0.1 or lower on the 2.277.x fixed release, or 
- *        - version 2.249.33.0.1 or lower on the 2.249.x fixed release
+ *        - 2.303.2.5 or lower on the rolling release, or 
+ *        - 2.277.42.0.1 or lower on the 2.277.x fixed release, or 
+ *        - 2.249.33.0.1 or lower on the 2.249.x fixed release
  *      who are deployed in an environment with external network access 
  *      should run this script in order to disable the off-line update center until they 
  *      can be upgraded to these CloudBees CI or CloudBees Jenkins Platform versions
