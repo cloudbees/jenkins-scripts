@@ -15,8 +15,8 @@
  *      order to disable certificate validation for the update center until they can be upgraded
  *      to these CloudBees CI or CloudBees Jenkins Platform versions
  *        - 2.303.2.6 or newer on the rolling release, or
- *        - 2.277.42.0.2 or newer on the 2.277.x fixed release, or
- *        - 2.249.33.0.2 or newer on the 2.249. fixed line
+ *        - 2.277.42.0.3 or newer on the 2.277.x fixed release, or
+ *        - 2.249.33.0.2 on the 2.249.x fixed release
 
  *
  *  - Non-air-gapped customers
@@ -28,8 +28,8 @@
  *      should run this script in order to disable the off-line update center until they 
  *      can be upgraded to these CloudBees CI or CloudBees Jenkins Platform versions
  *        - 2.303.2.6 or newer on the rolling release, or
- *        - 2.277.42.0.2 or newer on the 2.277.x fixed release, or
- *        - 2.249.33.0.2 or newer on the 2.249. fixed line
+ *        - 2.277.42.0.3 or newer on the 2.277.x fixed release, or
+ *        - 2.249.33.0.2 on the 2.249.x fixed release
  *
  * How to use this script
  *  - This script can be run using the script console on any individual operations center or controller.  It may also be run via
@@ -48,8 +48,8 @@
  *    <JENKINS_HOME>/init.d.groovy/ucCertRemediation.groovy.  This is needed because the fixes applied by this
  *    script are not persistent across restarts and need to be re-applied.
  *  - The proper solution for this problem is to upgrade to CloudBees CI or CloudBees Jenkins Platform versions listed above.
- *    We can help prepare a customized update plan and guide you through your update testing via an Assisted Update: https://support.cloudbees.com/hc/en-us/articles/115001919212
- *    If the script detects that the off-line update center is no longer using an invalid certificate
+ *    We would like to help prepare a customized update plan, and guide you through update testing via an Assisted Update: https://support.cloudbees.com/hc/en-us/articles/115001919212
+ *  - If the script detects that the off-line update center is no longer using an invalid certificate
  *    then it will automatically remove itself.
  *    
  *       
