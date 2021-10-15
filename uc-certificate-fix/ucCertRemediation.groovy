@@ -48,6 +48,7 @@
  *       
  * This script returns one of the following possible results:
  * NO_CHANGE_NEEDED
+ * DEFAULT_OFFLINC_UC_NOT_FOUND
  * DISABLED_CERT_VALIDATION
  * REMOVED_OFFLINE_UC
  * UNINSTALLED_SCRIPT
@@ -75,15 +76,15 @@ import hudson.model.DownloadService;
  *
  */
 
- _dry_run = false;
 _debug = false;
+_dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00000";
+_version = "00002";
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
-
+_retry_time = 30000;   // how long to wait before checking for an update site to be loaded
 _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 EDT 2021";
 
 // MAIN CODE BODY
@@ -111,7 +112,7 @@ info("Checking offline update center certificates...");
 if (isAirGapped()) {
     debug("airgapped!");
     info("System appears to be airgapped, checking offline updatecenter");
-    if (!checkOfflineUC()) {
+    if (hasDefaultOfflineUC(_retry_time) && !checkOfflineUC()) {
         info("Offline update center has invalid certificate, disabling certificate validation");
         disableCertificateValidation();
         // sanity check, should pass validation now
@@ -130,22 +131,27 @@ if (isAirGapped()) {
     }
 } else {
     debug("not airgapped");
-    if (!checkOfflineUC()) {
-        // fix is needed
-        info("Offline update center failed validation, update required");
-        info("removing current offline update center");
+    if (hasDefaultOfflineUC(_retry_time)) {
+        if (!checkOfflineUC()) {
+            // fix is needed
+            info("Offline update center failed validation, update required");
+            info("removing current offline update center");
 
-        if (!removeUpdateCenter(getDefaultOfflineUC())) {
-            info("Error removing current offline update center");
-            return "ERROR_CONTACT_SUPPORT: There was a problem removing the default offline update center";
+            if (!removeUpdateCenter(getDefaultOfflineUC())) {
+                info("Error removing current offline update center");
+                return "ERROR_CONTACT_SUPPORT: There was a problem removing the default offline update center";
+            } else {
+                return "REMOVED_OFFLINE_UC";
+            }
         } else {
-            return "REMOVED_OFFLINE_UC";
+            info("Offline update center is ok, no update needed");
+            // remove the script since it is no longer needed for this system
+            removeScript();
+            return "NO_CHANGE_NEEDED";
         }
     } else {
-        info("Offline update center is ok, no update needed");
-        // remove the script since it is no longer needed for this system
-        removeScript();
-        return "NO_CHANGE_NEEDED";
+        info("default offline updatecenter was not found, if this is not expected you may need to increase the value for _retry_time");
+        return("DEFAULT_OFFLINC_UC_NOT_FOUND");
     }
 }
 
@@ -205,6 +211,7 @@ def setCertificateValidation(boolean check) {
 def isAirGapped() {
     return(!checkOnlineUC(false));
 }
+
 
 def checkOfflineUC(boolean validate) {
     return checkUpdateSite(getDefaultOfflineUC(), validate);
@@ -267,7 +274,27 @@ def checkUpdateSite(UpdateSite site, boolean validate) {
     }
 }
 
+def hasDefaultOfflineUC() {
+    return hasDefaultOfflineUC(0);
+}
+
+def hasDefaultOfflineUC(int retryTime) {    
+    UpdateSite s = getDefaultOfflineUC(retryTime);
+    debug("default offline updatecenter = " + s);
+    if (s != null) {
+        debug("AA");
+        return true;
+    } else {
+        debug("BB");
+        return false;
+    }
+}
+
 def getDefaultOfflineUC() {
+    return getDefaultOfflineUC(0);
+}
+
+def getDefaultOfflineUC(int retryTime) {
     PersistedList <UpdateSite> sites = Jenkins.getInstance().getUpdateCenter().getSites();
     for (UpdateSite s: sites) {
         if (s.getUrl().equals(_offline_uc_url)) {
@@ -276,6 +303,18 @@ def getDefaultOfflineUC() {
         }
     }
     debug("default offline updatecenter was not found");
+    if (retryTime > 0) {
+        debug("default offline updatecenter was not found, sleeping for " + retryTime + " ms and will try again");
+        Thread.sleep(retryTime);
+        for (UpdateSite s: sites) {
+            debug("checking " + s.getUrl());
+            if (s.getUrl().equals(_offline_uc_url)) {
+                debug("Found default offline updatecenter " +s.getUrl() + " on second attempt");
+                return s;
+            }
+        }
+    }
+    debug("getDefaultOfflineUC returns null");
     return null;
 }
 
@@ -338,7 +377,9 @@ def writeScriptToInitGroovyFolder(String script) {
 String result = evaluate(_script);
 
 if (result.equals("NO_CHANGE_NEEDED")) {
-    println("System is up to date, no changes needed");    
+    println("System is up to date, no changes needed"); 
+} else if (result.equals("DEFAULT_OFFLINC_UC_NOT_FOUND")) {
+    println("Default offline UC was not found, if this was not expected you may need to increase \"_retry_time\"");
 } else if (result.equals("DISABLED_CERT_VALIDATION") || result.equals("REMOVED_OFFLINE_UC")) {
     println("persisting script");
     writeScriptToInitGroovyFolder(_script);
