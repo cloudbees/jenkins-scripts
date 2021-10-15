@@ -2,35 +2,41 @@
  * What does this script do?
  *  - This script is intended to detect and provide a short-term fix for CloudBees CI instances which 
  *    are using an offline update center that was signed by a certificate which is now expired.
- *    https://www.cloudbees.com/r/oct-21-ci-uc-cert-expiry-kb
+ *    https://cloudbees.com/r/oct-21-ci-uc-cert-update-kb
  *
  * Who should run this script?
  *  - Air-gapped customers (i.e. without any Internet access)
- *      CloudBees CI customers on these versions
+ *      CloudBees CI or CloudBees Jenkins Platform customers on these versions
  *        - version 2.303.2.5 or lower on the rolling release, or 
  *        - version 2.277.42.0.1 or lower on the 2.277.x fixed release, or 
  *        - version 2.249.33.0.1 or lower on the 2.249.x fixed release
  *      who are deployed in an environment with no external network access 
  *      AND are using the default off-line update center should run this script in
  *      order to disable certificate validation for the update center until they can be upgraded
- *      to these CloudBees CI versions
+ *      to these CloudBees CI or CloudBees Jenkins Platform versions
  *        - 2.303.2.6 or newer on the rolling release, or
  *        - 2.277.42.0.2 or newer on the 2.277.x fixed release, or
  *        - 2.249.33.0.2 or newer on the 2.249. fixed line
 
  *
  *  - Non-air-gapped customers
- *      CloudBees CI customers on version 2.xx.xx or lower who are deployed in an environment with external 
- *      network access should run this script in order to disable the off-line update center until they 
- *      can be upgraded to CloudBees CI version 2.xx.xx or newer
-
+ *      CloudBees CI or CloudBees Jenkins Platform customers on these versions
+ *        - version 2.303.2.5 or lower on the rolling release, or 
+ *        - version 2.277.42.0.1 or lower on the 2.277.x fixed release, or 
+ *        - version 2.249.33.0.1 or lower on the 2.249.x fixed release
+ *      who are deployed in an environment with external network access 
+ *      should run this script in order to disable the off-line update center until they 
+ *      can be upgraded to these CloudBees CI or CloudBees Jenkins Platform versions
+ *        - 2.303.2.6 or newer on the rolling release, or
+ *        - 2.277.42.0.2 or newer on the 2.277.x fixed release, or
+ *        - 2.249.33.0.2 or newer on the 2.249. fixed line
  *
  * How to use this script
  *  - This script can be run using the script console on any individual operations center or controller.  It may also be run via
  *    a cluster-op.
  *
  * Technical Details
- *  - It is safe to run this script multiple times on any CloudBees CI instance.  
+ *  - It is safe to run this script multiple times on any CloudBees CI or CloudBees Jenkins Platform instance.  
 
  *  - For non-air-gapped systems, if a problem is detected with the certificate used to sign the off-line
  *    update center then the off-line update center will be removed.  This will prevent an error message from
@@ -41,9 +47,9 @@
  *  - For both air-gapped and online systems, a copy of this script will be installed to 
  *    <JENKINS_HOME>/init.d.groovy/ucCertRemediation.groovy.  This is needed because the fixes applied by this
  *    script are not persistent across restarts and need to be re-applied.
- *  - The proper solution for this problem is to upgrade to CloudBees CI version 2.xx.xx or newer.  If the script detects
- *    that the off-line update center is no longer using an invalid certificate then it will automatically 
- *    remove itself.
+ *  - The proper solution for this problem is to upgrade to CloudBees CI or CloudBees Jenkins Platform versions listed above.
+ *    If the script detects that the off-line update center is no longer using an invalid certificate
+ *    then it will automatically remove itself.
  *    
  *       
  * This script returns one of the following possible results:
