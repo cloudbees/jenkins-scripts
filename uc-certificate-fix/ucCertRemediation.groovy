@@ -351,7 +351,7 @@ if (result.equals("NO_CHANGE_NEEDED")) {
     writeScriptToInitGroovyFolder(_script);
     println("Reloading update center data");
     Jenkins.getInstance().pluginManager.doCheckUpdatesServer();
-    println("The remediation is now complete and sucessful");
+    println("The remediation is now complete and successful");
 } else if (result.equals("UNINSTALLED_SCRIPT")) {
     println("No issues detected, script has been uninstalled");
 } else {
