@@ -2,7 +2,7 @@
  * What does this script do?
  *  - This script is intended to detect and provide a short-term fix for CloudBees CI instances which 
  *    are using an offline update center that was signed by a certificate which is now expired.
- *    https://cloudbees.com/r/oct-21-ci-uc-cert-update-kb
+ *    https://www.cloudbees.com/r/oct-21-ci-uc-cert-update-kb
  *
  * Who should run this script?
  *  - Air-gapped customers (i.e. without any Internet access)
