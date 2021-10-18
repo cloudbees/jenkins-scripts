@@ -95,10 +95,10 @@ _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 ED
 
 // MAIN CODE BODY
 info("Executing remediation check [v" + _version + "]");
-info("Checking parameters" + this.args[0] + ", " + this.args[1]);
-if (env['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] == "TRUE") {
+if (System.properties['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] == "TRUE") {
+    info("Running bootstrap install, disabling retry interval");
     _retry_time = 0;
-    env['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL', ''];
+    System.properties['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] = '';
 }
 
 info("Checking if certificate validation is already disabled");
@@ -386,7 +386,7 @@ def writeScriptToInitGroovyFolder(String script) {
     scriptFile.write(script);
 }
 
-env['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL', 'TRUE'];
+System.properties['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] = 'TRUE';
 
 String result = evaluate(_script);
 
