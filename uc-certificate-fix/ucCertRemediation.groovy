@@ -398,6 +398,9 @@ if (result.equals("NO_CHANGE_NEEDED")) {
 } else if (result.equals("DISABLED_CERT_VALIDATION") || result.equals("REMOVED_OFFLINE_UC")) {
     println("persisting script");
     writeScriptToInitGroovyFolder(_script);
+    println("Reloading update center data");
+    Jenkins.getInstance().pluginManager.doCheckUpdatesServer();
+    println("The remediation is now complete and successful");
 } else if (result.equals("UNINSTALLED_SCRIPT")) {
     println("No issues detected, script has been uninstalled");
 } else {
