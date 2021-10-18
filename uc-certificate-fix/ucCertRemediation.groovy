@@ -87,6 +87,7 @@ _dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
+
 _version = "00004";
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
