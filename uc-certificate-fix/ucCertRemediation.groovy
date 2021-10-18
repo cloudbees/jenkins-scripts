@@ -96,6 +96,7 @@ _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 ED
 // MAIN CODE BODY
 info("Executing remediation check [v" + _version + "]");
 if (System.properties['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] == "TRUE") {
+    info("Running bootstrap install, disabling retry interval");
     _retry_time = 0;
     System.properties['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] = '';
 }
