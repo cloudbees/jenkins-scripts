@@ -61,7 +61,6 @@ import hudson.model.UpdateSite;
 import hudson.util.PersistedList;
 import jenkins.model.Jenkins;
 import com.cloudbees.jenkins.plugins.license.nectar.CloudBeesUpdateSite;
-import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONException;
 import hudson.util.FormValidation;
@@ -89,6 +88,13 @@ _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 ED
 
 // MAIN CODE BODY
 info("Executing remediation check [v" + _version + "]");
+info("Checking parameters" + this.args[0] + ", " + this.args[1]);
+if (env['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] == "TRUE") {
+    _retry_time = 0;
+    env['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL', ''];
+}
+
+return;
 info("Checking if certificate validation is already disabled")
 
 if (!isCertificateCheckingEnabled()) {
@@ -373,6 +379,8 @@ def writeScriptToInitGroovyFolder(String script) {
     File scriptFile = new File("ucCertRemediation.groovy", folder);
     scriptFile.write(script);
 }
+
+env['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL', 'TRUE'];
 
 String result = evaluate(_script);
 
