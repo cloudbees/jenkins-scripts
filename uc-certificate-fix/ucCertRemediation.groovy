@@ -87,7 +87,7 @@ _dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00002";
+_version = "00003";
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
 _retry_time = 30000;   // how long to wait before checking for an update site to be loaded
@@ -101,8 +101,7 @@ if (env['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] == "TRUE") {
     env['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL', ''];
 }
 
-return;
-info("Checking if certificate validation is already disabled")
+info("Checking if certificate validation is already disabled");
 
 if (!isCertificateCheckingEnabled()) {
     info("Certificate validation was already disabled, no changes needed");
