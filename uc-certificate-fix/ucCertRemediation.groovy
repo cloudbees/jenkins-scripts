@@ -90,6 +90,7 @@ _dry_run = false;
 _version = "00004";
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
+_offline_uc_url_modern = "file:" + File.separator + "tmp" + File.separator + "jenkins" + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
 _retry_time = 30000;   // how long to wait before checking for an update site to be loaded
 _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 EDT 2021";
 
@@ -314,7 +315,7 @@ def getDefaultOfflineUC() {
 def getDefaultOfflineUC(int retryTime) {
     PersistedList <UpdateSite> sites = Jenkins.getInstance().getUpdateCenter().getSites();
     for (UpdateSite s: sites) {
-        if (s.getUrl().equals(_offline_uc_url)) {
+        if (s.getUrl().equals(_offline_uc_url) || s.getUrl().equals(_offline_uc_url_modern)) {
             debug("Found default offline updatecenter " +s.getUrl());
             return s;
         }
@@ -325,7 +326,7 @@ def getDefaultOfflineUC(int retryTime) {
         Thread.sleep(retryTime);
         for (UpdateSite s: sites) {
             debug("checking " + s.getUrl());
-            if (s.getUrl().equals(_offline_uc_url)) {
+            if (s.getUrl().equals(_offline_uc_url) || s.getUrl().equals(_offline_uc_url_modern)) {
                 debug("Found default offline updatecenter " +s.getUrl() + " on second attempt");
                 return s;
             }
