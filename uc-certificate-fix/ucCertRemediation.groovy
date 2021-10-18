@@ -87,7 +87,7 @@ _dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00003";
+_version = "00004";
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
 _retry_time = 30000;   // how long to wait before checking for an update site to be loaded
@@ -122,7 +122,6 @@ if (!isCertificateCheckingEnabled()) {
 
 info("Checking offline update center certificates...");
 if (isAirGapped()) {
-    debug("airgapped!");
     info("System appears to be airgapped, checking offline updatecenter");
     if (hasDefaultOfflineUC(_retry_time) && !checkOfflineUC()) {
         info("Offline update center has invalid certificate, disabling certificate validation");
@@ -137,13 +136,19 @@ if (isAirGapped()) {
         }
     } else {
         info("Offline update center is ok, no update needed");
-        debug("removing the script since it is no longer needed for this system");
-        removeScript();
+        if (removeScript()) {
+            debug("script has been uninstalled");
+            enableCertificateValidation();
+            return "UNINSTALLED_SCRIPT";
+        } else {
+            info("Problem removing script");
+        }
         return "NO_CHANGE_NEEDED";
     }
 } else {
-    debug("not airgapped");
+    info("instance is not airgapped");
     if (hasDefaultOfflineUC(_retry_time)) {
+        info("checking offline updatecenter");
         if (!checkOfflineUC()) {
             // fix is needed
             info("Offline update center failed validation, update required");
@@ -156,7 +161,7 @@ if (isAirGapped()) {
                 return "REMOVED_OFFLINE_UC";
             }
         } else {
-            info("Offline update center is ok, no update needed");
+            info("Offline update center is ok, no update needed.  Remediation script will be removed");
             // remove the script since it is no longer needed for this system
             removeScript();
             return "NO_CHANGE_NEEDED";
@@ -253,7 +258,7 @@ def checkUpdateSite(UpdateSite site, boolean validate) {
     }
 
     try {
-        debug("checking update site " + site + " with validate == " + validate);
+        debug("checking update site " + site.getUrl() + " with validate == " + validate);
         FormValidation v = site.updateDirectlyNow(validate);
         debug("form validation -> "  + v);
         if (v.kind == FormValidation.Kind.OK) {
