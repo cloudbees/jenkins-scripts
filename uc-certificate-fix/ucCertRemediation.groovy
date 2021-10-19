@@ -420,5 +420,5 @@ if (result.equals("NO_CHANGE_NEEDED")) {
 } else {
     // some other error occured
     println("ERROR: An error occured: " + result);
-    println("Please contact CloudBees support (https://support.cloudbees.com/)");
+    println("ERROR: Please set '_debug = true;' and run this script again, then share the output with CloudBees support (https://support.cloudbees.com/)");
 }
