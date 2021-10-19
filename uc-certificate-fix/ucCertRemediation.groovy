@@ -1,3 +1,14 @@
+import hudson.model.UpdateCenter;
+import hudson.model.UpdateSite;
+import hudson.util.PersistedList;
+import jenkins.model.Jenkins;
+import com.cloudbees.jenkins.plugins.license.nectar.CloudBeesUpdateSite;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONException;
+import hudson.util.FormValidation;
+import java.security.cert.CertificateExpiredException;
+import hudson.model.DownloadService;
+
 /**
  * What does this script do?
  *  - This script is intended to detect and provide a short-term fix for CloudBees CI instances which 
@@ -87,7 +98,8 @@ _dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00005";
+_version = "00006";
+
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
 _offline_uc_url_modern = "file:" + Jenkins.getInstance().servletContext.getRealPath("/") + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
