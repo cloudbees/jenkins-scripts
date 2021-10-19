@@ -31,6 +31,10 @@
  *        - 2.277.42.0.3 or newer on the 2.277.x fixed release, or
  *        - 2.249.33.0.2 on the 2.249.x fixed release
  *
+ *  - OCI Container notes
+ *      If this script is installed into a container via Dockerfile, the container will need to be run once and restarted 
+ *      for this script to take effect.
+ *
  * How to use this script
  *  - This script can be run using the script console on any individual operations center or controller.  It may also be run via
  *    a cluster-operation (https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-admin-guide/cluster-operations)
@@ -61,6 +65,18 @@
  * UNINSTALLED_SCRIPT
  * ERROR_CONTACT_SUPPORT: [msg]
  */
+
+import hudson.model.UpdateCenter;
+import hudson.model.UpdateSite;
+import hudson.util.PersistedList;
+import jenkins.model.Jenkins;
+import com.cloudbees.jenkins.plugins.license.nectar.CloudBeesUpdateSite;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONException;
+import hudson.util.FormValidation;
+import java.security.cert.CertificateExpiredException;
+import hudson.model.DownloadService;
+
 
 def _script = '''
 import hudson.model.UpdateCenter;
@@ -95,6 +111,16 @@ _retry_time = 30000;   // how long to wait before checking for an update site to
 _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 EDT 2021";
 
 // MAIN CODE BODY
+info("Checking for first run inside an OCI container");
+// The Dockerfile will need to create this file. It will prevent this script from running.
+noRunFilePath = "/var/jenkins_home/init.groovy.d/DO_NOT_RUN_UC_REMEDIATION";
+def noRunFile = new File (noRunFilePath)
+if (noRunFile.exists()) {
+    info("Found marker file for first run. Removing file and exiting")
+    noRunFile.delete()
+    return "NO_CHANGE_NEEDED"
+}
+
 info("Executing remediation check [v" + _version + "]");
 if (System.properties['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] == "TRUE") {
     info("Running bootstrap install, disabling retry interval");
