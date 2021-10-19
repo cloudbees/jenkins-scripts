@@ -1,3 +1,14 @@
+import hudson.model.UpdateCenter;
+import hudson.model.UpdateSite;
+import hudson.util.PersistedList;
+import jenkins.model.Jenkins;
+import com.cloudbees.jenkins.plugins.license.nectar.CloudBeesUpdateSite;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONException;
+import hudson.util.FormValidation;
+import java.security.cert.CertificateExpiredException;
+import hudson.model.DownloadService;
+
 /**
  * What does this script do?
  *  - This script is intended to detect and provide a short-term fix for CloudBees CI instances which 
