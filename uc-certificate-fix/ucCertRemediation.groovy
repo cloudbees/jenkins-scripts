@@ -63,6 +63,7 @@
  * DISABLED_CERT_VALIDATION
  * REMOVED_OFFLINE_UC
  * UNINSTALLED_SCRIPT
+ * SKIPPING_FIRST_RUN
  * ERROR_CONTACT_SUPPORT: [msg]
  */
 
@@ -103,7 +104,7 @@ _dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00005";
+_version = "00007";
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
 _offline_uc_url_modern = "file:" + Jenkins.getInstance().servletContext.getRealPath("/") + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
@@ -113,12 +114,12 @@ _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 ED
 // MAIN CODE BODY
 info("Checking for first run inside an OCI container");
 // The Dockerfile will need to create this file. It will prevent this script from running.
-noRunFilePath = "/var/jenkins_home/init.groovy.d/DO_NOT_RUN_UC_REMEDIATION";
+noRunFilePath = "/var/jenkins_home/DO_NOT_RUN_UC_REMEDIATION";
 def noRunFile = new File (noRunFilePath)
 if (noRunFile.exists()) {
     info("Found marker file for first run. Removing file and exiting")
     noRunFile.delete()
-    return "NO_CHANGE_NEEDED"
+    return "SKIPPING_FIRST_RUN"
 }
 
 info("Executing remediation check [v" + _version + "]");
@@ -429,6 +430,8 @@ if (result.equals("NO_CHANGE_NEEDED")) {
     println("The remediation is now complete and successful");
 } else if (result.equals("UNINSTALLED_SCRIPT")) {
     println("No issues detected, script has been uninstalled");
+} else if (result.equals("SKIPPING_FIRST_RUN")) {
+    println("Running in container and skipping first run. Restart container to run script.");
 } else {
     // some other error occured
     println("An error occured: " + result);
