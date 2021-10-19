@@ -98,7 +98,7 @@ _dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00006";
+_version = "00007";
 
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
@@ -404,19 +404,20 @@ System.properties['_CLOUDBEES_UC_CERT_REMEDIATION_INSTALL'] = 'TRUE';
 String result = evaluate(_script);
 
 if (result.equals("NO_CHANGE_NEEDED")) {
-    println("System is up to date, no changes needed"); 
+    println("SUCCESS: System is up to date, no changes needed"); 
 } else if (result.equals("DEFAULT_OFFLINC_UC_NOT_FOUND")) {
-    println("Default offline UC was not found, if this was not expected you may need to increase \"_retry_time\"");
+    println("INFO: If you still see issues (though you should not), please increase '_retry_time', set '_debug = true;' and run this script again, then share the output with CloudBees support (https://support.cloudbees.com/)");
+    println("SUCCESS: The remediation appears to have already been run successfully in the past");
 } else if (result.equals("DISABLED_CERT_VALIDATION") || result.equals("REMOVED_OFFLINE_UC")) {
     println("persisting script");
     writeScriptToInitGroovyFolder(_script);
     println("Reloading update center data");
     Jenkins.getInstance().pluginManager.doCheckUpdatesServer();
-    println("The remediation is now complete and successful");
+    println("SUCCESS: The remediation is now complete and successful");
 } else if (result.equals("UNINSTALLED_SCRIPT")) {
-    println("No issues detected, script has been uninstalled");
+    println("SUCCESS: No issues detected, script has been uninstalled");
 } else {
     // some other error occured
-    println("An error occured: " + result);
-    println("Please contact support (support@cloudbees.com)");
+    println("ERROR: An error occured: " + result);
+    println("ERROR: Please set '_debug = true;' and run this script again, then share the output with CloudBees support (https://support.cloudbees.com/)");
 }
