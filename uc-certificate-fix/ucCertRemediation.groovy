@@ -33,11 +33,11 @@
  *
  * How to use this script
  *  - This script can be run using the script console on any individual operations center or controller.  It may also be run via
- *    a cluster-op.
+ *    a cluster-operation (https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-admin-guide/cluster-operations)
+ *    using the `Execute Groovy Script on Controller` step.
  *
  * Technical Details
  *  - It is safe to run this script multiple times on any CloudBees CI or CloudBees Jenkins Platform instance.  
-
  *  - For non-air-gapped systems, if a problem is detected with the certificate used to sign the off-line
  *    update center then the off-line update center will be removed.  This will prevent an error message from
  *    being displayed in the plugin manager.
@@ -48,6 +48,7 @@
  *    <JENKINS_HOME>/init.d.groovy/ucCertRemediation.groovy.  This is needed because the fixes applied by this
  *    script are not persistent across restarts and need to be re-applied.
  *  - The proper solution for this problem is to upgrade to CloudBees CI or CloudBees Jenkins Platform versions listed above.
+ *    We can help prepare a customized update plan and guide you through your update testing via an Assisted Update: https://support.cloudbees.com/hc/en-us/articles/115001919212
  *    If the script detects that the off-line update center is no longer using an invalid certificate
  *    then it will automatically remove itself.
  *    
