@@ -8,6 +8,7 @@ import net.sf.json.JSONException;
 import hudson.util.FormValidation;
 import java.security.cert.CertificateExpiredException;
 import hudson.model.DownloadService;
+import java.nio.file.Paths;
 
 /**
  * What does this script do?
@@ -84,6 +85,7 @@ import net.sf.json.JSONException;
 import hudson.util.FormValidation;
 import java.security.cert.CertificateExpiredException;
 import hudson.model.DownloadService;
+import java.nio.file.Paths;
 
 /**
  * parameters:
@@ -101,8 +103,8 @@ _dry_run = false;
 _version = "00007";
 
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
-_offline_uc_url = "file:" + Jenkins.getInstance().getRootDir() + File.separator + "war" + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
-_offline_uc_url_modern = "file:" + Jenkins.getInstance().servletContext.getRealPath("/") + File.separator + "WEB-INF" + File.separator + "plugins" + File.separator + "update-center.json";
+_offline_uc_url = "file:" + Jenkins.getInstance().getRootDir().toPath().resolve(Paths.get("war", "WEB-INF", "plugins", "update-center.json"));
+_offline_uc_url_modern = "file:" + Paths.get(Jenkins.getInstance().servletContext.getRealPath("/"), "WEB-INF", "plugins", "update-center.json");
 _retry_time = 30000;   // how long to wait before checking for an update site to be loaded
 _cert_error_str = "CertificateExpiredException: NotAfter: Tue Oct 19 14:31:36 EDT 2021";
 
