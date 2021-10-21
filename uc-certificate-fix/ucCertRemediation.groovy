@@ -98,7 +98,7 @@ _dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00008";
+_version = "00009";
 
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _retry_time = 30000;   // how long to wait before checking for an update site to be loaded
@@ -320,7 +320,7 @@ def getDefaultOfflineUC() {
 def getDefaultOfflineUC(int retryTime) {
     PersistedList <UpdateSite> sites = Jenkins.getInstance().getUpdateCenter().getSites();
     for (UpdateSite s: sites) {
-        if (s.getId().contains("-offline") {
+        if (s.getId().contains("-offline")) {
             debug("Found default offline updatecenter " +s.getUrl());
             return s;
         }
@@ -331,7 +331,7 @@ def getDefaultOfflineUC(int retryTime) {
         Thread.sleep(retryTime);
         for (UpdateSite s: sites) {
             debug("checking " + s.getUrl());
-            if (s.getId().contains("-offline") {
+            if (s.getId().contains("-offline")) {
                 debug("Found default offline updatecenter " +s.getUrl() + " on second attempt");
                 return s;
             }
