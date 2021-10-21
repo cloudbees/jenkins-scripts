@@ -98,7 +98,7 @@ _dry_run = false;
 
 //Constants - do not edit below this line
 // ----------------------------------------------------------------------------------------------------
-_version = "00007";
+_version = "00008";
 
 _online_uc_url_prefix = "https://jenkins-updates.cloudbees.com/update-center/";
 _retry_time = 30000;   // how long to wait before checking for an update site to be loaded
