@@ -405,7 +405,7 @@ if (result.equals("NO_CHANGE_NEEDED")) {
     println("SUCCESS: System is up to date, no changes needed"); 
 } else if (result.equals("DEFAULT_OFFLINC_UC_NOT_FOUND")) {
     println("INFO: If you still see issues (though you should not), please increase '_retry_time', set '_debug = true;' and run this script again, then share the output with CloudBees support (https://support.cloudbees.com/)");
-    println("SUCCESS: The remediation appears to have already been run successfully in the past");
+    println("SUCCESS: The remediation appears to have already been run successfully in the past, or this instance does not have an offline update center.");
 } else if (result.equals("DISABLED_CERT_VALIDATION") || result.equals("REMOVED_OFFLINE_UC")) {
     println("persisting script");
     writeScriptToInitGroovyFolder(_script);
