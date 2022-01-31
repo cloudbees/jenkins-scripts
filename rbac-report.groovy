@@ -1,7 +1,6 @@
 import nectar.plugins.rbac.groups.*;
-import java.util.*;
 
-Map containers = new TreeMap();
+Map<String, GroupContainer> containers = new TreeMap<>();
 // Add the root container
 containers.put(Jenkins.instance.displayName, GroupContainerLocator.locate(Jenkins.instance));
 // Add all the items that are be containers
@@ -22,12 +21,15 @@ for (i in Jenkins.instance.nodes) {
 
 for (c in containers) {
   println(c.key);
+  def roleFilters = c.value.roleFilters
+  if (!roleFilters.isEmpty()) {
+    println "  Filtered Roles: ${roleFilters.join(",")}"
+  }
   for (g in c.value.groups) {
     println("  " + g.name);
     println("    Roles:");
     for (r in g.roles) {
       println("      " + r + (g.doesPropagateToChildren(r) ? " (and children)" : " (pinned)"));
-
     }
     println("    Members:");
     // g.members is the String names
