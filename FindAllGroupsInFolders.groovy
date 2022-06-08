@@ -1,39 +1,42 @@
-import nectar.plugins.rbac.groups.*  
-import com.cloudbees.hudson.plugins.folder.*
-import com.cloudbees.jenkins.plugins.foldersplus.*
-import com.cloudbees.hudson.plugins.folder.properties.FolderProxyGroupContainer
+import com.cloudbees.hudson.plugins.folder.AbstractFolder
+import nectar.plugins.rbac.groups.GroupContainer
+import nectar.plugins.rbac.groups.GroupContainerLocator
 
 //Parent folder name to start with
 String folderName = 'EmptyFolder'
-folderItem = Jenkins.instance.getAllItems(Folder.class).find{it.name.equals(folderName)}
-
-AbstractFolder < ? > folderAbs1 = AbstractFolder.class.cast(folderItem)
-FolderProxyGroupContainer propertyFPG = folderAbs1.getProperties().get(FolderProxyGroupContainer.class)
+AbstractFolder folderItem = Jenkins.instance.getAllItems(AbstractFolder.class).find{ (it.name == folderName) }
 print "Folder : " + folderItem.name + "\n"
-findAllGroups(propertyFPG)
 
-def findAllGroups(FolderProxyGroupContainer fpgc){
-if (fpgc != null) {
-    	fpgc.getGroups().findAll{it != null}.each {
-          println "		Group : " + it.name
-          it.getGroupMembership().each{ println 'GroupMember : ' + it.name }
-      	  it.getMembers().each{ println '			Member : ' + it }
-      	}
+GroupContainer container = GroupContainerLocator.locate(folderItem);
+findAllGroups(container)
+
+def findAllGroups(GroupContainer fpgc) {
+  if (fpgc != null) {
+    fpgc.getGroups().findAll { it != null }.each {
+      println "  Group: " + it.name
+      println '  Memberships: '
+      // For RBAC Plugin < 5.66, use the following
+      // it.getMembers().each{ println '    Member : ' + it }
+
+      // For RBAC Plugin 5.66 or later, use the following
+      it.getUsers().each { println '    User: ' + it }
+      it.getGroups().each { println '    Group: ' + it }
+    }
   }
 }
 
-findAllItems(((com.cloudbees.hudson.plugins.folder.Folder) folderItem).getItems())
+findAllItems(folderItem.getItems())
 
-def findAllItems(items){  
+def findAllItems(items){
   for(item in items)
-	{
-      if (item instanceof com.cloudbees.hudson.plugins.folder.Folder) {
-        AbstractFolder < ? > folderAbs1 = AbstractFolder.class.cast(item)
-	FolderProxyGroupContainer propertyFPG = folderAbs1.getProperties().get(FolderProxyGroupContainer.class);
-        println "Folder : " + item.name
-        findAllGroups(propertyFPG)
-        //Drill into folders
-        findAllItems(((com.cloudbees.hudson.plugins.folder.Folder) item).getItems())
-      }
+  {
+    if (item instanceof AbstractFolder) {
+      GroupContainer container = GroupContainerLocator.locate(item);
+      println "Folder: " + item.name
+      findAllGroups(container)
+      //Drill into folders
+      findAllItems(((AbstractFolder) item).getItems())
     }
+  }
 }
+return

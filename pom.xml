@@ -87,6 +87,12 @@
             <artifactId>master-provisioning-kubernetes</artifactId>
             <version>2.5.9</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.cloudbees.nectar</groupId>
+            <artifactId>nectar-rbac</artifactId>
+            <version>5.66</version>
+        </dependency>
 
     </dependencies>
 

@@ -31,10 +31,11 @@
    Jenkins/MyOrg
    ...
  */
-import nectar.plugins.rbac.groups.*
-import java.util.*
-import com.cloudbees.opscenter.server.model.*
+
 import com.cloudbees.opscenter.server.clusterops.steps.*
+import com.cloudbees.opscenter.server.model.ConnectedMaster
+import nectar.plugins.rbac.groups.GroupContainer
+import nectar.plugins.rbac.groups.GroupContainerLocator
 
 // Container used to handle connected Client masters
 class ExploredObject {
@@ -96,7 +97,13 @@ for (cont in containers) {
 
     for (g in c.groups) {
       println("    + ${g.name}")
-      println("      * Members: ${g.members}")
+      // RBAC Plugin < 5.66
+      //println("      * Members: ${g.members}")
+      
+      // RBAC Plugin >= 5.66
+      println("      * Users: ${g.getUsers()}")
+      println("      * Groups: ${g.getGroups()}")
+      
       println("      * Roles: ${g.roles.collect {it + (g.doesPropagateToChildren(it) ?' (propagates)':'(pinned)')}}")
     }
   }
@@ -140,7 +147,13 @@ for (cont in containers) {
 
                 for (g in c.value.groups) {
                   result = result + "    + \${g.name}\\n"
-                  result = result + "      * Members: \${g.members}\\n"
+                  // RBAC Plugin < 5.66
+                  // result = result + "      * Members: \${g.members}\\n"
+                  
+                  // RBAC Plugin >= 5.66
+                  result = result + "      * Users: \${g.getUsers()}\\n"
+                  result = result + "      * Groups: \${g.getGroups()}\\n"
+                  
                   result = result + "      * Roles: \${g.roles.collect {it + (g.doesPropagateToChildren(it) ?' (propagates)':'(pinned)')}}\\n"
                 }
               }
