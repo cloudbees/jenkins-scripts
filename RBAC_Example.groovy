@@ -23,7 +23,9 @@ config.getGroups().each{ g ->
     g.getUsers().each{mg -> println '\t\t\t' + mg}
     println '\t\t Group Group Members'
     g.getGroups().each{mg -> println '\t\t\t' + mg}
-    }
+    println '\t\t Group Ambiguous Members'
+    g.getMembers().each{mg -> println '\t\t\t' + mg}
+}
 
 println '*Roles*'
 config.getRoles().each{r ->
@@ -75,6 +77,8 @@ group.doAddUser('userToDelete')
 group.doRemoveUser('userToDelete')
 group.doAddGroup(groupToDelete.name)
 group.doRemoveGroup(groupToDelete.name)
+group.doAddMember('ambiguousMember')
+group.doRemoveMember('ambiguousMember')
 group.doGrantRole('roleToRevoke', 0, Boolean.TRUE)
 group.doRevokeRole('roleToRevoke')
 group.doGrantRole(roleName, 0, Boolean.TRUE)

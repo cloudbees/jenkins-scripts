@@ -101,8 +101,7 @@ for (cont in containers) {
       //println("      * Members: ${g.members}")
       
       // RBAC Plugin >= 5.66
-      println("      * Users: ${g.getUsers()}")
-      println("      * Groups: ${g.getGroups()}")
+      println("      * Members: ${g.getMergedMembers()}")
       
       println("      * Roles: ${g.roles.collect {it + (g.doesPropagateToChildren(it) ?' (propagates)':'(pinned)')}}")
     }
@@ -147,12 +146,12 @@ for (cont in containers) {
 
                 for (g in c.value.groups) {
                   result = result + "    + \${g.name}\\n"
+                  
                   // RBAC Plugin < 5.66
                   // result = result + "      * Members: \${g.members}\\n"
                   
                   // RBAC Plugin >= 5.66
-                  result = result + "      * Users: \${g.getUsers()}\\n"
-                  result = result + "      * Groups: \${g.getGroups()}\\n"
+                  result = result + "      * Members: \${g.getMergedMembers()}\\n"
                   
                   result = result + "      * Roles: \${g.roles.collect {it + (g.doesPropagateToChildren(it) ?' (propagates)':'(pinned)')}}\\n"
                 }
