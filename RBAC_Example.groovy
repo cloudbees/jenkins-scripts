@@ -13,11 +13,19 @@ config.getGroups().each{ g ->
     println '\t' + g.name
     println '\t\t Group Roles'
     g.getAllRoles().each{rg -> println '\t\t\t' + rg}
-    println '\t\t Group Memberships'
-    g.getGroupMembership().each{mg -> println '\t\t\t' + mg}
-    println '\t\t Group Members'
+    
+    // RBAC Plugin < 5.66
+    // println '\t\t Group Members'
+    // g.getMembers().each{mg -> println '\t\t\t' + mg}
+    
+    // RBAC Plugin >= 5.66
+    println '\t\t Group User Members'
+    g.getUsers().each{mg -> println '\t\t\t' + mg}
+    println '\t\t Group Group Members'
+    g.getGroups().each{mg -> println '\t\t\t' + mg}
+    println '\t\t Group Ambiguous Members'
     g.getMembers().each{mg -> println '\t\t\t' + mg}
-    }
+}
 
 println '*Roles*'
 config.getRoles().each{r ->
@@ -48,19 +56,29 @@ rc.doRevokePermissions("hudson.model.Hudson.Read")
 println 'create a new groups at different container levels'
 
 // Get location for ClientMaster
-locationCM = Jenkins.instance.getAllItems().find{it.name.equals("ClientMaster")}
+locationCM = Jenkins.get().getAllItems().find{it.name.equals("ClientMaster")}
 // Get location for a FolderA/FolderB
-locationFolder = Jenkins.instance.getAllItems().find{it.fullName.equals("FolderA/FolderB")}
+locationFolder = Jenkins.get.getAllItems().find{it.fullName.equals("FolderA/FolderB")}
 // Get location at Root Level 
-locationRoot = Jenkins.getInstance()
+locationRoot = Jenkins.get()
 
 // For the following example the group is created at root container (locationRoot) 
 String groupName = "newGroup"
 GroupContainer container = GroupContainerLocator.locate(locationRoot)
 Group group = new Group(container, groupName)
-group.doAddMember('tesla')
-group.doAddMember('userToDelete')
-group.doRemoveMember('userToDelete')
+Group groupToDelete = new Group(container, "groupToDelete")
+// RBAC Plugin < 5.66
+//group.doAddMember('userToDelete')
+//group.doRemoveMember('userToDelete')
+//group.doAddMember(groupToDelete.name)
+//group.doRemoveMember(groupToDelete.name)
+// RBAC Plugin >= 5.66
+group.doAddUser('userToDelete')
+group.doRemoveUser('userToDelete')
+group.doAddGroup(groupToDelete.name)
+group.doRemoveGroup(groupToDelete.name)
+group.doAddMember('ambiguousMember')
+group.doRemoveMember('ambiguousMember')
 group.doGrantRole('roleToRevoke', 0, Boolean.TRUE)
 group.doRevokeRole('roleToRevoke')
 group.doGrantRole(roleName, 0, Boolean.TRUE)
