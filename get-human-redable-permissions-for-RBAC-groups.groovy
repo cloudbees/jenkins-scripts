@@ -10,6 +10,7 @@ RoleMatrixAuthorizationConfig config = RoleMatrixAuthorizationPlugin.getConfig()
 
 def map = [:]
 
+//Populate map
 PermissionGroup.getAll().each { permissionGroup ->
   permissionGroup.permissions.each { permission ->
     if (permission.enabled && permissionGroup.id != "N/A") {
@@ -20,8 +21,6 @@ PermissionGroup.getAll().each { permissionGroup ->
 
 config.getRoles().each{r ->
     DESCRIPTION = r
-    // println '\t' + r
-    // println '\t\t Role Permissions'
     Role rc = new Role(r)
 
     rc.getPermissionProxies().each{p ->
