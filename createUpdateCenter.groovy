@@ -30,7 +30,7 @@ updateCenter.setNewPluginVersionStrategy(strategy)
  * Upstream sources
  */
 List<com.cloudbees.plugins.updatecenter.sources.UpdateSource> sourcesList = new ArrayList<>()
-// If you want to add the Jenkins Enterprise by CloudBees
+// If you want to add the CloudBees Update Center
 // - maxAge is the Maximum cache age
 // - boolean verifySignature is the Verify signature flag
 // - "version" is the Jenkins Version
