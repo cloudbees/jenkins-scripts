@@ -1,5 +1,5 @@
 /**
- ** Create an Update Center that can be used as a source for Masters and other update centers.
+ ** Create an Update Center that can be used as a source for Controllers and other update centers.
  ** Requires the CloudBees Update Center Plugin
  */
 import com.cloudbees.plugins.updatecenter.*
