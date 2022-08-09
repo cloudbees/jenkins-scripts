@@ -50,7 +50,7 @@ def doForAllPipelineInProgress = { Closure closure ->
                         processedPipeline.add(pipelineRunId)
                         closure(exec, currentPipelineRun)
                     } else {
-                        "   (Already processed ${currentPipelineRun})"
+                        println "   (Already processed ${currentPipelineRun})"
                     }
                 }
             }
