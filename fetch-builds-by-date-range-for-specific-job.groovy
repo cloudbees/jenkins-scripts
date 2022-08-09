@@ -9,9 +9,6 @@ def jobName = 'changeMe'
 
 println "Will return all the builds for job ${jobName} that ran between ${startDate} and ${endDate}"
 
-def builds = Jenkins.instance.getAllItems()
-        .findAll { it instanceof Job && it.fullName == jobName }
-        .collect { it.builds.byTimestamp(startDate.toEpochMilli(), endDate.toEpochMilli()) }
-        .flatten()
+def builds = Jenkins.get().getItemByFullName(jobName, hudson.model.Job).builds.byTimestamp(startDate.toEpochMilli(), endDate.toEpochMilli())
 
 return builds
