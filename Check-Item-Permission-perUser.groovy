@@ -4,7 +4,7 @@ Since: June 2019
 Description: This script will get all items and then print every user's permission on the item itself
 */
 
-iimport org.acegisecurity.*
+import org.acegisecurity.*
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.security.ACLContext;
