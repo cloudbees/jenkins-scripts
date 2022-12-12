@@ -13,8 +13,7 @@ Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaste
           def startDate = Instant.parse("2022-06-24T16:10:43.000Z")
           def endDate = Instant.now()
 
-          def builds = Jenkins.instance.getAllItems()
-                  .findAll { it instanceof Job }
+          def builds = Jenkins.instance.allItems(hudson.model.Job.class)
                   .collect { it.builds.byTimestamp(startDate.toEpochMilli(), endDate.toEpochMilli()) }
                   .flatten()
 
