@@ -4,14 +4,16 @@
 /*
 Author: Alex Taylor, Allan Burdajewicz
 Since: July 2019
-Description: This script stop all or a series of running pipeline jobs. Only will stop pipelines that are running on a executor
+Description: This script stop all or a series of running pipeline jobs, but only pipelines that have steps running on an heavyweight executor. 
+If the pipeline execution is not currently executing steps on a node, it is not interrupted (typically, when waiting on an input step outside
+a node block)
 Parameters: None
 Scope: Cloudbees Jenkins Platform
 */
 
 /* This script can be used to kill off all running jobs which have been running for a certain amount of time. This 
 script will guaranteed take 30 seconds to run because we want to ensure that each build command has the time needed 
-to run. It is best to set Jenkins in a Quietdown (Shutdown) mode before running the script */
+to run. It is best to set Jenkins in a Quietdown (Shutdown) mode before running the script. */
 
 import groovy.time.TimeCategory
 import hudson.model.Queue
@@ -42,7 +44,7 @@ def doForAllPipelineInProgress = { Closure closure ->
         def processedPipeline = []
         jenkins.model.Jenkins.instanceOrNull.getComputers().each { computer ->
 
-            computer.allExecutors.findAll { exec -> exec.isBusy() && exec.currentExecutable && exec.elapsedTime > delay.toMilliseconds() }.each { exec ->
+            computer.executors.findAll { exec -> exec.isBusy() && exec.currentExecutable && exec.elapsedTime > delay.toMilliseconds() }.each { exec ->
                 def currentPipelineRun = getPipelineRunFromExecutable(exec.currentExecutable)
                 if (currentPipelineRun) {
                     def pipelineRunId = currentPipelineRun.getExternalizableId()
@@ -50,7 +52,7 @@ def doForAllPipelineInProgress = { Closure closure ->
                         processedPipeline.add(pipelineRunId)
                         closure(exec, currentPipelineRun)
                     } else {
-                        "   (Already processed ${currentPipelineRun})"
+                        println "   (Already processed ${currentPipelineRun})"
                     }
                 }
             }
@@ -60,34 +62,28 @@ def doForAllPipelineInProgress = { Closure closure ->
 
 boolean somethingHappened = false
 doForAllPipelineInProgress { exec, run ->
-    if(exec.number>=0){
     println " * Stopping ${run.fullDisplayName} that spent ${exec.elapsedTime}ms building on ${exec.owner.displayName} #${exec.number}..."
     run.doStop()
     somethingHappened = true
-    }
 }
 
 if(somethingHappened) {
     somethingHappened = false
     sleep(30000)
     doForAllPipelineInProgress { exec, run ->
-    if(exec.number>=0){
         println " * Forcibly Terminating ${run.fullDisplayName} that spent ${exec.elapsedTime}ms building on ${exec.owner.displayName} #${exec.number}..."
         run.doTerm()
         somethingHappened = true
     }
-    }
 }
 
 if(somethingHappened) {
     somethingHappened = false
     sleep(30000)
     doForAllPipelineInProgress { exec, run ->
-    if(exec.number>=0){
         println " * Forcibly Killing ${run.fullDisplayName} that spent ${exec.elapsedTime}ms building on ${exec.owner.displayName} #${exec.number}..."
         run.doKill()
         somethingHappened = true
-    }
     }
 }
 return
