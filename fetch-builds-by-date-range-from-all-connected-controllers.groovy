@@ -5,7 +5,7 @@ def stream = new ByteArrayOutputStream();
 def listener = new StreamBuildListener(stream);
 
 Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster).each{
-    it.channel.call(new MasterGroovyClusterOpStep.Script("""
+    it.channel?.call(new MasterGroovyClusterOpStep.Script("""
           import jenkins.model.Jenkins
           import java.time.Instant
 
