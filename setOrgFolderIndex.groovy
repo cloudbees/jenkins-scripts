@@ -8,7 +8,7 @@ import jenkins.model.Jenkins
 import jenkins.branch.OrganizationFolder
 
 println "Organization Items\n-------"
-Jenkins.instance.getAllItems(jenkins.branch.OrganizationFolder.class).each { folder -> folder.triggers
+Jenkins.get().getAllItems(jenkins.branch.OrganizationFolder.class).each { folder -> folder.triggers
        .findAll { k,v -> v instanceof com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger }
        .each { k,v -> println "Folder name: ${folder.fullName}, Interval: ${v.getInterval()}" }
 }
