@@ -1,36 +1,41 @@
-//This is for organization folders or multibranch project indexing
-//The script as is just prints out intervals if they exist
-//The function at the bottom can be called to set the interval
+//By default the script just prints out the current indexing intervals for all jobs.
+//The function at the bottom can be called to set the interval to a new value.
+//To call the function, change the two `each` blocks as follows:
+// .each { setInterval(folder) }
 
 import com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger
 import jenkins.model.Jenkins
 import jenkins.branch.OrganizationFolder
 
 println "Organization Items\n-------"
-Jenkins.instance.getAllItems(jenkins.branch.OrganizationFolder.class).each { it.triggers
+Jenkins.instance.getAllItems(jenkins.branch.OrganizationFolder.class).each { folder -> folder.triggers
        .findAll { k,v -> v instanceof com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger }
-       .each { k,v -> println "Folder name: ${it.fullName}, Interval: ${v.getInterval()}" }
+       .each { k,v -> println "Folder name: ${folder.fullName}, Interval: ${v.getInterval()}" }
 }
+
 println "Multibranch Items\n-------"
-Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject.class).each { it.triggers
+Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject.class).each { folder -> folder.triggers
        .findAll { k,v -> v instanceof com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger }
-       .each { k,v -> println "Folder name: ${it.fullName}, Interval: ${v.getInterval()}" }                                                                                                            
+       .each { k,v -> println "Folder name: ${folder.fullName}, Interval: ${v.getInterval()}" }
 }
+
 return
-  
-//This function is not called above
-//Acceptable values for triggers can be found here: 
+
+//Acceptable values for triggers can be found here:
 //https://github.com/jenkinsci/cloudbees-folder-plugin/blob/master/src/main/java/com/cloudbees/hudson/plugins/folder/computed/PeriodicFolderTrigger.java#L241
 def setInterval(folder) {
-  println "[INFO] : Updating ${folder.name}... " 
+  println "[INFO] : Updating ${folder.name}... "
   folder.getTriggers().find {triggerEntry ->
     def key = triggerEntry.key
     if (key instanceof PeriodicFolderTrigger.DescriptorImpl){
       println "[INFO] : Current interval : " + triggerEntry.value.getInterval()
+
+      // Set the desired interval here
       def newInterval = new PeriodicFolderTrigger("28d")
+
       folder.addTrigger(newInterval)
       folder.save()
       println "[INFO] : New interval : " + newInterval.getInterval()
     }
   }
-}  
+}
