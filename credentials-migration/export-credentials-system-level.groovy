@@ -17,8 +17,10 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter
 import com.trilead.ssh2.crypto.Base64
 import hudson.util.Secret
+import com.cloudbees.plugins.credentials.SecretBytes
 import hudson.util.XStream2
 import jenkins.model.Jenkins
+import java.nio.charset.StandardCharsets
 
 def instance = Jenkins.get()
 def credentials = []
@@ -48,9 +50,25 @@ def converter = new Converter() {
     @Override
     boolean canConvert(Class type) { type == Secret.class }
 }
+// This converter ensure that the output XML contains plain-text for secretBytes (FileCredentials)
+def converterSecretBytes = new Converter() {
+    @Override
+    void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) {
+        writer.value = Base64.encode(new String(object.getPlainData(), StandardCharsets.UTF_8).bytes);
+    }
+
+    @Override
+    Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) { 
+        return SecretBytes.fromBytes(new String(Base64.decode(reader.getValue().toCharArray())).getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    boolean canConvert(Class type) { type == SecretBytes.class }
+}
 
 def stream = new XStream2()
 stream.registerConverter(converter)
+stream.registerConverter(converterSecretBytes)
 
 // Marshal the list of credentials into XML
 def encoded = []
