@@ -1,5 +1,5 @@
 /**
- ** Create an Update Center that can be used as a source for Masters and other update centers.
+ ** Create an Update Center that can be used as a source for Controllers and other update centers.
  ** Requires the CloudBees Update Center Plugin
  */
 import com.cloudbees.plugins.updatecenter.*
@@ -30,7 +30,7 @@ updateCenter.setNewPluginVersionStrategy(strategy)
  * Upstream sources
  */
 List<com.cloudbees.plugins.updatecenter.sources.UpdateSource> sourcesList = new ArrayList<>()
-// If you want to add the Jenkins Enterprise by CloudBees
+// If you want to add the CloudBees Update Center
 // - maxAge is the Maximum cache age
 // - boolean verifySignature is the Verify signature flag
 // - "version" is the Jenkins Version
