@@ -6,15 +6,19 @@ def listener = new StreamBuildListener(stream);
 
 Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaster).each{
     it.channel?.call(new MasterGroovyClusterOpStep.Script("""
-        class composedItem {
-            Object controllerName
+        class ComposedItem {
+            String controllerName
             Integer numberOfJobs
             String allJobs
         }
         
-        jobsController = Jenkins.instance.items.findAll()
+        jobsController = [];
 
-        def aux = new composedItem();
+        jenkins.model.Jenkins.get().allItems(hudson.model.Job).each {
+        	jobsController.push(it)
+        }
+
+        def aux = new ComposedItem();
         aux.controllerName = "${it.name}"
         aux.numberOfJobs = jobsController.size()
         aux.allJobs = jobsController
