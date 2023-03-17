@@ -8,20 +8,20 @@ Jenkins.instance.getAllItems(com.cloudbees.opscenter.server.model.ConnectedMaste
     it.channel?.call(new MasterGroovyClusterOpStep.Script("""
         class ComposedItem {
             String controllerName
-            Integer numberOfJobs
-            String allJobs
+            Integer numberOfJobsController
+            String[] allJobsNamesController
         }
         
-        jobsController = [];
+        jobsNameFromController = [];
 
         jenkins.model.Jenkins.get().allItems(hudson.model.Job).each {
-        	jobsController.push(it)
+        	jobsNameFromController.push(it.getFullName())
         }
 
         def aux = new ComposedItem();
         aux.controllerName = "${it.name}"
-        aux.numberOfJobs = jobsController.size()
-        aux.allJobs = jobsController
+        aux.numberOfJobsController = jobsNameFromController.size()
+        aux.allJobsNamesController = jobsNameFromController
 
         return aux.dump()
     """, listener, "host-script.groovy", [:]))
