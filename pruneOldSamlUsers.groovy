@@ -35,7 +35,7 @@ User.getAll().each{ u ->
     if (realUser){
         def samltstamp = propSamlLoginDetails.getLastLoginTimestamp()
         if (samltstamp != 0) {
-            println u.getId() + ':' + u.getDisplayName() + ':Jenkins-User:SAMLLastLogin=' + propSamlLoginDetails.getLastLoginDate()
+            println "${u.getId()}:${u.getDisplayName()}:Jenkins-User:SAMLLastLogin=${propSamlLoginDetails.getLastLoginDate()}"
             if ( samltstamp < lastValidTstamp ) {
                 print "Last login older than last valid login."
                 deletedUsers.add(u.getId())
@@ -47,10 +47,10 @@ User.getAll().each{ u ->
                 }
             }
         } else {
-            println u.getId() + ':' + u.getDisplayName() + ':Jenkins-User:SAMLLastLogin=' + samltstamp
+            println "${u.getId()}:${u.getDisplayName()}:Jenkins-User:SAMLLastLogin=${samltstamp}"
         }
     } else {
-        println u.getId() + ':' + u.getDisplayName() + ':No-Jenkins-User'
+        println "${u.getId()}:${u.getDisplayName()}:No-Jenkins-User"
     }
 }
 println "Deleted users: ${deletedUsers}"
