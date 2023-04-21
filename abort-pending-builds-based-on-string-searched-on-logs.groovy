@@ -1,36 +1,46 @@
-findItems(jenkins.model.Jenkins.instance.items.findAll());
+import org.jenkinsci.plugins.workflow.job.WorkflowRun
+import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution
 
-def findItems(items) {
-  for (item in items) {
-    switch(item) {
-        case org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject:
-            item.getItems()?.each { itemMultibranch ->
-                searchStringInLogBuild(itemMultibranch, "String that you are looking for")
-            }
-            break;
-        case org.jenkinsci.plugins.workflow.job.WorkflowJob:
-            searchStringInLogBuild(item, "String that you are looking for")
-            break;
-
-        // you can add other kinds of Items using a case clause, or even a default value.
-
-        case com.cloudbees.hudson.plugins.folder.Folder:
-            findItems(item.getItems());
-            break;
-    }
+jenkins.model.Jenkins.instanceOrNull.getComputers().each { computer -> 
+  computer.executors.findAll { exec -> exec.isBusy() && exec.currentExecutable }.each { exec ->
+    searchStringInLogBuild(getPipelineRunFromExecutable(exec.currentExecutable), "String that you are looking for")
   }
 }
 
-def searchStringInLogBuild(item, string) {
-  item.getBuilds()?.each { build ->
-    if (build.isBuilding()) {
-      build.getLog()?.eachLine { line ->
+/**
+ * Try to infer the WorkflowRun of the executable passed in. Extracted method from https://github.com/cloudbees/jenkins-scripts/blob/master/ProperlyStopOnlyRunningPipelines.groovy
+ * @param executable The executable
+ * @return The WorkflowRun, or null if this is not a Pipeline run
+ */
+WorkflowRun getPipelineRunFromExecutable(Queue.Executable executable) {
+    if (executable instanceof WorkflowRun) {
+        return ((WorkflowRun) executable)
+    }
+
+    if (executable.parent instanceof ExecutorStepExecution.PlaceholderTask) {
+        def executorPlaceholderTask = ((ExecutorStepExecution.PlaceholderTask) executable.parent)
+        return ((WorkflowRun) executorPlaceholderTask.runForDisplay())
+    }
+ 
+    return null
+}
+
+def searchStringInLogBuild(build, string) {
+  BufferedReader reader = null
+  try {
+    reader = new BufferedReader(build?.getLogReader());
+    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
       if (line =~ string) {
-        println "Build being executed and it's going to be aborted: $build.project in build Nº$build.number"
-        build.finish(hudson.model.Result.ABORTED, new java.io.IOException("Aborting build"))
+        println "Build being executed and it's going to be killed: $build.project in build Nº$build.number"
+        build.doKill()
         println "-------------"
       }
     }
+  } catch (Exception e) {
+    println("Error: " + e);
+  } finally {
+    if (reader != null) {
+      reader.close();
     }
   }
 }
