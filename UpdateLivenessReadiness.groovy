@@ -2,7 +2,8 @@ import com.cloudbees.opscenter.server.model.ManagedMaster
 import com.cloudbees.masterprovisioning.kubernetes.KubernetesMasterProvisioning
 
 //Script to programmatically set values for Liveness and Readiness probes
-
+//Easy to extend. Unclear to me if we should offer this script to customers though
+//Maybe this script will hold them from switching to CasC
 String mycontroller_name="circular"
 int l_initial_delay=305
 int l_period_seconds=10
