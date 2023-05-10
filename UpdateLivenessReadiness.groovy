@@ -33,3 +33,4 @@ Jenkins.instance.getAllItems(ManagedMaster.class).each{
    println "\t Readiness Timeout in seconds" + config.getReadinessTimeoutSeconds()
   }
 }
+return null
