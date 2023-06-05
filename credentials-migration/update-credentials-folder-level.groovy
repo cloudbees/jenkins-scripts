@@ -32,10 +32,12 @@ if (!encoded) {
 
 HashMap<String, List<DomainCredentials>> credentialsList;
 
-// This converter ensure that the output XML contains plain-text for secretBytes (FileCredentials)
+// This converter ensure that the output XML contains base64 encoded for secretBytes (to handle FileCredentials)
 def converterSecretBytes = new Converter() {
     @Override
-    void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) { null }
+    void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) { 
+        writer.value = Base64.encode(new String(object.getPlainData(), StandardCharsets.UTF_8).bytes).toString();
+    }
 
     @Override
     Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) { 
@@ -68,7 +70,7 @@ if (!folderExtension.empty) {
     if (folderDomains!=null) {
       for (domain in folderDomains) {
         domainName = domain.getDomain().isGlobal() ? "Global":domain.getDomain().getName()
-        println "   Updating domain " + domainName
+        println "   Updating domain: " + domainName
         for (credential in domain.credentials) {
             println "     Updating credential: " + credential.id;
             if (! store.updateCredentials(domain.getDomain(), credential, credential) ){

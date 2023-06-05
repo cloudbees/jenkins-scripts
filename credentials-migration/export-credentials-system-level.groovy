@@ -50,11 +50,11 @@ def converter = new Converter() {
     @Override
     boolean canConvert(Class type) { type == Secret.class }
 }
-// This converter ensure that the output XML contains plain-text for secretBytes (FileCredentials)
+// This converter ensure that the output XML contains base64 encoded for secretBytes (to handle FileCredentials)
 def converterSecretBytes = new Converter() {
     @Override
     void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) {
-        writer.value = Base64.encode(new String(object.getPlainData(), StandardCharsets.UTF_8).bytes);
+        writer.value = Base64.encode(new String(object.getPlainData(), StandardCharsets.UTF_8).bytes).toString();
     }
 
     @Override
@@ -71,6 +71,7 @@ stream.registerConverter(converter)
 stream.registerConverter(converterSecretBytes)
 
 // Marshal the list of credentials into XML
+//println stream.toXML(credentials); return ""; //For debug purpose
 def encoded = []
 def sections = credentials.collate(25)
 for (section in sections) {

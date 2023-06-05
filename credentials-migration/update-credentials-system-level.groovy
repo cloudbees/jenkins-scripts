@@ -9,6 +9,8 @@ import com.cloudbees.plugins.credentials.domains.DomainCredentials
 import com.thoughtworks.xstream.converters.Converter
 import com.thoughtworks.xstream.converters.MarshallingContext
 import com.thoughtworks.xstream.converters.UnmarshallingContext
+import com.thoughtworks.xstream.io.HierarchicalStreamReader
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter
 import com.trilead.ssh2.crypto.Base64
 import hudson.util.XStream2
 import com.cloudbees.plugins.credentials.SecretBytes
@@ -24,11 +26,11 @@ if (!encoded) {
     return
 }
 
-// This converter ensure that the output XML contains plain-text for secretBytes (FileCredentials)
+// This converter ensure that the output XML contains base64 encoded for secretBytes (to handle FileCredentials)
 def converterSecretBytes = new Converter() {
     @Override
     void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) {
-        writer.value = Base64.encode(new String(object.getPlainData(), StandardCharsets.UTF_8).bytes);
+        writer.value = Base64.encode(new String(object.getPlainData(), StandardCharsets.UTF_8).bytes).toString();
     }
 
     @Override
@@ -53,7 +55,7 @@ for (slice in encoded) {
         domainName = domain.getDomain().isGlobal() ? "Global":domain.getDomain().getName()
         println "Updating domain: " + domainName
         for (credential in domain.credentials) {
-            println "   Updating credential: ${credential.id}"
+            println "   Updating credential: " + credential.id;
             if (! store.updateCredentials(domain.getDomain(), credential, credential) ){
                 if (! store.addCredentials(domain.getDomain(), credential) ){
                     println "ERROR: Unable to add credential ${credential.id}"
