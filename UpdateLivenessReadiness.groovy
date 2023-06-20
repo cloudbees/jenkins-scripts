@@ -12,9 +12,9 @@ int r_failure_threshold=100
 int r_timeout_seconds=5
 
 Jenkins.instance.getAllItems(ManagedMaster.class).each{
-  println "Adjusting liveness/readiness values for the controller named: " + it.name
   KubernetesMasterProvisioning config=it.getConfiguration()
-  if (it.name==mycontroller_name){
+  if (config!=null && it.name==mycontroller_name){
+    println "Adjusting liveness/readiness values for the controller named: " + it.name
     config.setLivenessInitialDelaySeconds(l_initial_delay)
     config.setLivenessPeriodSeconds(l_period_seconds)
     config.setLivenessTimeoutSeconds(l_timeout_seconds)
@@ -22,15 +22,14 @@ Jenkins.instance.getAllItems(ManagedMaster.class).each{
     config.setReadinessFailureThreshold(r_failure_threshold)
     config.setReadinessTimeoutSeconds(r_timeout_seconds)
     it.setConfiguration(config)
-  }
-  if (config!=null){
+    
     println "Updated values:" 
-    println "\t Liveness Initial Delay" + config.getLivenessInitialDelaySeconds()
-    println "\t Liveness Period seconds" + config.getLivenessPeriodSeconds()
-    println "\t Liveness Timeout seconds" + config.getLivenessTimeoutSeconds()
-    println "\t Readiness Initial Delay" + config.getReadinessInitialDelaySeconds()
-    println "\t Readiness Failure Threshold" + config.getReadinessFailureThreshold()
-    println "\t Readiness Timeout in seconds" + config.getReadinessTimeoutSeconds()
+    println "\t Liveness Initial Delay " + config.getLivenessInitialDelaySeconds()
+    println "\t Liveness Period seconds " + config.getLivenessPeriodSeconds()
+    println "\t Liveness Timeout seconds " + config.getLivenessTimeoutSeconds()
+    println "\t Readiness Initial Delay " + config.getReadinessInitialDelaySeconds()
+    println "\t Readiness Failure Threshold " + config.getReadinessFailureThreshold()
+    println "\t Readiness Timeout in seconds " + config.getReadinessTimeoutSeconds()
   }
 }
 return null
