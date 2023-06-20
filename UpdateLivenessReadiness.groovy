@@ -4,7 +4,7 @@ import com.cloudbees.masterprovisioning.kubernetes.KubernetesMasterProvisioning
 //Script to programmatically set values for Liveness and Readiness probes
 
 String mycontroller_name="circular"
-int l_initial_delay=305
+int l_initial_delay=300
 int l_period_seconds=10
 int l_timeout_seconds=10
 int r_initial_delay=30
