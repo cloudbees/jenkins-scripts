@@ -12,7 +12,7 @@ int r_failure_threshold=100
 int r_timeout_seconds=5
 
 Jenkins.instance.getAllItems(ManagedMaster.class).each{
-    println it.name
+  println "Adjusting liveness/readiness values for the controller named: " + it.name
     KubernetesMasterProvisioning config=it.getConfiguration()
   if (it.name==mycontroller_name){
        config.setLivenessInitialDelaySeconds(l_initial_delay)
