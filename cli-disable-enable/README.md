@@ -1,5 +1,5 @@
 # CLI Disable/Enable Scripts
-This repository contains scripts to disable and enable the Command Line Interface (CLI) access over HTTP/Websocket and SSH without having to perform a restart every time that we want to reenable. 
+This folder contains scripts to disable and enable the Command Line Interface (CLI) access over HTTP/Websocket and SSH without having to perform a restart every time that we want to reenable. 
 
 * `cli-toggle-disable.groovy` disables the CLI while storing all needed parameters and objects in memory in the jenkins instance. This way the CLI can be enabled if it's needed temporarily.
 * `cli-toggle-disable-permanent.groovy` writes a copy of the previous script to the post-init folder of the jenkins, so that it is always run on start-up and CLI is disabled but ready te reenabled if needed.
