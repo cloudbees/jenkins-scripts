@@ -15,6 +15,11 @@ def extensionLists = [
 j = jenkins.model.Jenkins.get();
 def extensionListsMap = j.extensionListsMap
 
+if (extensionListsMap == null || extensionListsMap.isEmpty()) {
+  println("Not possible to enable CLI. Perhaps it's already enabled?")
+  return
+}
+
 extensionLists.each { extension ->
     if (extensionListsMap[extension.getName()] != null ) {
       j.getExtensionList(extension).addAll(extensionListsMap[extension.getName()])
@@ -33,3 +38,6 @@ if (extensionListsMap["actions"] != null) {
 if (j.getPlugin('sshd') && extensionListsMap["sshd_port"] != null) {
   hudson.ExtensionList.lookupSingleton(org.jenkinsci.main.modules.sshd.SSHD.class).setPort(extensionListsMap["sshd_port"])
 }
+
+j.extensionListsMap.clear()
+println "CLI re-enabled"

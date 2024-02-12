@@ -19,6 +19,14 @@ def archiveThenRemove = { lst ->
 }
 
 def j = jenkins.model.Jenkins.get();
+
+try {
+  if (j.extensionListsMap != null && !j.extensionListsMap.isEmpty() ) {
+    println "CLI is already disabled"
+    return 
+  }
+} catch (groovy.lang.MissingPropertyException e) {/*Continue*/}
+
 def extensionListsMap = [:]
 extensionLists.each { extension ->
     extensionListsMap[extension.getName()] = archiveThenRemove(j.getExtensionList(extension))
@@ -35,3 +43,4 @@ if (j.getPlugin('sshd')) {
 //store disabled lists in a new property of the Jenkins instance
 j.metaClass.extensionListsMap = extensionListsMap
 
+println "CLI disabled"
