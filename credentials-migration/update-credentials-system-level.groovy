@@ -6,9 +6,16 @@ Description: Decode from export-credentials-root-level.groovy script, all the cr
 
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider
 import com.cloudbees.plugins.credentials.domains.DomainCredentials
+import com.thoughtworks.xstream.converters.Converter
+import com.thoughtworks.xstream.converters.MarshallingContext
+import com.thoughtworks.xstream.converters.UnmarshallingContext
+import com.thoughtworks.xstream.io.HierarchicalStreamReader
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter
 import com.trilead.ssh2.crypto.Base64
 import hudson.util.XStream2
+import com.cloudbees.plugins.credentials.SecretBytes
 import jenkins.model.Jenkins
+import java.nio.charset.StandardCharsets
 
 // Paste the encoded message from the script on the source Jenkins
 def encoded = []
@@ -19,10 +26,28 @@ if (!encoded) {
     return
 }
 
+// This converter ensure that the output XML contains base64 encoded for secretBytes (to handle FileCredentials)
+def converterSecretBytes = new Converter() {
+    @Override
+    void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) {
+        writer.value = Base64.encode(new String(object.getPlainData(), StandardCharsets.UTF_8).bytes).toString();
+    }
+
+    @Override
+    Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) { 
+        return SecretBytes.fromBytes(new String(Base64.decode(reader.getValue().toCharArray())).getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    boolean canConvert(Class type) { type == SecretBytes.class }
+}
+
 // The message is decoded and unmarshaled
 for (slice in encoded) {
     def decoded = new String(Base64.decode(slice.chars))
-    def list = new XStream2().fromXML(decoded) as List<DomainCredentials>
+    def stream = new XStream2()
+    stream.registerConverter(converterSecretBytes)
+    def list = stream.fromXML(decoded) as List<DomainCredentials>
     // Put all the domains from the list into system credentials
     def store = Jenkins.get().getExtensionList(SystemCredentialsProvider.class).first().getStore()
     def domainName
@@ -30,7 +55,7 @@ for (slice in encoded) {
         domainName = domain.getDomain().isGlobal() ? "Global":domain.getDomain().getName()
         println "Updating domain: " + domainName
         for (credential in domain.credentials) {
-            println "   Updating credential: ${credential.id}"
+            println "   Updating credential: " + credential.id;
             if (! store.updateCredentials(domain.getDomain(), credential, credential) ){
                 if (! store.addCredentials(domain.getDomain(), credential) ){
                     println "ERROR: Unable to add credential ${credential.id}"
