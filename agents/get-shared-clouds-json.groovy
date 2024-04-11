@@ -2,7 +2,7 @@
  "name" : "Get Shared Clouds status JSON",
  "comment" : "Run this script to save the output as variable to process in the client 
  "parameters" : [],
- "core": "2.73.2.1",
+ "core": "2.440.1.4",
  "authors" : [
  { name : "Carlos Rodriguez Lopez" }
  ]
