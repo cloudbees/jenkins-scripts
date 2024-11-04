@@ -41,7 +41,7 @@ def converter = new Converter() {
     void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) {
         switch (object.class) {
             case Secret: writer.value = Secret.toString(object as Secret); break
-            case SecretBytes: writer.value = Base64.getEncoder().encodeToString((object as SecretBytes).getPlainData())
+            case SecretBytes: writer.value = Base64.getEncoder().encodeToString((object as SecretBytes).getPlainData()); break
         }
     }
 
