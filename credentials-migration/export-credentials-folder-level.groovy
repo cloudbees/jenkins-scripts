@@ -10,13 +10,13 @@ The encoded message can be used to update the credentials in a new Jenkins Maste
 
 import com.cloudbees.hudson.plugins.folder.AbstractFolder
 import com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider
+import com.cloudbees.plugins.credentials.SecretBytes
 import com.cloudbees.plugins.credentials.domains.DomainCredentials
 import com.thoughtworks.xstream.converters.Converter
 import com.thoughtworks.xstream.converters.MarshallingContext
 import com.thoughtworks.xstream.converters.UnmarshallingContext
 import com.thoughtworks.xstream.io.HierarchicalStreamReader
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter
-import com.trilead.ssh2.crypto.Base64
 import hudson.util.Secret
 import hudson.util.XStream2
 import jenkins.model.Jenkins
@@ -52,14 +52,17 @@ if (!folderExtension.empty) {
 def converter = new Converter() {
     @Override
     void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) {
-        writer.value = Secret.toString(object as Secret)
+        switch (object.class) {
+            case Secret: writer.value = Secret.toString(object as Secret); break
+            case SecretBytes: writer.value = Base64.getEncoder().encodeToString((object as SecretBytes).getPlainData())
+        }
     }
 
     @Override
     Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) { null }
 
     @Override
-    boolean canConvert(Class type) { type == Secret.class }
+    boolean canConvert(Class type) { type == Secret.class || type == SecretBytes.class }
 }
 
 def stream = new XStream2()
@@ -67,8 +70,5 @@ stream.registerConverter(converter)
 
 // Marshal the list of credentials into XML
 def encoded = []
-
-    def xml = Base64.encode(stream.toXML(domainsFromFolders).bytes)
-    encoded.add("\"${xml}\"")
-
+encoded.add("\"${Base64.getEncoder().encodeToString(stream.toXML(domainsFromFolders).bytes)}\"")
 println encoded.toString()

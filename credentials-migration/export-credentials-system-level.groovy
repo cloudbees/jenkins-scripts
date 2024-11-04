@@ -15,8 +15,8 @@ import com.thoughtworks.xstream.converters.MarshallingContext
 import com.thoughtworks.xstream.converters.UnmarshallingContext
 import com.thoughtworks.xstream.io.HierarchicalStreamReader
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter
-import com.trilead.ssh2.crypto.Base64
 import hudson.util.Secret
+import com.cloudbees.plugins.credentials.SecretBytes
 import hudson.util.XStream2
 import jenkins.model.Jenkins
 
@@ -39,14 +39,17 @@ if (!systemProvider.empty) {
 def converter = new Converter() {
     @Override
     void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext context) {
-        writer.value = Secret.toString(object as Secret)
+        switch (object.class) {
+            case Secret: writer.value = Secret.toString(object as Secret); break
+            case SecretBytes: writer.value = Base64.getEncoder().encodeToString((object as SecretBytes).getPlainData())
+        }
     }
 
     @Override
     Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) { null }
 
     @Override
-    boolean canConvert(Class type) { type == Secret.class }
+    boolean canConvert(Class type) { type == Secret.class || type == SecretBytes.class }
 }
 
 def stream = new XStream2()
@@ -56,8 +59,7 @@ stream.registerConverter(converter)
 def encoded = []
 def sections = credentials.collate(25)
 for (section in sections) {
-    def xml = Base64.encode(stream.toXML(section).bytes)
-    encoded.add("\"${xml}\"")
+    encoded.add("\"${Base64.getEncoder().encodeToString(stream.toXML(section).bytes)}\"")
 }
 
 println encoded.toString()
