@@ -6,18 +6,13 @@ Description: Decode from export-credentials-folder-level.groovy script, all the 
 
 import com.cloudbees.hudson.plugins.folder.AbstractFolder
 import com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider
-import com.cloudbees.plugins.credentials.domains.DomainCredentials
 import com.thoughtworks.xstream.converters.Converter
 import com.thoughtworks.xstream.converters.MarshallingContext
 import com.thoughtworks.xstream.converters.UnmarshallingContext
 import com.thoughtworks.xstream.io.HierarchicalStreamReader
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter
-import com.trilead.ssh2.crypto.Base64
 import hudson.util.Secret
-import hudson.util.XStream2
-import jenkins.model.Jenkins
 import com.cloudbees.plugins.credentials.domains.DomainCredentials
-import com.trilead.ssh2.crypto.Base64
 import hudson.util.XStream2
 import jenkins.model.Jenkins
 import com.cloudbees.plugins.credentials.Credentials
@@ -36,7 +31,7 @@ HashMap<String, List<DomainCredentials>> credentialsList;
 
 // The message is decoded and unmarshaled
 for (slice in encoded) {
-    def decoded = new String(Base64.decode(slice.chars))
+    def decoded = new String(Base64.getDecoder().decode(slice))
     domainsFromFolders = new XStream2().fromXML(decoded) as HashMap<String, List<DomainCredentials>>  ;  
 }
 

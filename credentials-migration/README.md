@@ -1,6 +1,6 @@
 # Jenkins Credentials Migration
 
-The following scripts are created to migrate the credentials at Root (System) and Folder level from one Jenkins Master to another one.
+The following scripts are created to migrate the credentials at Root (System) and Folder level from one Jenkins controller to another one.
 
 In Jenkins, `$JENKINS_HOME/secrets/master.key` is the secret used to encrypt all the credentials stored on disk. The new instances created will have their own `$JENKINS_HOME/secrets/master.key`, so it is necessary to export/import the credentials to re-encrypt them in the new Jenkins master.
 
@@ -9,7 +9,7 @@ In Jenkins, `$JENKINS_HOME/secrets/master.key` is the secret used to encrypt all
 1. Download the `export-credentials-system-level.groovy` script on [GitHub](https://github.com/cloudbees/jenkins-scripts/tree/master/credentials-migration/export-credentials-system-level.groovy).
 2. Run `export-credentials-system-level.groovy` in the Script Console on the source instance. It will output an encoded message containing a flattened list of all system credentials. Copy that encoded message.
 
-The encoded message will be used later on to export the credentials in the new Jenkins Master.
+The encoded message will be used later on to export the credentials in the new Jenkins controller.
 
 3. Download the `update-credentials-system-level.groovy` on [GitHub](https://github.com/cloudbees/jenkins-scripts/tree/master/credentials-migration/update-credentials-system-level.groovy).
 
@@ -20,7 +20,7 @@ Paste the encoded message output from the `export-credentials-system-level.groov
 1. Download the `export-credentials-folder-level.groovy` script on [GitHub](https://github.com/cloudbees/jenkins-scripts/tree/master/credentials-migration/export-credentials-folder-level.groovy).
 2. Run `export-credentials-folder-level.groovy` in the Script Console on the source instance. It will output an encoded message containing a flattened list of all system credentials. Copy that encoded message.
 
-The encoded message will be used later on to update the credentials in the new Jenkins Master.
+The encoded message will be used later on to update the credentials in the new Jenkins controller.
 
 3. Download the `update-credentials-folder-level.groovy` on [GitHub](https://github.com/cloudbees/jenkins-scripts/tree/master/credentials-migration/update-credentials-folder-level.groovy).
 
