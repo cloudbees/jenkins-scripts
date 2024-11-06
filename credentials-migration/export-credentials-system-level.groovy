@@ -61,5 +61,10 @@ def sections = credentials.collate(25)
 for (section in sections) {
     encoded.add("\"${Base64.getEncoder().encodeToString(stream.toXML(section).bytes)}\"")
 }
-
 println encoded.toString()
+
+
+// Marshal the list of credentials into XML in a file (parent directories must exist and the user running Jenkins must have sufficient permission in the directory)
+// If you encounter the error "String too long" when using the update-credentials-system-level.groovy script, then the following should be used to
+// save the encoded data to a file, such as /home/jenkins/system_credentials.txt:
+// org.codehaus.groovy.runtime.IOGroovyMethods.withStream(Base64.getEncoder().wrap(new File("/home/jenkins/system_credentials.txt").newOutputStream()), {os -> stream.toXMLUTF8(credentials, os)})
