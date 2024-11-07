@@ -72,3 +72,8 @@ stream.registerConverter(converter)
 def encoded = []
 encoded.add("\"${Base64.getEncoder().encodeToString(stream.toXML(domainsFromFolders).bytes)}\"")
 println encoded.toString()
+
+// Marshal the list of credentials into XML in a file (parent directories must exist)
+// If you encounter the error "String too long" when using the update-credentials-folder-level.groovy script, then the following should be used to
+// save the encoded data to a file, such as /home/jenkins/folder_credentials.txt:
+// org.codehaus.groovy.runtime.IOGroovyMethods.withStream(Base64.getEncoder().wrap(new File("/home/jenkins/folder_credentials.txt").newOutputStream()), {os -> stream.toXMLUTF8(domainsFromFolders, os)})
