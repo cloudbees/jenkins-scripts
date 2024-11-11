@@ -1,7 +1,8 @@
 /**
  * This script is used to enable the build strategy SkipInitialBuildOnFirstIndexingResetRevision for all multibranch projects.
  * Use Case: Migration of Jobs across CloudBees CI instances to prevent Build Storm.
- * Requirement: https://docs.cloudbees.com/docs/release-notes/latest/plugins/cloudbees-build-strategies-plugin/ 
+ * Requirement: https://docs.cloudbees.com/docs/release-notes/latest/plugins/cloudbees-build-strategies-plugin/
+ * Tested on: CloudBees CI 2.462.3.3 
  */
 
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject
