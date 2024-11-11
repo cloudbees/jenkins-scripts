@@ -1,5 +1,5 @@
 /**
- * This script is used to enable the build strategy SkipInitialBuildOnFirstIndexingResetRevision for all multibranch projects.
+ * This script is used to enable the build strategy SkipInitialBuildOnFirstIndexingResetRevision for all multibranch projects that have NOT set a Build Strategy definition.
  * Use Case: Migration of Jobs across CloudBees CI instances to prevent Build Storm.
  * Requirement: https://docs.cloudbees.com/docs/release-notes/latest/plugins/cloudbees-build-strategies-plugin/
  * Tested on: CloudBees CI 2.462.3.3 
