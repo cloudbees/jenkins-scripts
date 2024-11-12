@@ -11,8 +11,6 @@ import jenkins.branch.OrganizationFolder
 
 def dryRun = true
 
-// Function to enable build strategy
-
 def enableBuildStrategy(dryRun) {
     def mPModifiedCount = 0
     def mPEmptyCount = 0
