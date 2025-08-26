@@ -21,7 +21,7 @@ import com.cloudbees.plugins.credentials.Credentials
 def encoded=[]
 // If you encounter the error "String too long. The given string is X Unicode code units long, but only a maximum of 65535 is allowed." when running this script,
 // save the encoded data to a file, such as /home/jenkins/folder_credentials.txt, omitting the starting [" and ending "], and un-comment the following line:
-// encoded = [new File("/home/jenkins/folder_credentials.txt").text]
+// encoded = [new File("/home/jenkins/folder_credentials.txt").text.trim()]
 
 if (!encoded) {
     return
