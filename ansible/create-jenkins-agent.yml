@@ -1,0 +1,122 @@
+---
+
+# Ansible create-jenkins-agent.yml playbook
+# based on https://stackoverflow.com/questions/48932624/jenkins-slave-self-register
+
+# Sample commands
+
+# Prompt for sudo password
+# ansible-playbook create-jenkins-agent.yml -i myhost, -K --extra-vars "jenkins_url=$IP:$PORT"
+
+# Or store password in ~/.ansible.hosts
+# ansible-playbook create-jenkins-agent.yml -i ~/.ansible.hosts --extra-vars "jenkins_url=$IP:$PORT"
+
+# pass variables from command line 
+# ansible-playbook create-jenkins-agent.yml -i ~/.ansible.hosts --extra-vars "jenkins_url=$IP:$PORT node_name=local-agent num_executors=1 user=jenkins remote_root=/home/jenkins"
+
+# run only tags
+# ansible-playbook create-jenkins-agent.yml -i ~/.ansible.hosts --extra-vars "jenkins_url=$IP:$PORT node_name=local-agent num_executors=1 user=jenkins remote_root=/home/jenkins" --tags capture-secret,debug
+
+- name: Establish Jenkins Agent/Controller Connection
+  gather_facts: false
+  hosts: all
+  tasks:
+
+    - name: Install Java (openjdk-8-jdk-headless)
+      apt:
+        name: openjdk-8-jdk-headless
+      become: yes
+      tags:
+      - install
+      - install-java
+
+    - name: Install xpath (libxml-xpath-perl)
+      apt:
+        name: libxml-xpath-perl
+      become: yes
+      tags:
+      - install
+      - install-xpath
+
+    - name: Add 'jenkins' user
+      user:
+        name: jenkins
+        comment: Jenkins Agent
+        shell: /bin/bash
+        create_home: True
+      become: yes
+      tags:
+      - add-user
+
+    - name: Download jenkins-cli.jar
+      get_url:
+        url: http://{{ jenkins_url }}/jnlpJars/jenkins-cli.jar
+        dest: /home/jenkins/jenkins-cli.jar
+        mode: 0550
+      become_user: jenkins
+      become: yes
+      tags:
+      - download-jars
+
+    - name: Download agent.jar
+      get_url:
+        url: http://{{ jenkins_url }}/jnlpJars/agent.jar
+        dest: /home/jenkins/agent.jar
+        mode: 0550
+      become_user: jenkins
+      become: yes
+      tags:
+      - download-jars
+
+    - name: Create XML (create-node.xml)
+      copy:
+        dest: /home/jenkins/create-node.xml
+        content: |
+          <slave>
+            <name>{{ node_name }}</name>
+            <description></description>
+            <remoteFS>{{ remote_root }}</remoteFS>
+            <numExecutors>{{ num_executors }}</numExecutors>
+            <mode>NORMAL</mode>
+            <retentionStrategy class="hudson.slaves.RetentionStrategy\$Always"/>
+            <launcher class="hudson.slaves.JNLPLauncher">
+              <workDirSettings>
+                <disabled>false</disabled>
+                <internalDir>remoting</internalDir>
+                <failIfWorkDirIsMissing>false</failIfWorkDirIsMissing>
+              </workDirSettings>
+              <webSocket>true</webSocket>
+            </launcher>
+            <label></label>
+            <nodeProperties/>
+            <userId>{{ user }}</userId>
+          </slave>
+      become_user: jenkins
+      become: yes
+      tags:
+      - create-xml
+
+    - name: Create node on controller ({{ jenkins_url }})
+      shell: (cd /home/jenkins; java -jar jenkins-cli.jar -auth admin:admin -s http://{{ jenkins_url }} create-node {{ node_name }} < create-node.xml)
+      become_user: jenkins
+      become: yes
+      tags:
+      - create-node
+
+    - name: Capture secret
+      shell: curl -s -u admin:admin http://{{ jenkins_url }}/computer/{{ node_name }}/slave-agent.jnlp | xpath -q -e 'concat(//jnlp/application-desc/argument,"")'
+      register: secret
+      tags:
+      - debug-secret
+      - launch-agent
+
+    - debug: msg="{{ secret.stdout }}"
+      tags:
+      - debug-secret
+ 
+    - name: Launch agent
+      shell: "(cd /home/jenkins; nohup java -jar agent.jar -jnlpUrl http://{{ jenkins_url }}/computer/{{ node_name }}/slave-agent.jnlp -secret {{ secret.stdout }} -workDir {{ remote_root }} &)"
+      become_user: jenkins
+      become: yes
+      tags:
+      - launch-agent
